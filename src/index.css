@@ -1,0 +1,15 @@
+
+.slide-width {
+  width: auto;
+}
+
+
+.smooth {
+  transition: .3s cubic-bezier(0.3, 0, 0.4, 1) opacity;
+  opacity: 1;
+}
+
+.smooth .loaded {
+  opacity: 1;
+}
+
