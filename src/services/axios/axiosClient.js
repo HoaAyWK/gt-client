@@ -31,15 +31,17 @@ axiosClient.interceptors.request.use(async (config) => {
 axiosClient.interceptors.response.use(
   (response) => {
     if (response && response.data) {
-        return response.data;
+        return { data: { ...response.data }, success: true };
     }
-    return response;
+    return { data: { ...response }, success: true };
   },
   (error) => {
     console.log(error);
-    const message = (error.response && error.response.data && error.response.data.message)
-            || error.message || error.toString();
-    throw new Error(message);
+    const validationErrors = (error.response && error.response.data && error.response.data.errors) ?? null;
+    const singleError =  (error.response && error.response.data && error.response.data.title)
+      || error.message || error.toString();
+
+    return { success: false, error: singleError, errors: validationErrors };
   }
 );
 

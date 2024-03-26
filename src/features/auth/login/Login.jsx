@@ -18,20 +18,30 @@ const Login = () => {
   const { loginStatus } = useSelector(state => state.auth);
 
   const submit = async (data) => {
-    try {
-      if (localCart) {
-        data.userCartId = localCart;
-      }
-
-      const actionResult = await dispatch(login(data));
-      const result = unwrapResult(actionResult);
-
-      if (result) {
-        enqueueSnackbar('Login successfully', { variant: 'success' });
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+    if (localCart) {
+      data.userCartId = localCart;
     }
+
+    const actionResult = await dispatch(login(data));
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+      enqueueSnackbar('Login successfully', { variant: 'success' });
+      return;
+    }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   }
 
   return (

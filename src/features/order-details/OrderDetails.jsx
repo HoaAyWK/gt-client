@@ -14,7 +14,6 @@ import { PAYMENT_OPTIONS } from '../../constants/payment';
 import { STATUS } from '../../constants/orderStatus';
 import ConfirmDialog from '../common/ConfirmDialog';
 import { cancelOrder, refresh } from '../common/orderSlice';
-import { getOrders } from '../admin/order/orderSlice';
 
 const OrderDetails = ({ id }) => {
   const dispatch = useDispatch();
@@ -38,7 +37,6 @@ const OrderDetails = ({ id }) => {
     if (cancelOrderStatus === ACTION_STATUS.SUCCEEDED) {
       enqueueSnackbar('Cancel successfully', { variant: 'success' });
       dispatch(refresh());
-      dispatch(getOrders());
     }
   }, [cancelOrderStatus]);
 

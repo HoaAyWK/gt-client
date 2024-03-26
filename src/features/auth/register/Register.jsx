@@ -19,17 +19,26 @@ const Register = () => {
   const navigate = useNavigate();
 
   const submit = async (data) => {
-    try {
-      const actionResult = await dispatch(register(data));
-      const result = unwrapResult(actionResult);
+    const actionResult = await dispatch(register(data));
+    const result = unwrapResult(actionResult);
 
-      if (result.success) {
-        enqueueSnackbar('Register successfully', { variant: 'success' });
-        navigate('/login');
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+    if (result.success) {
+      enqueueSnackbar('Register successfully', { variant: 'success' });
+      navigate('/login');
+      return;
     }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   }
 
   return (

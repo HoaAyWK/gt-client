@@ -13,5 +13,8 @@ export default defineConfig(({
     define: {
       __APP_ENV__: env.APP_ENV,
     },
+    server: {
+      port: 3000,
+    },
   }
 })

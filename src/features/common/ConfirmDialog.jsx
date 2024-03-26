@@ -2,11 +2,10 @@ import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { LoadingButton } from '@mui/lab';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Stack } from '@mui/material';
+import { unwrapResult } from '@reduxjs/toolkit';
+import { useSnackbar } from 'notistack';
 
 import ACTION_STATUS from '../../constants/actionStatus';
-import { useSnackbar } from 'notistack';
-import { unwrapResult } from '@reduxjs/toolkit';
-import { refresh } from '../admin/order/orderSlice';
 
 const ConfirmDialog = (props) => {
   const { dialogTitle, dialogContent, open, handleClose, action, billId, status } = props;
@@ -19,7 +18,6 @@ const ConfirmDialog = (props) => {
       const result = unwrapResult(actionResult);
 
       if (result) {
-        dispatch(refresh());
       }
     } catch (error) {
       enqueueSnackbar(error.message, { variant: 'error' });

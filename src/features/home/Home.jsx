@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box } from '@mui/material';
 
-import { getBanners, selectAllBanners } from './banners/bannerSlice';
 import { selectProductsByCategoryName, getProductsPerCategory } from '../common/productDetailsSlice';
 import Banners from './banners/Banners';
 import ProductListSection from './ProductListSection';
@@ -21,15 +20,14 @@ const Home = () => {
   const [smartphonePage, setSmartphonePage] = useState(1);
   const [laptopPerPage, setLaptopPerPage] = useState(8);
   const [smartphonePerPage, setSmartphonePerPage] = useState(8);
-  const banners = useSelector(selectAllBanners);
-  const laptops = useSelector((state) => selectProductsByCategoryName(state, 'Laptop'));
-  const smartphones = useSelector((state) => selectProductsByCategoryName(state, 'Smartphone'));
-  const { getBannersStatus } = useSelector((state) => state.banners);
   const { getProductsPerCategoryStatus } = useSelector((state) => state.productDetails);
   const { user } = useSelector((state) => state.auth);
   const favorites = useSelector(selectAllFavorites);
   const { getFavoritesStatus } = useSelector((state) => state.favorites);
   const { sendEvent } = useHits();
+
+  const laptops = [];
+  const smartphones = [];
 
   const canShowMoreLaptop = useMemo(() => {
     if (laptops?.products) {
@@ -64,10 +62,6 @@ const Home = () => {
   }, [smartphonePage, smartphonePerPage, smartphones]);
 
   useEffect(() => {
-    if (getBannersStatus === ACTION_STATUS.IDLE) {
-      dispatch(getBanners());
-    }
-
     if (getProductsPerCategoryStatus === ACTION_STATUS.IDLE) {
       dispatch(getProductsPerCategory());
     }
@@ -88,9 +82,7 @@ const Home = () => {
     setSmartphonePage(prev => prev + 1);
   };
 
-  if (getBannersStatus === ACTION_STATUS.IDLE ||
-      getBannersStatus === ACTION_STATUS.LOADING ||
-      getProductsPerCategoryStatus === ACTION_STATUS.IDLE ||
+  if (getProductsPerCategoryStatus === ACTION_STATUS.IDLE ||
       getProductsPerCategoryStatus === ACTION_STATUS.LOADING) {
     return (
       <>
@@ -107,7 +99,7 @@ const Home = () => {
 
   return (
     <>
-      <Banners banners={banners} />
+      {/* <Banners banners={banners} /> */}
       <ProductListSection
         title='Laptops'
         products={laptopsToShow}
