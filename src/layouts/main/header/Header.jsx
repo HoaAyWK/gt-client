@@ -148,23 +148,23 @@ export default function Header({ user, onOpenNav }) {
     }
   };
 
-  useEffect(() => {
-    if (getCartStatus === ACTION_STATUS.IDLE) {
-      dispatch(getCart(localCart));
-    }
-  }, [getCartStatus]);
+  // useEffect(() => {
+  //   if (getCartStatus === ACTION_STATUS.IDLE) {
+  //     dispatch(getCart(localCart));
+  //   }
+  // }, [getCartStatus]);
 
-  useEffect(() => {
-    if (cart && !user && cart.userId !== localCart) {
-      setLocalCart(cart.userId);
-    }
-  }, [cart]);
+  // useEffect(() => {
+  //   if (cart && !user && cart.userId !== localCart) {
+  //     setLocalCart(cart.userId);
+  //   }
+  // }, [cart]);
 
-  useEffect(() => {
-    if (user && user.id !== localCart) {
-      setLocalCart(user.id);
-    }
-  }, [user, localCart]);
+  // useEffect(() => {
+  //   if (user && user.id !== localCart) {
+  //     setLocalCart(user.id);
+  //   }
+  // }, [user, localCart]);
 
   return (
     <StyledRoot>

@@ -64,12 +64,12 @@ const searchRouting = {
 };
 
 export default function Layout() {
-  const { user, getCurrentUserStatus } = useSelector((state) => state.auth);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [accessToken] = useLocalStorage('accessToken', null);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (accessToken && getCurrentUserStatus === ACTION_STATUS.IDLE) {
+    if (accessToken && !isAuthenticated) {
       dispatch(getCurrentUserInfo());
     }
   }, []);
