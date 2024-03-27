@@ -17,7 +17,7 @@ export const login = createAsyncThunk(
   async (body, thunkApi) => {
     const res = await authApi.login(body);
     if (res.success) {
-      localStorage.setItem('accessToken', JSON.stringify(res.accessToken));
+      localStorage.setItem('accessToken', JSON.stringify(res.data.token));
       thunkApi.dispatch(getCurrentUserInfo());
       // thunkApi.dispatch(getCart(res.userId));
     }

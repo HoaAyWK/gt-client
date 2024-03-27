@@ -92,8 +92,7 @@ const Home = () => {
     );
   }
 
-  if (getBannersStatus === ACTION_STATUS.FAILED ||
-    getProductsPerCategoryStatus === ACTION_STATUS.FAILED) {
+  if (getProductsPerCategoryStatus === ACTION_STATUS.FAILED) {
     return <SomethingWentWrong />;
   }
 
@@ -121,7 +120,7 @@ const Home = () => {
         </Box>
       )}
 
-      {smartphones?.products.length > 0 && (
+      {smartphones?.products?.length > 0 && (
         <>
           <ProductListSection
             title='Smartphones'

@@ -56,7 +56,7 @@ const RejectedRoute = () => {
 const ProtectedRoute = () => {
   const dispatch = useDispatch();
   const [accessToken] = useLocalStorage('accessToken', null);
-  const { getCurrentUserStatus } = useSelector((state) => state.auth);
+  const { getCurrentUserStatus, isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (accessToken && getCurrentUserStatus === ACTION_STATUS.IDLE) {
@@ -76,7 +76,7 @@ const ProtectedRoute = () => {
     return <Navigate to='/' />;
   }
 
-  if (accessToken) {
+  if (accessToken && isAuthenticated) {
     return <Outlet />;
   }
 

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { unwrapResult } from '@reduxjs/toolkit';
@@ -13,9 +14,10 @@ import { useLocalStorage } from '../../../hooks';
 
 const Login = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [localCart] = useLocalStorage("cart", null);
   const { enqueueSnackbar } = useSnackbar();
-  const { loginStatus } = useSelector(state => state.auth);
+  const { loginStatus, isAuthenticated } = useSelector(state => state.auth);
 
   const submit = async (data) => {
     if (localCart) {
@@ -43,6 +45,12 @@ const Login = () => {
 
     enqueueSnackbar(result.error, { variant: "error" });
   }
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated]);
 
   return (
     <AuthLayout>
