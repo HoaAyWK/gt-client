@@ -1,11 +1,14 @@
-import React, { useEffect, useMemo } from 'react';
-import { Box, Grid, Pagination } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { usePagination, useHits } from 'react-instantsearch-hooks-web';
+import React, { useEffect, useMemo } from "react";
+import { Box, Grid, Pagination } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { usePagination, useHits } from "react-instantsearch-hooks-web";
 
-import { SearchHit } from './components';
-import ACTION_STATUS from '../../constants/actionStatus';
-import { selectAllFavorites, getMyFavorites } from '../common/productFavoriteSlice';
+import { SearchHit } from "./components";
+import ACTION_STATUS from "../../constants/actionStatus";
+import {
+  selectAllFavorites,
+  getMyFavorites,
+} from "../common/productFavoriteSlice";
 
 const SearchResult = () => {
   const { hits, sendEvent } = useHits();
@@ -16,7 +19,7 @@ const SearchResult = () => {
   const { getFavoritesStatus } = useSelector((state) => state.favorites);
   const availableHits = useMemo(() => {
     if (hits) {
-      return hits.filter((hit) => hit.status === true);
+      return hits.filter((hit) => hit.isActive === true);
     }
 
     return [];
@@ -33,18 +36,26 @@ const SearchResult = () => {
   };
 
   return (
-    <Box sx={{ height: '100%' }}>
-      <Box sx={{ width: '100%' }}>
+    <Box sx={{ height: "100%" }}>
+      <Box sx={{ width: "100%" }}>
         <Grid container spacing={2}>
           {availableHits.map((hit) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={hit.objectID}>
-              <SearchHit hit={hit} sendEvent={sendEvent} favorites={favorites} />
+              <SearchHit
+                hit={hit}
+                sendEvent={sendEvent}
+                favorites={favorites}
+              />
             </Grid>
           ))}
         </Grid>
         {nbPages > 1 && (
-          <Box sx={{ my: 2, display: 'flex', justifyContent: 'center' }}>
-            <Pagination count={nbPages} color='primary' onChange={handlePageChange} />
+          <Box sx={{ my: 2, display: "flex", justifyContent: "center" }}>
+            <Pagination
+              count={nbPages}
+              color="primary"
+              onChange={handlePageChange}
+            />
           </Box>
         )}
       </Box>
