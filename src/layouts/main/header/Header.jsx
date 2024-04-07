@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from "react-router-dom";
 // @mui
 import { styled, alpha } from "@mui/material/styles";
 import {
@@ -14,17 +14,20 @@ import {
   Link,
   useMediaQuery,
   Badge,
-  Container
+  Container,
 } from "@mui/material";
 // utils
 // components
-import { Iconify } from '../../../components';
+import { Iconify } from "../../../components";
 //
 import { AccountPopover } from "../../common/header";
-import { useAppThemeUpdate, useAppTheme } from "../../../context/AppThemeContext";
+import {
+  useAppThemeUpdate,
+  useAppTheme,
+} from "../../../context/AppThemeContext";
 import { useLocalStorage } from "../../../hooks";
-import AlgoliaSearch from './search-bar/AlgoliaSearch';
-import hciLogo from '/new_hci_logo.svg';
+import AlgoliaSearch from "./search-bar/AlgoliaSearch";
+import hciLogo from "/new_hci_logo.svg";
 import { useDispatch, useSelector } from "react-redux";
 import ACTION_STATUS from "../../../constants/actionStatus";
 import { getCart } from "../../../features/common/cartSlice";
@@ -43,24 +46,24 @@ const StyledRoot = styled(AppBar)(({ theme }) => ({
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   minHeight: HEADER_MOBILE,
-  paddingLeft: '0px !important',
-  paddingRight: '0px !important'
+  paddingLeft: "0px !important",
+  paddingRight: "0px !important",
 }));
 
 const StyledTextLogo = styled(Typography)(({ theme }) => ({
-  background: 'linear-gradient(.25turn, #7F0E0E, #0F0D73)',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
+  background: "linear-gradient(.25turn, #7F0E0E, #0F0D73)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
 }));
 
 const StyledBox = styled(Box)(({ theme }) => ({
-  [theme.breakpoints.up('xs')]: {
-    display: 'none',
+  [theme.breakpoints.up("xs")]: {
+    display: "none",
   },
-  [theme.breakpoints.up('md')]: {
-    display: 'block'
-  }
-}))
+  [theme.breakpoints.up("md")]: {
+    display: "block",
+  },
+}));
 
 // ----------------------------------------------------------------------
 
@@ -70,39 +73,42 @@ Header.propTypes = {
 
 const menuItems = [
   {
-    name: 'Products',
-    path: '/products'
-  }
+    name: "Products",
+    path: "/products",
+  },
 ];
 
 const MENU_OPTIONS = [
   {
     label: "Home",
     icon: "eva:home-fill",
-    path: '/'
+    path: "/",
   },
   {
     label: "Profile",
     icon: "eva:person-fill",
-    path: '/profile'
+    path: "/profile",
   },
   {
     label: "Settings",
     icon: "eva:settings-2-fill",
-    path: '/settings'
+    path: "/settings",
   },
 ];
 
 export default function Header({ user, onOpenNav }) {
   const dispatch = useDispatch();
-  const [, setModeValueStored] = useLocalStorage('darkMode', null);
-  const [localCart, setLocalCart] = useLocalStorage('cart', null);
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const [, setModeValueStored] = useLocalStorage("darkMode", null);
+  const [localCart, setLocalCart] = useLocalStorage("cart", null);
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const { cart, getCartStatus } = useSelector((state) => state.cart);
   const totalItems = useMemo(() => {
     if (cart?.cartItems?.length) {
       const initialValue = 0;
-      return cart.cartItems.reduce((sum, item) => sum + item.quantity, initialValue);
+      return cart.cartItems.reduce(
+        (sum, item) => sum + item.quantity,
+        initialValue
+      );
     }
 
     return 0;
@@ -137,14 +143,12 @@ export default function Header({ user, onOpenNav }) {
 
   const icon = () => {
     if (darkTheme === null) {
-      if (prefersDarkMode)
-        return 'ic:twotone-light-mode';
-      else
-        return 'material-symbols:dark-mode';
+      if (prefersDarkMode) return "ic:twotone-light-mode";
+      else return "material-symbols:dark-mode";
     } else if (darkTheme === false) {
-      return 'material-symbols:dark-mode';
+      return "material-symbols:dark-mode";
     } else {
-      return 'ic:twotone-light-mode';
+      return "ic:twotone-light-mode";
     }
   };
 
@@ -168,7 +172,7 @@ export default function Header({ user, onOpenNav }) {
 
   return (
     <StyledRoot>
-      <Container maxWidth='lg'>
+      <Container maxWidth="lg">
         <StyledToolbar>
           <IconButton
             onClick={onOpenNav}
@@ -182,14 +186,14 @@ export default function Header({ user, onOpenNav }) {
           </IconButton>
 
           <StyledBox sx={{ mr: 2 }}>
-            <Link component={RouterLink} to='/' underline='none' sx={{ display: 'inline-flex', alginItems: 'center' }}>
-              <Box
-                component='img'
-                alt='Logo'
-                src={hciLogo}
-                sx={{ mr: 1 }}
-              />
-              <StyledTextLogo variant='h3' component='h1'>
+            <Link
+              component={RouterLink}
+              to="/"
+              underline="none"
+              sx={{ display: "inline-flex", alginItems: "center" }}
+            >
+              <Box component="img" alt="Logo" src={hciLogo} sx={{ mr: 1 }} />
+              <StyledTextLogo variant="h3" component="h1">
                 HCI
               </StyledTextLogo>
             </Link>
@@ -197,12 +201,16 @@ export default function Header({ user, onOpenNav }) {
 
           <AlgoliaSearch />
 
-          <Stack direction='row' spacing={2} sx={{ ml: 2, display: 'none' }}>
+          <Stack direction="row" spacing={2} sx={{ ml: 2, display: "none" }}>
             {menuItems.map((item) => (
-              <Link key={item.name} component={RouterLink} to={item.path} underline='none' color='text.primary'>
-                <Button>
-                  {item.name}
-                </Button>
+              <Link
+                key={item.name}
+                component={RouterLink}
+                to={item.path}
+                underline="none"
+                color="text.primary"
+              >
+                <Button>{item.name}</Button>
               </Link>
             ))}
           </Stack>
@@ -221,14 +229,19 @@ export default function Header({ user, onOpenNav }) {
               <Iconify icon={icon()} width={24} height={24} />
             </IconButton>
 
-            <Link component={RouterLink} to='/checkout' underline='none'>
-              <IconButton size='medium' color='default'>
-                <Badge badgeContent={totalItems} color='error'>
-                  <Iconify icon='ic:outline-shopping-cart' width={28} height={28} />
+            <Link component={RouterLink} to="/checkout" underline="none">
+              <IconButton size="medium" color="default">
+                <Badge badgeContent={totalItems} color="error">
+                  <Iconify
+                    icon="ic:outline-shopping-cart"
+                    width={28}
+                    height={28}
+                  />
                 </Badge>
               </IconButton>
             </Link>
-            {user ? (<AccountPopover user={user} menuOptions={MENU_OPTIONS} onLocalCartChange={setLocalCart} />)
+
+            {/* {user ? (<AccountPopover user={user} menuOptions={MENU_OPTIONS} onLocalCartChange={setLocalCart} />)
               : (<Button
                   LinkComponent={RouterLink}
                   to='/login'
@@ -242,7 +255,13 @@ export default function Header({ user, onOpenNav }) {
                   &nbsp;
                   Login
                 </Button>)
-            }
+            } */}
+
+            <AccountPopover
+              user={user}
+              menuOptions={MENU_OPTIONS}
+              onLocalCartChange={setLocalCart}
+            />
           </Stack>
         </StyledToolbar>
       </Container>
