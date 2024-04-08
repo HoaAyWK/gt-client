@@ -99,6 +99,7 @@ const Router = () => {
         { path: "", element: <HomePage /> },
         { path: "search", element: <SearchPage /> },
         { path: "products/:id", element: <ProductPage /> },
+        { path: "products/:id/variants/:variantId", element: <ProductPage /> },
         { path: "checkout", element: <CheckoutPage /> },
         { path: "laptops", element: <LaptopsPage /> },
         { path: "smartphones", element: <SmartphonesPage /> },

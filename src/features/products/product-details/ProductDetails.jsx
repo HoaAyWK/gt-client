@@ -9,46 +9,75 @@ import { useNavigate } from 'react-router-dom';
 import { SyncSlider } from '../components';
 import { StyledPaper } from '../components/styles';
 import { Iconify, LoadingPage, QuantityControl, ShowMoreParagraph } from '../../../components';
-import { ColorButton, SpecificationsButton, Divider as DashedDivider } from './components';
-import { getProductDetailSingle } from '../../common/productDetailsSlice';
+import { ColorButton, SpecificationsButton, AttributeValueButton, Divider as DashedDivider } from './components';
 import ACTION_STATUS from '../../../constants/actionStatus';
 import { fCurrency } from '../../../utils/formatNumber';
 import { createMarkup } from '../../../utils/sanitizeHtml';
 import { addToCart } from '../../common/cartSlice';
-import { refresh } from '../../common/product-reviews/productReviewSlice';
 import CommentSection from './CommentSection';
 import ReviewSection from './ReviewSection';
 import RelatedProducts from './RelatedProducts';
-
+import { getProduct } from '../productSlice';
+import AttributeList from './AttributeList';
+import PATHS from '../../../constants/paths';
 
 const ProductDetails = (props) => {
-  const { id } = props;
+  const { product, variant, combinableAttributes } = props;
+  const navigate = useNavigate();
+  const [selectedAttributeValue, setSelectedAttributeValue] = useState(() => {
+    if (!product.hasVariant ||
+      combinableAttributes.length === 0 ||
+      !variant) {
+      return null;
+    }
+
+    const value = combinableAttributes[0].attributeValues.find(value =>
+      value.id === variant.attributeSelection[combinableAttributes[0].id]);
+
+    return { ...value, attributeId: combinableAttributes[0].id };
+  });
+
   const dispatch = useDispatch();
-  const { getSingleStatus, productSingle } = useSelector((state) => state.productDetails);
   const [quantity, setQuantity] = useState(1);
   const { enqueueSnackbar } = useSnackbar();
-  const navigate = useNavigate();
-  const { createReviewStatus } = useSelector((state) => state.productReviews);
 
-  const variantColors = useMemo(() => {
-    if (!productSingle && !productSingle?.sameOriginProducts) {
-      return [];
+  const selectedAttributes = useMemo(() => {
+    if (variant) {
+      return variant.attributeSelection;
     }
 
-    return productSingle.sameOriginProducts
-      .filter((product) => product.specifications === productSingle.specifications);
-  }, [productSingle]);
+    return {};
+  }, [variant]);
 
-  useEffect(() => {
-    dispatch(getProductDetailSingle(id));
-  }, [id]);
-
-  useEffect(() => {
-    if (createReviewStatus === ACTION_STATUS.SUCCEEDED) {
-      dispatch(getProductDetailSingle(id));
-      dispatch(refresh());
+  const price = useMemo(() => {
+    if (variant) {
+      return variant.price;
     }
-  }, [createReviewStatus]);
+
+    return product.price;
+  }, [variant]);
+
+  const images = useMemo(() => {
+    if (variant) {
+      return product.images.filter(image =>
+        variant.assignedProductImageIds.includes(image.id));
+    }
+
+    return product.images;
+  }, [variant]);
+
+  const stockQuantity = useMemo(() => {
+    if (variant) {
+      return variant.stockQuantity;
+    }
+
+    return product.stockQuantity;
+  }, [variant]);
+
+  const specifications = useMemo(() => {
+    return product.attributes.filter(attribute =>
+      !attribute.canCombine && attribute.attributeValues.length !== 0);
+  }, [product]);
 
   const handleIncreaseQuantity = () => {
     setQuantity(prev => prev + 1);
@@ -56,6 +85,17 @@ const ProductDetails = (props) => {
 
   const handleDecreaseQuantity = () => {
     setQuantity(prev => prev - 1);
+  };
+
+  const handleSelectAttributeValue = (attributeValue, attributeId) => {
+    const selectedAttributes = { ...variant.attributeSelection, [attributeId]: attributeValue.id };
+    const attributeIds = Object.keys(selectedAttributes);
+    const newVariant = product.variants.find(variant =>
+      attributeIds.every(id =>
+        variant.attributeSelection[id] === selectedAttributes[id]));
+
+    setSelectedAttributeValue(prev => ({ ...attributeValue, attributeId }));
+    navigate(`${PATHS.PRODUCTS}/${product.id}/variants/${newVariant.id}`);
   };
 
   const handleClickAddToCart = async () => {
@@ -86,77 +126,50 @@ const ProductDetails = (props) => {
     }
   };
 
-  if (getSingleStatus === ACTION_STATUS.IDLE ||
-    getSingleStatus === ACTION_STATUS.LOADING) {
-    return <LoadingPage />;
-  }
-
-  if (getSingleStatus === ACTION_STATUS.FAILED) {
-    return <Navigate to='/' />;
-  }
-
   return (
     <>
       <Grid container spacing={4} sx={{ pt: 2 }}>
         <Grid item xs={12} md={6}>
-          <SyncSlider images={productSingle.media} />
+          <SyncSlider images={images} />
         </Grid>
         <Grid item xs={12} md={6}>
             <Stack spacing={1}>
               <Typography variant='h5' component='h1'>
-                {productSingle.name}
+                {product.name}
               </Typography>
-              {productSingle.averageRating > 0 && (
+              {/* {product.averageRating > 0 && (
                 <Stack spacing={1} direction='row'>
-                  <Rating readOnly value={productSingle.averageRating} precision={0.5} />
+                  <Rating readOnly value={product.averageRating} precision={0.5} />
                   <Typography variant='body1' color='text.secondary'>
-                    {`(${productSingle.numReviews} ${productSingle.numReviews > 1 ? 'reviews' : 'review'})`}
+                    {`(${product.numReviews} ${product.numReviews > 1 ? 'reviews' : 'review'})`}
                   </Typography>
                 </Stack>
-              )}
+              )} */}
               <Stack spacing={1} direction='row' alignItems='center'>
                 <Typography variant='h3' component='span' color='error'>
-                  {fCurrency(productSingle.price - (productSingle.price * (productSingle.discount / 100)))}
+                  {fCurrency(price)}
                 </Typography>
                 <Typography variant='h4' component='span' color='text.secondary'>
-                  <s>{fCurrency(productSingle.price)}</s>
+                  <s>{fCurrency(price)}</s>
                 </Typography>
               </Stack>
             </Stack>
             <DashedDivider />
             <Grid container spacing={2} sx={{ mb: 2 }}>
-              {productSingle.sameOriginProducts.map((variant) => {
-                if (variant.id === id) {
-                  return (
-                    <Grid item xs={12} md={6} key={variant.id}>
-                      <SpecificationsButton variant={variant} select={variant.specifications === productSingle.specifications} />
-                    </Grid>
-                  )
-                }
-
-                if (variant.specifications !== productSingle.specifications) {
-                  return (
-                    <Grid item xs={12} md={6} key={variant.id}>
-                      <SpecificationsButton variant={variant} select={variant.specifications === productSingle.specifications} />
-                    </Grid>
-                  )
-                }
-
-                return (<Fragment key={variant.id} />);
-                })}
+              {combinableAttributes.map((attribute) => (
+                <Grid item xs={12} key={attribute.id}>
+                  <Typography variant='subtitle1'>
+                    {attribute.name}
+                  </Typography>
+                  <AttributeList
+                    attribute={attribute}
+                    selectedAttributeValue={selectedAttributeValue}
+                    selectedAttributes={selectedAttributes}
+                    onSelectAttributeValue={handleSelectAttributeValue}
+                  />
+                </Grid>
+              ))}
             </Grid>
-            <Box sx={{ mt: 2, mb: 3, width: '100%' }}>
-              <Typography variant='body1'>
-                Colors
-              </Typography>
-              <Grid container spacing={2} sx={{ mt: 0.5 }}>
-                {variantColors.map((variant) => (
-                  <Grid item key={variant.id} xs={12} md={4}>
-                    <ColorButton colorItem={variant} select={variant.id === id} />
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
             <DashedDivider />
             <Stack spacing={3} sx={{ mt: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
@@ -167,7 +180,7 @@ const ProductDetails = (props) => {
                   quantity={quantity}
                   increaseQuantity={handleIncreaseQuantity}
                   decreaseQuantity={handleDecreaseQuantity}
-                  max={productSingle?.warehouse}
+                  max={stockQuantity}
                 />
               </Box>
             </Stack>
@@ -205,9 +218,9 @@ const ProductDetails = (props) => {
               Description
             </Typography>
             <ShowMoreParagraph
-              isDanger={true} content={productSingle.description}
-              height={productSingle?.description?.length > 200 ? '190px': 'auto'}
-              canShowMore={productSingle?.description?.length > 200 ? true: false}
+              isDanger={true} content={product.description}
+              height={product?.description?.length > 200 ? '190px': 'auto'}
+              canShowMore={product?.description?.length > 200 ? true: false}
             />
             <Box sx={{ pb: 6 }} />
           </StyledPaper>
@@ -215,29 +228,37 @@ const ProductDetails = (props) => {
         <Grid item xs={12} md={5}>
           <StyledPaper sx={{ p: 2 }}>
             <Typography variant='h6' component='h1' color='text.primary' sx={{ mb: 2 }}>
-              Information
+              Technical Specifications
             </Typography>
-            <Typography
-              variant='body1'
-              color='text.primary'
-              dangerouslySetInnerHTML={createMarkup(productSingle?.information)}
-              sx={{
-                '& span': {
-                  color: 'inherit !important',
-                  backgroundColor: 'inherit !important',
-                  width: 'auto'
-                },
-              }}
-            />
+            <Stack spacing={2}>
+              {specifications.map((spec, index) => (
+                <Fragment key={spec.id}>
+                  {index > 0 && <DashedDivider />}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <Typography variant='subtitle1' color='text.primary'>
+                      {spec.name}
+                    </Typography>
+                    <Typography variant='body1' color='text.primary'>
+                      {spec.attributeValues[0].name}
+                    </Typography>
+                  </Box>
+                </Fragment>
+              ))}
+            </Stack>
           </StyledPaper>
         </Grid>
       </Grid>
-      <RelatedProducts currentObjectID={id} />
-      <ReviewSection
+      {/* <RelatedProducts currentObjectID={id} /> */}
+      {/* <ReviewSection
         id={id}
-        productSingle={productSingle}
-      />
-      <CommentSection productId={id} />
+        product={product}
+      /> */}
+      {/* <CommentSection productId={id} /> */}
     </>
   );
 };

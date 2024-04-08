@@ -5,7 +5,7 @@ export const StyledBox = styled(Box)(({ theme }) => ({
   width: '100%',
   borderRadius: theme.shape.borderRadius,
   '& .active': {
-    border: `1px solid ${theme.palette.primary.main} !important`
+    border: `2px solid ${theme.palette.primary.main} !important`
   },
   '& .active .check': {
     visibility: 'visible',
@@ -28,8 +28,8 @@ export const StyledSelected = styled(Box)(({ theme }) => ({
   color: 'white',
   width: 20,
   height: 20,
-  borderTopLeftRadius: theme.spacing(1),
-  borderBottomRightRadius: theme.spacing(1),
+  borderTopLeftRadius: (theme.shape.borderRadius) / 2,
+  borderBottomRightRadius: theme.shape.borderRadius,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

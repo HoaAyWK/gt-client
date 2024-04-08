@@ -20,6 +20,7 @@ import { fCurrency } from "../../../utils/formatNumber";
 import { addToCart } from "../cartSlice";
 import { createFavorite, deleteFavorite } from "../productFavoriteSlice";
 import { useLocalStorage } from "../../../hooks";
+import path from "path";
 
 const StyledDefaultIconButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.grey[900], 0.08),
@@ -37,14 +38,32 @@ const StyledRedIconButton = styled(IconButton)(({ theme }) => ({
 }));
 
 const ProductCard = ({ product, favorites, sendEvent }) => {
-  const { productId, name, image, price, discount, averageRating, finalPrice } =
-    product;
+  const {
+    objectID,
+    productId,
+    name,
+    image,
+    price,
+    discount,
+    averageRating,
+    finalPrice,
+    hasVariant
+  } = product;
+
   const dispatch = useDispatch();
   const [localCart] = useLocalStorage("cart", null);
   const { user } = useSelector((state) => state.auth);
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
-  const hit = { ...product, objectID: product?.productId };
+  const hit = { ...product };
+
+  const pathToProductDetails = useMemo(() => {
+    const url = `/products/${productId}`;
+    if (hasVariant) {
+      return `${url}/variants/${objectID}`;
+    }
+    return url;
+  }, [objectID, productId, hasVariant]);
 
   const isFavorited = useMemo(() => {
     if (favorites) {
@@ -202,7 +221,7 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
             <Iconify icon="mdi:cards-heart" width={24} height={24} />
           </StyledDefaultIconButton>
         )}
-        <Link component={RouterLink} to={`/products/${[productId]}`}>
+        <Link component={RouterLink} to={pathToProductDetails}>
           <Cover
             src={image}
             alt={name}
@@ -223,7 +242,7 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
           color="inherit"
           underline="hover"
           component={RouterLink}
-          to={`/products/${[productId]}`}
+          to={pathToProductDetails}
         >
           <Typography variant="subtitle2" noWrap>
             {name}

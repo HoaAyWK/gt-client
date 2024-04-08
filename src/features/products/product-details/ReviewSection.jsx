@@ -25,16 +25,16 @@ const ReviewSection = ({ id, productSingle, user }) => {
   });
 
 
-  useEffect(() => {
-    dispatch(getProductReviewsByProductId(id));
-  }, [id]);
+  // useEffect(() => {
+  //   dispatch(getProductReviewsByProductId(id));
+  // }, [id]);
 
-  useEffect(() => {
-    if (createReviewStatus === ACTION_STATUS.SUCCEEDED) {
-      dispatch(getProductReviewsByProductId(id));
-      dispatch(refresh());
-    }
-  }, [createReviewStatus]);
+  // useEffect(() => {
+  //   if (createReviewStatus === ACTION_STATUS.SUCCEEDED) {
+  //     dispatch(getProductReviewsByProductId(id));
+  //     dispatch(refresh());
+  //   }
+  // }, [createReviewStatus]);
 
   const handleCloseReview = () => {
     setOpenReview(false);
@@ -48,12 +48,12 @@ const ReviewSection = ({ id, productSingle, user }) => {
   if (getReviewsStatus === ACTION_STATUS.IDLE ||
     getReviewsStatus === ACTION_STATUS.LOADING) {
 
-  return (
-    <Box sx={{ py: 4, width: '100%', display: 'flex', justifyContent: 'center' }}>
-      <CircularProgress />
-    </Box>
-  );
-}
+    return (
+      <Box sx={{ py: 4, width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
 if (getReviewsStatus === ACTION_STATUS.FAILED) {
   return <></>;
@@ -64,7 +64,7 @@ if (getReviewsStatus === ACTION_STATUS.FAILED) {
       sx={{ width: '100%', my: 4 }}
     >
       <StyledPaper>
-        {productSingle.averageRating > 0 && (
+        {productSingle?.averageRating > 0 && (
           <Grid container spacing={2}
             sx={{
               borderBottom: (theme) => `1px dashed ${theme.palette.divider}`,
@@ -99,7 +99,7 @@ if (getReviewsStatus === ACTION_STATUS.FAILED) {
                 <Typography variant='subtitle1' color='text.secondary' fontWeight='bold'>
                   Average Rating
                 </Typography>
-                <Typography variant='h2' color='text.primary' sx={{ my: 1 }}>
+                {/* <Typography variant='h2' color='text.primary' sx={{ my: 1 }}>
                   {fShortenNumber2(productSingle.averageRating)}/5
                 </Typography>
                 <Stack spacing={0.5}>
@@ -107,7 +107,7 @@ if (getReviewsStatus === ACTION_STATUS.FAILED) {
                   <Typography variant='caption' color='text.secondary' textAlign='center'>
                     {`(${productSingle.numReviews} ${productSingle.numReviews > 1 ? 'reviews' : 'review'})`}
                   </Typography>
-                </Stack>
+                </Stack> */}
               </Box>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -167,7 +167,7 @@ if (getReviewsStatus === ACTION_STATUS.FAILED) {
           productId={id}
         />
         <Box sx={{ px: 2, pb: 2 }}>
-          {reviews.reviews.length === 0 ? (
+          {/* {reviews.reviews.length === 0 ? (
               !user && (
                 <MessageForEmptyItem image={discuss} message='This product does not have any reviews.' />
               )
@@ -175,7 +175,7 @@ if (getReviewsStatus === ACTION_STATUS.FAILED) {
               <>
                 <ProductReviews reviews={reviews.reviews} status={getReviewsStatus} />
               </>
-            )}
+            )} */}
         </Box>
         {productSingle.canReview && reviews.reviews.length === 0 && (
           <Box

@@ -10,6 +10,7 @@ import orderReducer from '../features/common/orderSlice';
 import shippingReducer from '../features/checkout/shippingAddressSlice';
 import commentReducer from '../features/products/product-details/comments/commentSlice';
 import favoriteReducer from '../features/common/productFavoriteSlice';
+import productReducer from '../features/products/productSlice';
 
 export const store = configureStore({
   reducer: {
@@ -23,5 +24,6 @@ export const store = configureStore({
     shippingAddresses: shippingReducer,
     comments: commentReducer,
     favorites: favoriteReducer,
+    products: productReducer
   }
 });

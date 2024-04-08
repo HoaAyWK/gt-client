@@ -7,7 +7,9 @@ export const StyledPaper = styled(Paper)(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
   zIndex: 0,
-  boxShadow: theme.shadows[2],
+  border: `1px solid ${theme.palette.divider}`,
+  boxShadow: 'none',
+  backgroundColor: 'transparent',
 }));
 
 export const StyledAvatar = styled(Avatar)(({ theme }) => ({

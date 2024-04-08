@@ -77,7 +77,7 @@ const SyncSlider = ({ images }) => {
       }}>
         <Slider {...mainNavSettings} ref={mainSliderRef}>
             {images && images.map(image => (
-              <MainSlide key={image} image={image} />
+              <MainSlide key={image.id} image={image.imageUrl} />
             ))}
         </Slider>
         <Box
@@ -124,8 +124,8 @@ const SyncSlider = ({ images }) => {
           }}
         >
           <Slider {...subNavSettings} ref={subSliderRef}>
-            {images && images.map((image, index) => (
-              <SubSlide key={image} image={image} />
+            {images && images.map((image) => (
+              <SubSlide key={image.id} image={image.imageUrl} />
             ))}
           </Slider>
         </Box>
