@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
+import { useHits } from "react-instantsearch-hooks-web";
 
 import {
-  selectProductsByCategoryName,
   getProductsPerCategory,
 } from "../common/productDetailsSlice";
-import Banners from "./banners/Banners";
+// import Banners from "./banners/Banners";
 import ProductListSection from "./ProductListSection";
 import ACTION_STATUS from "../../constants/actionStatus";
 import { BannersSkeleton } from "./banners/components";
@@ -16,8 +16,8 @@ import {
   getMyFavorites,
   selectAllFavorites,
 } from "../common/productFavoriteSlice";
-import { Button } from "@mui/material";
-import { useHits } from "react-instantsearch-hooks-web";
+
+import { selectAllCategories, getCategoryTree } from "../common/categorySlice";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -28,13 +28,14 @@ const Home = () => {
   const { getProductsPerCategoryStatus } = useSelector(
     (state) => state.productDetails
   );
+  const { getCategoryTreeStatus } = useSelector((state) => state.categories);
+  const categories = useSelector(selectAllCategories);
   const { user } = useSelector((state) => state.auth);
   const favorites = useSelector(selectAllFavorites);
   const { getFavoritesStatus } = useSelector((state) => state.favorites);
   const { sendEvent, hits } = useHits();
 
   const laptops = [];
-  const smartphones = [];
 
   const availableHits = useMemo(() => {
     if (hits) {
@@ -43,8 +44,6 @@ const Home = () => {
 
     return [];
   }, [hits]);
-
-  console.log(availableHits);
 
   const canShowMoreLaptop = useMemo(() => {
     if (laptops?.products) {
@@ -56,53 +55,19 @@ const Home = () => {
     return false;
   }, [laptopPage, laptopPerPage, laptops]);
 
-  const laptopsToShow = useMemo(() => {
-    if (laptops?.products) {
-      return laptops.products.slice(0, laptopPerPage * laptopPage);
-    }
-  }, [laptops, laptopPage, laptopPerPage]);
-
-  const canShowMoreSmartphone = useMemo(() => {
-    if (smartphones?.products) {
-      if (smartphonePage * smartphonePerPage < smartphones.products.length) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [smartphonePage, smartphonePerPage, smartphones]);
-
-  const smartphonesToShow = useMemo(() => {
-    if (smartphones?.products) {
-      return smartphones.products.slice(0, smartphonePage * smartphonePerPage);
-    }
-  }, [smartphonePage, smartphonePerPage, smartphones]);
-
   useEffect(() => {
-    if (getProductsPerCategoryStatus === ACTION_STATUS.IDLE) {
-      dispatch(getProductsPerCategory());
+    if (getCategoryTreeStatus === ACTION_STATUS.IDLE) {
+      dispatch(getCategoryTree());
     }
   }, []);
-
-  useEffect(() => {
-    if (getFavoritesStatus === ACTION_STATUS.IDLE && user) {
-      dispatch(getMyFavorites());
-    }
-  }, [user]);
 
   const handleClickShowMoreLaptop = () => {
     setLaptopPage((prev) => prev + 1);
   };
 
-  const handleClickShowMoreSmartphone = () => {
-    setSmartphonePage((prev) => prev + 1);
-  };
-
-  console.log("hits", hits);
-
   if (
-    // getProductsPerCategoryStatus === ACTION_STATUS.IDLE ||
-    // getProductsPerCategoryStatus === ACTION_STATUS.LOADING
+    getCategoryTreeStatus === ACTION_STATUS.IDLE ||
+    getCategoryTreeStatus === ACTION_STATUS.LOADING ||
     hits.length === 0
   ) {
     return (
@@ -113,7 +78,7 @@ const Home = () => {
     );
   }
 
-  if (getProductsPerCategoryStatus === ACTION_STATUS.FAILED) {
+  if (getCategoryTreeStatus === ACTION_STATUS.FAILED) {
     return <SomethingWentWrong />;
   }
 

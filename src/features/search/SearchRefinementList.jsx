@@ -26,7 +26,7 @@ const SearchRefinementList = (props) => {
       </Typography>
       <Stack spacing={1}>
         {searchable && <SearchBox title='categories' filter={filter} onFilter={handleFilter} />}
-        <List>
+        <List dense>
           {items.map((item) => (
             <RefinementItem
               key={item.value}

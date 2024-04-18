@@ -30,7 +30,6 @@ const Checkout = () => {
   const [address, setAddress] = useLocalStorage('shippingAddress', 0);
   const { user } = useSelector((state) => state.auth);
   const [selectedAddress, setSelectedAddress] = useState({});
-  const [localCart, setLocalCart] = useLocalStorage("cart", null);
 
   const [paymentOption, setPaymentOption] = useState(PAYMENT_OPTIONS.CASH);
   const navigate = useNavigate();
@@ -66,15 +65,7 @@ const Checkout = () => {
 
   useEffect(() => {
     if (getCartStatus === ACTION_STATUS.IDLE) {
-      dispatch(getCart(localCart));
-    }
-
-    if (checkoutClicked) {
-      dispatch(clearCheckoutClick());
-    }
-
-    if (getShippingAddressesStatus === ACTION_STATUS.IDLE) {
-      dispatch(getShippingAddresses());
+      dispatch(getCart());
     }
 
   }, []);
@@ -91,12 +82,6 @@ const Checkout = () => {
       setSelectedAddress(addressEntities[address]);
     }
   }, [address, user, addressEntities]);
-
-  useEffect(() => {
-    if (getCartStatus === ACTION_STATUS.SUCCEEDED && cart.userId !== localCart) {
-      setLocalCart(cart.userId);
-    }
-  }, [getCartStatus, cart]);
 
   const handleNext = () => {
     setActiveStep(prevStep => prevStep + 1);
@@ -159,8 +144,6 @@ const Checkout = () => {
 
   if (getCartStatus === ACTION_STATUS.IDLE ||
     getCartStatus === ACTION_STATUS.LOADING ||
-    getShippingAddressesStatus === ACTION_STATUS.IDLE ||
-    getShippingAddressesStatus === ACTION_STATUS.LOADING ||
     checkoutStripeStatus === ACTION_STATUS.LOADING) {
     return (
       <Box
@@ -183,7 +166,7 @@ const Checkout = () => {
 
   return (
     <>
-      <Grid container spacing={2} sx={{ mt: 4 }}>
+      <Grid container spacing={2} sx={{ mt: 12 }}>
         <Grid item xs={12} md={8}>
           <Box sx={{ width: '100%' }}>
             <Stepper activeStep={activeStep} alternativeLabel>

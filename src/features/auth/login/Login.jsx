@@ -10,20 +10,14 @@ import { AuthFooter } from '../components';
 import { AuthLayout } from '../layouts';
 import { login } from '../authSlice';
 import { Page } from '../../../components';
-import { useLocalStorage } from '../../../hooks';
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [localCart] = useLocalStorage("cart", null);
   const { enqueueSnackbar } = useSnackbar();
   const { loginStatus, isAuthenticated } = useSelector(state => state.auth);
 
   const submit = async (data) => {
-    if (localCart) {
-      data.userCartId = localCart;
-    }
-
     const actionResult = await dispatch(login(data));
     const result = unwrapResult(actionResult);
 
@@ -56,7 +50,7 @@ const Login = () => {
     <AuthLayout>
       <Page title='Login'>
         <Typography variant='h3' component='h1' align='center'>
-          Log in to HCI
+          Log in to EStore
         </Typography>
         <LoginForm submit={submit} status={loginStatus} />
         <AuthFooter action='sign in to' />

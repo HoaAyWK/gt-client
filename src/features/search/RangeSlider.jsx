@@ -17,6 +17,9 @@ const RangeSlider = (props) => {
   const { label } = props;
   const { start, range, refine } = useRange(props);
 
+  console.log(start);
+  console.log(range);
+
   const handleChange = (event, newValue) => {
     refine(newValue);
   };

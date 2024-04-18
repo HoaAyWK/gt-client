@@ -25,6 +25,7 @@ axiosClient.interceptors.request.use(async (config) => {
       config.headers['Authorization'] = 'Bearer ' + token;
   }
 
+
   return config;
 });
 
@@ -41,7 +42,9 @@ axiosClient.interceptors.response.use(
     const singleError =  (error.response && error.response.data && error.response.data.title)
       || error.message || error.toString();
 
-    return { success: false, error: singleError, errors: validationErrors };
+    const statusCode = error.response && error.response.status;
+
+    return { success: false, statusCode, error: singleError, errors: validationErrors };
   }
 );
 

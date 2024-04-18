@@ -54,7 +54,7 @@ const ProductPage = () => {
   }
 
   return (
-    <Page title='Product details'>
+    <Page title='Product details' sx={{ mt: 4 }}>
       <ProductDetails
         product={product}
         variant={variant}

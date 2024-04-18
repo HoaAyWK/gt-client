@@ -128,7 +128,7 @@ const ProductDetails = (props) => {
 
   return (
     <>
-      <Grid container spacing={4} sx={{ pt: 2 }}>
+      <Grid container spacing={4} sx={{ pt: 2, mt: 4 }}>
         <Grid item xs={12} md={6}>
           <SyncSlider images={images} />
         </Grid>
@@ -254,10 +254,10 @@ const ProductDetails = (props) => {
         </Grid>
       </Grid>
       {/* <RelatedProducts currentObjectID={id} /> */}
-      {/* <ReviewSection
-        id={id}
+      <ReviewSection
         product={product}
-      /> */}
+        variant={variant}
+      />
       {/* <CommentSection productId={id} /> */}
     </>
   );

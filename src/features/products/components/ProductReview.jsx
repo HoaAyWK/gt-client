@@ -31,13 +31,13 @@ const ProductReview = ({ review }) => {
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <StyledAvatar src={review.reviewer.avatar} />
+            <StyledAvatar src={review.owner.avatarUrl} />
             <Stack spacing={0.2} justifyContent='center' alignItems='center'>
               <Typography variant='body1' color='text.primary'>
-                {review.reviewer.firstName + " " + review.reviewer.lastName}
+                {review.owner.firstName + " " + review.owner.lastName}
               </Typography>
               <Typography variant='caption' color='text.secondary'>
-                {fToNow(review.createdAt)}
+                {fToNow(review.createdDateTime)}
               </Typography>
             </Stack>
           </Box>
@@ -46,7 +46,7 @@ const ProductReview = ({ review }) => {
       <Grid item xs={9} lg={10}>
         <Stack spacing={1} sx={{ mt: 1 }}>
           <Stack spacing={1.5} direction='row' alignItems='center'>
-            <Rating value={review.stars} readOnly />
+            <Rating value={review.rating} readOnly />
             <Box
               sx={{
                 display: 'flex',
@@ -71,7 +71,7 @@ const ProductReview = ({ review }) => {
               &nbsp;
               Like
             </Button>
-            {review.reviewer.id === user?.id && (
+            {review.owner.id === user?.id && (
               <Button onClick={handleOpenReviewDialog}>
                 <Iconify icon='eva:edit-outline' width={20} height={20} />
                 &nbsp;

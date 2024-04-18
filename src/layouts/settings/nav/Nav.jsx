@@ -30,7 +30,7 @@ const Nav = () => {
               </Typography>
 
               <Typography variant='caption' sx={{ color: 'text.secondary' }}>
-                {user?.email}
+                {user?.email?.length > 20 ? `${user?.email?.slice(0, 20)}...` : user?.email}
               </Typography>
             </Box>
           </StyledAccount>

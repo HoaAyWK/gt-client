@@ -14,7 +14,7 @@ const AuthFooter = ({ action }) => {
       }}
     >
       <Typography variant='body2' color='text.secondary' component='span'>
-        By {action} HCI, you agree to our
+        By {action} EStore, you agree to our
       </Typography>
       &nbsp;
       <Link component={RouterLink} to='/terms-of-service' color='text.primary'>

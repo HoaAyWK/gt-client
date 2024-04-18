@@ -48,7 +48,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <Grid container spacing={2} sx={{ mt: 3 }}>
+    <Grid container spacing={2} sx={{ mt: 12 }}>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <AccountCard account={myAccount} />
       </Grid>
@@ -64,7 +64,7 @@ const ProfilePage = () => {
           <TabPanel sx={{ px: 0 }} value={PROFILE_TABS.OVERVIEW}>
             <ProfileOverview
               phone={myAccount.phone}
-              dateOfBith={myAccount.dateOfBirth}
+              dateOfBirth={myAccount.dateOfBirth}
               address={myAccount.address}
             />
           </TabPanel>

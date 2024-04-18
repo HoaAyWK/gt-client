@@ -35,7 +35,7 @@ const OrderDetailsPage = lazy(() => import("./pages/OrderDetailsPage"));
 const RejectedRoute = () => {
   const dispatch = useDispatch();
   const [accessToken] = useLocalStorage("accessToken", null);
-  const { getCurrentUserStatus } = useSelector((state) => state.auth);
+  const { getCurrentUserStatus, statusCode } = useSelector((state) => state.auth);
   const { checkoutClicked } = useSelector((state) => state.cart);
 
   useEffect(() => {
@@ -43,6 +43,11 @@ const RejectedRoute = () => {
       dispatch(getCurrentUserInfo());
     }
   }, []);
+
+  if (statusCode === 401) {
+    localStorage.setItem("accessToken", null);
+    return (<Outlet />);
+  }
 
   if (getCurrentUserStatus === ACTION_STATUS.LOADING) {
     return <LoadingPage />;
@@ -60,9 +65,14 @@ const RejectedRoute = () => {
 const ProtectedRoute = () => {
   const dispatch = useDispatch();
   const [accessToken] = useLocalStorage("accessToken", null);
-  const { getCurrentUserStatus, isAuthenticated } = useSelector(
+  const { getCurrentUserStatus, isAuthenticated, statusCode } = useSelector(
     (state) => state.auth
   );
+
+  if (statusCode === 401) {
+    localStorage.setItem("accessToken", null);
+    return <Navigate to="/" />;
+  }
 
   useEffect(() => {
     if (accessToken && getCurrentUserStatus === ACTION_STATUS.IDLE) {

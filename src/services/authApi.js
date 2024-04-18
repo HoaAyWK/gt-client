@@ -15,6 +15,11 @@ class AuthApi {
     const url = '/api/account/my-profile';
     return axiosClient.get(url);
   };
+
+  logout = () => {
+    const url = '/api/auth/logout';
+    return axiosClient.get(url);
+  }
 }
 
 const authApi = new AuthApi();

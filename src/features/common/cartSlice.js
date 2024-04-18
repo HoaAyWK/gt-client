@@ -16,8 +16,8 @@ const initialState = {
 
 export const getCart = createAsyncThunk(
   'cart/get',
-  async (userId) => {
-    return await cartApi.get(userId);
+  async () => {
+    return await cartApi.get();
   }
 );
 
@@ -92,7 +92,9 @@ const cartSlice = createSlice({
       })
       .addCase(getCart.fulfilled, (state, action) => {
         state.getCartStatus = ACTION_STATUS.SUCCEEDED;
-        state.cart = action.payload;
+        if (action.payload.success) {
+          state.cart = action.payload.data;
+        }
       })
       .addCase(getCart.rejected, (state) => {
         state.getCartStatus = ACTION_STATUS.FAILED;
@@ -105,7 +107,10 @@ const cartSlice = createSlice({
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.addToCartStatus = ACTION_STATUS.SUCCEEDED;
-        state.cart = action.payload;
+
+        if (action.payload.success) {
+          state.cart = action.payload.data;
+        }
       })
       .addCase(addToCart.rejected, (state) => {
         state.addToCartStatus = ACTION_STATUS.FAILED;

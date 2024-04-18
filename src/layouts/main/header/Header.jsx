@@ -31,7 +31,8 @@ import hciLogo from "/new_hci_logo.svg";
 import { useDispatch, useSelector } from "react-redux";
 import ACTION_STATUS from "../../../constants/actionStatus";
 import { getCart } from "../../../features/common/cartSlice";
-
+import { getCategoryTree, selectAllCategories } from "../../../features/common/categorySlice";
+import CategoryPopover from "./CategoryPopover";
 // ----------------------------------------------------------------------
 
 const HEADER_MOBILE = 64;
@@ -99,13 +100,18 @@ const MENU_OPTIONS = [
 export default function Header({ user, onOpenNav }) {
   const dispatch = useDispatch();
   const [, setModeValueStored] = useLocalStorage("darkMode", null);
-  const [localCart, setLocalCart] = useLocalStorage("cart", null);
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const { cart, getCartStatus } = useSelector((state) => state.cart);
+  const { getCategoryTreeStatus } = useSelector((state) => state.categories);
+  const categories = useSelector(selectAllCategories);
   const totalItems = useMemo(() => {
-    if (cart?.cartItems?.length) {
+    if (!cart) {
+      return 0;
+    }
+
+    if (cart.items.length) {
       const initialValue = 0;
-      return cart.cartItems.reduce(
+      return cart.items.reduce(
         (sum, item) => sum + item.quantity,
         initialValue
       );
@@ -113,7 +119,6 @@ export default function Header({ user, onOpenNav }) {
 
     return 0;
   }, [cart]);
-
   const darkTheme = useAppTheme();
   const { setLightMode, setDarkMode } = useAppThemeUpdate();
 
@@ -152,118 +157,115 @@ export default function Header({ user, onOpenNav }) {
     }
   };
 
-  // useEffect(() => {
-  //   if (getCartStatus === ACTION_STATUS.IDLE) {
-  //     dispatch(getCart(localCart));
-  //   }
-  // }, [getCartStatus]);
+  useEffect(() => {
+    if (getCartStatus === ACTION_STATUS.IDLE) {
+      dispatch(getCart());
+    }
+  }, [getCartStatus]);
 
-  // useEffect(() => {
-  //   if (cart && !user && cart.userId !== localCart) {
-  //     setLocalCart(cart.userId);
-  //   }
-  // }, [cart]);
-
-  // useEffect(() => {
-  //   if (user && user.id !== localCart) {
-  //     setLocalCart(user.id);
-  //   }
-  // }, [user, localCart]);
+  useEffect(() => {
+    if (getCategoryTreeStatus === ACTION_STATUS.IDLE) {
+      dispatch(getCategoryTree());
+    }
+  }, []);
 
   return (
     <StyledRoot>
       <Container maxWidth="lg">
-        <StyledToolbar>
-          <IconButton
-            onClick={onOpenNav}
-            sx={{
-              mr: 1,
-              color: "text.primary",
-              display: { lg: "none" },
-            }}
-          >
-            <Iconify icon="eva:menu-2-fill" />
-          </IconButton>
-
-          <StyledBox sx={{ mr: 2 }}>
-            <Link
-              component={RouterLink}
-              to="/"
-              underline="none"
-              sx={{ display: "inline-flex", alginItems: "center" }}
+        <Box sx={{ width: '100%'}}>
+          <StyledToolbar>
+            <IconButton
+              onClick={onOpenNav}
+              sx={{
+                mr: 1,
+                color: "text.primary",
+                display: { lg: "none" },
+              }}
             >
-              <Box component="img" alt="Logo" src={hciLogo} sx={{ mr: 1 }} />
-              <StyledTextLogo variant="h3" component="h1">
-                HCI
-              </StyledTextLogo>
-            </Link>
-          </StyledBox>
-
-          <AlgoliaSearch />
-
-          <Stack direction="row" spacing={2} sx={{ ml: 2, display: "none" }}>
-            {menuItems.map((item) => (
-              <Link
-                key={item.name}
-                component={RouterLink}
-                to={item.path}
-                underline="none"
-                color="text.primary"
-              >
-                <Button>{item.name}</Button>
-              </Link>
-            ))}
-          </Stack>
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={{
-              xs: 0.5,
-              sm: 1,
-            }}
-          >
-            <IconButton onClick={toggleTheme(darkTheme)}>
-              <Iconify icon={icon()} width={24} height={24} />
+              <Iconify icon="eva:menu-2-fill" />
             </IconButton>
 
-            <Link component={RouterLink} to="/checkout" underline="none">
-              <IconButton size="medium" color="default">
+            <StyledBox sx={{ mr: 2 }}>
+              <Link
+                component={RouterLink}
+                to="/"
+                underline="none"
+                sx={{ display: "inline-flex", alginItems: "center" }}
+              >
+                <Box component="img" alt="Logo" src={hciLogo} sx={{ mr: 1 }} />
+                <StyledTextLogo variant="h3" component="h1">
+                  EStore
+                </StyledTextLogo>
+              </Link>
+            </StyledBox>
+
+            <AlgoliaSearch />
+
+            <Stack direction="row" spacing={2} sx={{ ml: 2, display: "none" }}>
+              {menuItems.map((item) => (
+                <Link
+                  key={item.name}
+                  component={RouterLink}
+                  to={item.path}
+                  underline="none"
+                  color="text.primary"
+                >
+                  <Button>{item.name}</Button>
+                </Link>
+              ))}
+            </Stack>
+
+            <Box sx={{ flexGrow: 1 }} />
+
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={{
+                xs: 0.5,
+                sm: 1,
+              }}
+            >
+              <IconButton onClick={toggleTheme(darkTheme)}>
+                <Iconify icon={icon()} width={24} height={24} />
+              </IconButton>
+              <IconButton LinkComponent={RouterLink} to="/checkout" underline="none" size="medium" color="default">
                 <Badge badgeContent={totalItems} color="error">
                   <Iconify
-                    icon="ic:outline-shopping-cart"
+                    icon="eva:shopping-bag-fill"
                     width={28}
                     height={28}
                   />
                 </Badge>
               </IconButton>
-            </Link>
-
-            {/* {user ? (<AccountPopover user={user} menuOptions={MENU_OPTIONS} onLocalCartChange={setLocalCart} />)
-              : (<Button
-                  LinkComponent={RouterLink}
-                  to='/login'
-                  variant='text'
-                  color='primary'
-                  sx={{
-                    borderRadius: 2
-                  }}
-                >
-                  <Iconify icon='material-symbols:account-circle' width={24} height={24} />
-                  &nbsp;
-                  Login
-                </Button>)
-            } */}
-
-            <AccountPopover
-              user={user}
-              menuOptions={MENU_OPTIONS}
-              onLocalCartChange={setLocalCart}
-            />
-          </Stack>
-        </StyledToolbar>
+              {user ? (<AccountPopover user={user} menuOptions={MENU_OPTIONS} />)
+                : (<Button
+                    LinkComponent={RouterLink}
+                    to='/login'
+                    variant='text'
+                    color='primary'
+                    sx={{
+                      borderRadius: 2
+                    }}
+                  >
+                    <Iconify icon='material-symbols:account-circle' width={24} height={24} />
+                    &nbsp;
+                    Login
+                  </Button>)
+              }
+            </Stack>
+          </StyledToolbar>
+          {categories.length > 0 && (
+            <Stack
+              direction="row"
+              spacing={3}
+              backgroundColor={(theme) => theme.palette.background.content}
+            >
+              {categories.map((category) => (
+                <CategoryPopover key={category.id} category={category} />
+              ))}
+            </Stack>
+          )}
+        </Box>
       </Container>
     </StyledRoot>
   );

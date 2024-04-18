@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 import { Box, Divider, Grid } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { SearchRefinement, SearchResult, RangeSlider } from '../features/search';
+import { SearchRefinement, SearchResult, RangeSlider, HierarchicalMenu } from '../features/search';
+import { LoadingPage } from '../components';
 import SortByPriceButtons from '../features/search/SortByPriceButtons';
+import ACTION_STATUS from '../constants/actionStatus';
+import { getAlgoliaIndexSettings } from '../features/search/searchSlice';
 
 const SEARCH_INDEX = import.meta.env.VITE_ALGOLIA_INDEX;
 const sortByItems = [
@@ -12,6 +16,49 @@ const sortByItems = [
 ];
 
 const SearchPage = () => {
+  const dispatch = useDispatch();
+  const { indexSettings, getIndexSettingsStatus } = useSelector((state) => state.search);
+
+  useEffect(() => {
+    if (getIndexSettingsStatus === ACTION_STATUS.IDLE) {
+      dispatch(getAlgoliaIndexSettings());
+    }
+  }, []);
+
+
+  const hierarchyAttributes = useMemo(() => {
+    if (indexSettings && indexSettings.attributesForFaceting) {
+      return indexSettings.attributesForFaceting.filter((facet) => facet.includes('categories'));
+    }
+
+    return [];
+  }, [indexSettings]);
+
+  console.log(hierarchyAttributes);
+
+  const attributesForFaceting = useMemo(() => {
+    if (indexSettings && indexSettings.attributesForFaceting) {
+      return indexSettings.attributesForFaceting.filter((facet) => !facet.includes('categories') && !facet.includes('price'))
+        .map((facet) => {
+          if (facet.includes('.')) {
+            return { label: facet.split('.')[1], facet: facet } ;
+          }
+
+          return { label: facet, facet: facet } ;
+        });
+    }
+
+    return [];
+  }, [indexSettings]);
+
+  if (getIndexSettingsStatus === ACTION_STATUS.IDLE ||
+    getIndexSettingsStatus ===  ACTION_STATUS.LOADING) {
+    return (<LoadingPage />);
+  }
+
+  if (getIndexSettingsStatus === ACTION_STATUS.FAILED) {
+    return (<Box>Something went wrong</Box>);
+  }
 
   return (
     <Grid container spacing={2} sx={{ pt: 2 }}>
@@ -23,49 +70,31 @@ const SearchPage = () => {
             borderRadius: 1,
           }}
         >
-          <SearchRefinement
-            label='categories'
-            attribute='categories'
-            sortBy={['name:asc', 'count:desc']}
-            limit={5}
-            showMore={true}
-          />
-          <Divider sx={{ my: 2 }} />
-          <SearchRefinement
-            label='brands'
-            attribute='brand'
-            sortBy={['name:asc', 'count:desc']}
-            limit={5}
-            showMore={true}
-          />
-          <Divider sx={{ mb: 2 }} />
-          <RangeSlider attribute='price' label='price' />
-          <Divider sx={{ my: 2 }} />
-          <SearchRefinement
-            label='Model'
-            attribute='model'
-            sortBy={['name:asc', 'count:desc']}
-            limit={5}
-            showMore={true}
-          />
-          <Divider sx={{ mb: 2 }} />
-          <SearchRefinement
-            label='Specifications'
-            attribute='specifications'
-            sortBy={['name:asc', 'count:desc']}
-            limit={5}
-            showMore={true}
-          />
-          <Divider sx={{ mb: 2 }} />
-          <SearchRefinement
-            label='Color'
-            attribute='color'
-            sortBy={['name:asc', 'count:desc']}
-            limit={5}
-            showMore={true}
-          />
-          <Divider sx={{ mb: 2 }} />
-
+          {hierarchyAttributes.length > 0 && (
+            <>
+              <HierarchicalMenu
+                label='Categories'
+                attributes={hierarchyAttributes}
+                limit={5}
+                showMore={true}
+              />
+              <Divider sx={{ mb: 1 }} />
+            </>
+          )}
+          <RangeSlider label='Price' attribute='price' />
+          {attributesForFaceting.map(attribute => (
+            <Fragment key={attribute.facet}>
+              <Divider sx={{ my: 1 }} />
+              <SearchRefinement
+                key={attribute.facet}
+                label={attribute.label}
+                attribute={attribute.facet}
+                sortBy={['name:asc', 'count:desc']}
+                limit={5}
+                showMore={true}
+              />
+            </Fragment>
+          ))}
         </Box>
       </Grid>
       <Grid item xs={12} md={9}>

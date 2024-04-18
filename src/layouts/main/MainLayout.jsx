@@ -9,9 +9,10 @@ import Header from "./header/Header";
 import Footer from "./footer";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocalStorage } from "../../hooks";
-import ACTION_STATUS from "../../constants/actionStatus";
 import { getCurrentUserInfo } from "../../features/auth/authSlice";
 import { Loading } from "../../components";
+import { clearData } from "../../features/common/cartSlice";
+import ACTION_STATUS from "../../constants/actionStatus";
 
 const APP_ID = import.meta.env.VITE_ALGOLIA_APP_ID;
 const API_KEY = import.meta.env.VITE_ALGOLIA_API_KEY;
@@ -64,7 +65,7 @@ const searchRouting = {
 };
 
 export default function Layout() {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { user, isAuthenticated, statusCode, logoutStatus } = useSelector((state) => state.auth);
   const [accessToken] = useLocalStorage("accessToken", null);
   const dispatch = useDispatch();
 
@@ -80,6 +81,18 @@ export default function Layout() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (statusCode === 401) {
+      localStorage.setItem("accessToken", null);
+    }
+  }, [statusCode]);
+
+  useEffect(() => {
+    if (logoutStatus === ACTION_STATUS.SUCCEEDED || logoutStatus === ACTION_STATUS.FAILED) {
+      dispatch(clearData());
+    }
+  }, [logoutStatus]);
+
   return (
     <>
       <RootStyle>
@@ -91,7 +104,7 @@ export default function Layout() {
         >
           <Configure clickAnalytics />
           <Header user={user} />
-          <Container maxWidth="lg" sx={{ mt: 8, mb: 20 }}>
+          <Container maxWidth="lg" sx={{ mt: 8, mb: 16 }}>
             <Suspense fallback={<Loading />}>
               <Outlet />
             </Suspense>

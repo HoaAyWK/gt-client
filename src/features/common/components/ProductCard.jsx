@@ -51,11 +51,18 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
   } = product;
 
   const dispatch = useDispatch();
-  const [localCart] = useLocalStorage("cart", null);
   const { user } = useSelector((state) => state.auth);
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const hit = { ...product };
+
+  const variantId = useMemo(() => {
+    if (objectID === productId) {
+      return null;
+    }
+
+    return objectID;
+  }, [objectID, productId]);
 
   const pathToProductDetails = useMemo(() => {
     const url = `/products/${productId}`;
@@ -103,34 +110,49 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
 
   const handleClickAddToCart = async () => {
     sendEvent("conversion", hit, "Add to cart");
-    try {
-      const actionResult = await dispatch(
-        addToCart({ productId: productId, quantity: 1, userId: localCart })
-      );
-      const result = unwrapResult(actionResult);
+    const actionResult = await dispatch(addToCart({ productId: productId, productVariantId: variantId }));
+    const result = unwrapResult(actionResult);
 
-      if (result) {
-        enqueueSnackbar("Added 1 item to your cart", { variant: "success" });
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: "error" });
+    if (result.success) {
+      enqueueSnackbar("Added to cart successfully", { variant: "success" });
+      return;
     }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   const handleClickBuyNow = async () => {
     sendEvent("conversion", hit, "Add to cart and view cart");
-    try {
-      const actionResult = await dispatch(
-        addToCart({ productId: productId, quantity: 1, userId: localCart })
-      );
-      const result = unwrapResult(actionResult);
+    const actionResult = await dispatch(addToCart({ productId: productId, productVariantId: variantId }));
+    const result = unwrapResult(actionResult);
 
-      if (result) {
-        navigate("/checkout");
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: "error" });
+    if (result.success) {
+      navigate("/checkout");
     }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   const handleClickHeart = async () => {

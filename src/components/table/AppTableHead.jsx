@@ -2,7 +2,7 @@ import React from 'react';
 import { Checkbox, TableCell, TableHead, TableRow } from '@mui/material';
 
 const AppTableHead = (props) => {
-  const { numSelected, onSelectAllClick, headLabels, rowCount } = props;
+  const {  headLabels } = props;
 
   return (
     <TableHead>
@@ -11,17 +11,10 @@ const AppTableHead = (props) => {
           backgroundColor: (theme) => theme.palette.background.neutral
         }}
       >
-        <TableCell padding='checkbox'>
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-          />
-        </TableCell>
         {headLabels.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.alignRight ? 'right' : 'left'}
+            align={headCell.align}
           >
             {headCell.label}
           </TableCell>

@@ -15,7 +15,7 @@ const AttributeList = (props) => {
     if (selectedAttributeValue) {
       if (selectedAttributeValue.attributeId !== attribute.id) {
         return attribute.attributeValues.map(value => {
-          if (selectedAttributeValue.combinedAttributes[attribute.id].includes(value.id)) {
+          if (selectedAttributeValue.combinedAttributes[attribute.id]?.includes(value.id)) {
             return { ...value, selectable: true };
           }
 

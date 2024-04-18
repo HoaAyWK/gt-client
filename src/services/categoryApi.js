@@ -7,22 +7,10 @@ class CategoryApi {
     return axiosClient.get(url);
   };
 
-  create = (data) => {
-    const url = '/category/api';
+  getCategoryTree = () => {
+    const url = '/api/categories/tree';
 
-    return axiosClient.post(url, data);
-  };
-
-  update = (data) => {
-    const url = `/category/api`;
-
-    return axiosClient.put(url, data);
-  };
-
-  delete = (id) => {
-    const url = `/category/delete/${id}`;
-
-    return axiosClient.delete(url);
+    return axiosClient.get(url);
   };
 };
 

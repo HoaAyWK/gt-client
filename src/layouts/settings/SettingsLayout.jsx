@@ -8,7 +8,7 @@ import { Loading } from '../../components';
 
 const SettingsLayout = () => {
   return (
-    <Grid container spacing={1} sx={{ mt: 4 }}>
+    <Grid container spacing={1} sx={{ mt: 12, mb: 20 }}>
       <Grid item xs={12} md={4} lg={3}>
         <Navbar />
       </Grid>

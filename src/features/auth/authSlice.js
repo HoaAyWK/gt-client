@@ -8,8 +8,10 @@ const initialState = {
   user: null,
   isAuthenticated: false,
   loginStatus: ACTION_STATUS.IDLE,
+  logoutStatus: ACTION_STATUS.IDLE,
   getCurrentUserStatus: ACTION_STATUS.IDLE,
   registerStatus: ACTION_STATUS.IDLE,
+  statusCode: null
 };
 
 export const login = createAsyncThunk(
@@ -19,7 +21,7 @@ export const login = createAsyncThunk(
     if (res.success) {
       localStorage.setItem('accessToken', JSON.stringify(res.data.token));
       thunkApi.dispatch(getCurrentUserInfo());
-      // thunkApi.dispatch(getCart(res.userId));
+      thunkApi.dispatch(getCart());
     }
     return res;
   }
@@ -39,18 +41,25 @@ export const register = createAsyncThunk(
   }
 );
 
+export const logout = createAsyncThunk(
+  'logout',
+  async () => {
+    return await authApi.logout();
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     logout: (state) => {
       localStorage.setItem('accessToken', null);
-      localStorage.setItem('cart', null);
       state.user = null;
       state.isAuthenticated = false;
       state.getCurrentUserStatus = ACTION_STATUS.IDLE;
       state.loginStatus = ACTION_STATUS.IDLE;
       state.registerStatus = ACTION_STATUS.IDLE;
+      state.statusCode = null;
     },
   },
   extraReducers: (builder) => {
@@ -74,6 +83,10 @@ const authSlice = createSlice({
         if (action.payload.success) {
           state.isAuthenticated = true;
           state.user = { ...action.payload.data };
+        } else {
+          state.isAuthenticated = false;
+          state.user = null;
+          state.statusCode = action.payload.statusCode;
         }
       })
       .addCase(getCurrentUserInfo.rejected, (state) => {
@@ -89,11 +102,34 @@ const authSlice = createSlice({
       .addCase(register.rejected, (state) => {
         state.registerStatus = ACTION_STATUS.FAILED;
       })
+
+
+      .addCase(logout.pending, (state) => {
+        state.logoutStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.logoutStatus = ACTION_STATUS.SUCCEEDED;
+        localStorage.setItem('accessToken', null);
+        state.user = null;
+        state.isAuthenticated = false;
+        state.getCurrentUserStatus = ACTION_STATUS.IDLE;
+        state.loginStatus = ACTION_STATUS.IDLE;
+        state.registerStatus = ACTION_STATUS.IDLE;
+        state.statusCode = null;
+      })
+      .addCase(logout.rejected, (state) => {
+        state.logoutStatus = ACTION_STATUS.FAILED;
+        localStorage.setItem('accessToken', null);
+        state.user = null;
+        state.isAuthenticated = false;
+        state.getCurrentUserStatus = ACTION_STATUS.IDLE;
+        state.loginStatus = ACTION_STATUS.IDLE;
+        state.registerStatus = ACTION_STATUS.IDLE;
+        state.statusCode = null;
+      })
   }
 });
 
-const { reducer, actions } = authSlice;
-
-export const { logout } = actions;
+const { reducer } = authSlice;
 
 export default reducer;

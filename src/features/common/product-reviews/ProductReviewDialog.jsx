@@ -13,21 +13,21 @@ import { FormProvider, RHFEditor, RHFRating } from '../../../components/hook-for
 import { createProductReview } from './productReviewSlice';
 
 const ProductReviewDialog = (props) => {
-  const { dialogTitle, dialogContent, open, handleClose, orderId, productId } = props;
+  const { dialogTitle, dialogContent, open, handleClose, orderId, productId, variant } = props;
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const { createReviewStatus } = useSelector((state) => state.productReviews);
 
   const ReviewSchema = Yup.object().shape({
-    stars: Yup.number()
-      .required('Rating is required')
-      .min(1, "Rating is required"),
+    rating: Yup.number()
+      .required('Rating is required.')
+      .min(1, "Rating is required."),
     content: Yup.string()
-      .required('Content is required')
+      .required('Content is required.')
   });
 
   const defaultValues = {
-    stars: 0,
+    rating: 0,
     content: ''
   };
 
@@ -39,20 +39,35 @@ const ProductReviewDialog = (props) => {
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (data) => {
-    data.orderId = orderId;
     data.productId = productId;
-    try {
-      const actionResult = await dispatch(createProductReview(data));
-      const result = unwrapResult(actionResult);
 
-      if (result) {
-        enqueueSnackbar('Created successfully', { variant: 'success' });
-        handleClose();
-        reset();
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+    if (variant) {
+      data.productVariantId = variant.id;
     }
+
+    const actionResult = await dispatch(createProductReview(data));
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+      enqueueSnackbar('Created successfully', { variant: 'success' });
+      handleClose();
+      reset();
+
+      return;
+    }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   const onCancel = () => {

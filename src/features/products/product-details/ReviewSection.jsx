@@ -12,29 +12,76 @@ import ProductReviews from './product-reviews/ProductReviews';
 import { getProductReviewsByProductId, refresh } from '../../common/product-reviews/productReviewSlice';
 import discuss from '../../../assets/images/discuss.png';
 
-const ReviewSection = ({ id, productSingle, user }) => {
+const REVIEWS = [
+  {
+    id: 1,
+    title: 'nice',
+    content: 'good product',
+    rating: 5,
+    createdDateTime: '2021-10-10T10:00:00Z',
+    owner: {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      avatarUrl: 'https://randomuser.me/api/portraits'
+    },
+    comments: [
+      {
+        content: 'Thank you for your review',
+        createdDateTime: '2021-10-10T10:00:00Z',
+        owner: {
+          id: 2,
+          firstName: 'Jane',
+          lastName: 'Doe',
+          avatarUrl: 'https://randomuser.me/api/portraits'
+        }
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: 'good',
+    content: 'good product',
+    rating: 4,
+    createdDateTime: '2021-10-10T10:00:00Z',
+    owner: {
+      id: 2,
+      firstName: 'Jane',
+      lastName: 'Doe',
+      avatarUrl: 'https://randomuser.me/api/portraits'
+    },
+    comments: []
+  }
+];
+
+const ReviewSection = ({ id, product, variant }) => {
   const dispatch = useDispatch();
   const [openReview, setOpenReview] = useState(false);
-  const { reviews, getReviewsStatus, createReviewStatus } = useSelector((state) => state.productReviews);
-  const reviewStats = useMemo(() => {
-    if (reviews?.stats) {
-      return reviews.stats.toReversed();
+  const { user } = useSelector((state) => state.auth);
+
+  const averageRating = useMemo(() => {
+    if (variant) {
+      return variant.averageRating ? variant.averageRating.value : 0;
     }
 
-    return [];
-  });
+    return product.averageRating ? product.averageRating.value : 0;
+  }, [variant]);
 
+  const numRatings = useMemo(() => {
+    if (variant) {
+      return variant.averageRating ? variant.averageRating.numRatings : 0;
+    }
 
-  // useEffect(() => {
-  //   dispatch(getProductReviewsByProductId(id));
-  // }, [id]);
+    return product.averageRating ? product.averageRating.numRatings : 0;
+  }, [variant]);
 
-  // useEffect(() => {
-  //   if (createReviewStatus === ACTION_STATUS.SUCCEEDED) {
-  //     dispatch(getProductReviewsByProductId(id));
-  //     dispatch(refresh());
-  //   }
-  // }, [createReviewStatus]);
+  const canReview = useMemo(() => {
+    if (user) {
+      return false;
+    }
+
+    return false;
+  }, [user]);
 
   const handleCloseReview = () => {
     setOpenReview(false);
@@ -45,26 +92,12 @@ const ReviewSection = ({ id, productSingle, user }) => {
     setOpenReview(true);
   };
 
-  if (getReviewsStatus === ACTION_STATUS.IDLE ||
-    getReviewsStatus === ACTION_STATUS.LOADING) {
-
-    return (
-      <Box sx={{ py: 4, width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-if (getReviewsStatus === ACTION_STATUS.FAILED) {
-  return <></>;
-}
-
   return (
     <Box
       sx={{ width: '100%', my: 4 }}
     >
       <StyledPaper>
-        {productSingle?.averageRating > 0 && (
+        {averageRating > 0 && (
           <Grid container spacing={2}
             sx={{
               borderBottom: (theme) => `1px dashed ${theme.palette.divider}`,
@@ -99,42 +132,41 @@ if (getReviewsStatus === ACTION_STATUS.FAILED) {
                 <Typography variant='subtitle1' color='text.secondary' fontWeight='bold'>
                   Average Rating
                 </Typography>
-                {/* <Typography variant='h2' color='text.primary' sx={{ my: 1 }}>
-                  {fShortenNumber2(productSingle.averageRating)}/5
+                <Typography variant='h2' color='text.primary' sx={{ my: 1 }}>
+                  {averageRating}/5
                 </Typography>
                 <Stack spacing={0.5}>
-                  <Rating readOnly value={productSingle.averageRating} precision={0.5} />
+                  <Rating readOnly value={averageRating} precision={0.5} />
                   <Typography variant='caption' color='text.secondary' textAlign='center'>
-                    {`(${productSingle.numReviews} ${productSingle.numReviews > 1 ? 'reviews' : 'review'})`}
+                    {`(${numRatings} ${numRatings > 1 ? 'reviews' : 'review'})`}
                   </Typography>
-                </Stack> */}
+                </Stack>
               </Box>
             </Grid>
             <Grid item xs={12} md={4}>
-              {getReviewsStatus === ACTION_STATUS.SUCCEEDED && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alginItems: 'center',
-                    my: 2
-                  }}
-                >
-                  <Stack spacing={1}>
-                    {reviewStats.map((rating) => (
-                      <Stack spacing={2} direction='row' key={rating.name} alignItems='center'>
-                        <Typography variant='subtitle1' color='text.primary'>
-                          {rating.value} &nbsp; Star
-                        </Typography>
-                        <LinearProgress color='inherit' variant='determinate' value={rating.total / productSingle.numReviews * 100} sx={{ minWidth: 200 }} />
-                        <Typography variant='subtitle1' color='text.secondary'>
-                          {rating.total}
-                        </Typography>
-                      </Stack>
-                    ))}
-                  </Stack>
-                </Box>
-              )}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alginItems: 'center',
+                  my: 2
+                }}
+              >
+                <Stack spacing={1}>
+                  {/* {reviewStats.map((rating) => (
+                    <Stack spacing={2} direction='row' key={rating.name} alignItems='center'>
+                      <Typography variant='subtitle1' color='text.primary'>
+                        {rating.value} &nbsp; Star
+                      </Typography>
+                      <LinearProgress color='inherit' variant='determinate' value={5} sx={{ minWidth: 200 }} />
+                      <Typography variant='subtitle1' color='text.secondary'>
+                        {rating.total}
+                      </Typography>
+                    </Stack>
+                  ))} */}
+                </Stack>
+              </Box>
+
             </Grid>
             <Grid item xs={12} md={4}
               sx={{
@@ -167,17 +199,17 @@ if (getReviewsStatus === ACTION_STATUS.FAILED) {
           productId={id}
         />
         <Box sx={{ px: 2, pb: 2 }}>
-          {/* {reviews.reviews.length === 0 ? (
-              !user && (
+          {REVIEWS.length === 0 ? (
+              !canReview && (
                 <MessageForEmptyItem image={discuss} message='This product does not have any reviews.' />
               )
             ) : (
               <>
-                <ProductReviews reviews={reviews.reviews} status={getReviewsStatus} />
+                <ProductReviews reviews={REVIEWS} />
               </>
-            )} */}
+            )}
         </Box>
-        {productSingle.canReview && reviews.reviews.length === 0 && (
+        {REVIEWS.length === 0 && canReview && (
           <Box
             sx={{
               display: 'flex',
@@ -186,7 +218,7 @@ if (getReviewsStatus === ACTION_STATUS.FAILED) {
             }}
           >
             <Stack spacing={1}>
-              <Typography variant='body1' textAlign='center'>Let's be the first ones who write a review</Typography>
+              <Typography variant='body1' textAlign='center'>Let's be the first one who writes a review</Typography>
               <Button variant='outlined' color='inherit' size='large' onClick={handleOpenReview}>
                 <Iconify icon='eva:edit-outline' width={24} height={24} />
                 &nbsp;
