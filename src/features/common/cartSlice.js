@@ -76,6 +76,12 @@ const cartSlice = createSlice({
       state.cart = null;
       state.getCartStatus = ACTION_STATUS.IDLE;
     },
+    setEmptyCart: (state) => {
+      if (state.cart && state.cart.items) {
+        state.cart.items = [];
+        state.cart.totalAmountWithDiscount = 0;
+      }
+    },
     clickCheckout: (state) => {
       state.checkoutClicked = true;
     },
@@ -171,6 +177,6 @@ const cartSlice = createSlice({
 
 const { reducer, actions } = cartSlice;
 
-export const { refresh, clearCheckoutClick, clickCheckout, clearData } = actions;
+export const { refresh, clearCheckoutClick, clickCheckout, clearData, setEmptyCart } = actions;
 
 export default reducer;

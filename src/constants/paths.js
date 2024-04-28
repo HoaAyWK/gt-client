@@ -3,6 +3,11 @@ const PATHS = Object.freeze({
   LOGIN: '/login',
   REGISTER: '/register',
   PRODUCTS: '/products',
+  USER_ACCOUNT: '/user/account',
+  USER_ACCOUNT_PROFILE: '/user/account/profile',
+  USER_ACCOUNT_PASSWORD: '/user/account/password',
+  USER_ACCOUNT_ADDRESS: '/user/account/addresses',
+  USER_ORDERS: '/user/orders',
 });
 
 

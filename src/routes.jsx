@@ -21,13 +21,14 @@ import {
   CheckoutSuccessPage,
 } from "./pages";
 
-const AdminSettings = lazy(() => import("./features/settings/AdminSettings"));
-const AccountSettings = lazy(() =>
-  import("./features/settings/AccountSettings")
+const AddressSettingsPage = lazy(() => import("./pages/AddressSettingsPage"));
+const AccountSettingsPage = lazy(() =>
+  import("./pages/AccountSettingsPage")
 );
-const PasswordSettings = lazy(() =>
-  import("./features/settings/PasswordSettings")
+const PasswordSettingsPage = lazy(() =>
+  import("./pages/PasswordSettingsPage")
 );
+const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage"));
 
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const OrderDetailsPage = lazy(() => import("./pages/OrderDetailsPage"));
@@ -121,13 +122,15 @@ const Router = () => {
             { path: "orders/:id", element: <OrderDetailsPage /> },
             { path: "checkout-success", element: <CheckoutSuccessPage /> },
             {
-              path: "settings",
+              path: "user",
               element: <SettingsLayout />,
               children: [
-                { path: "", element: <Navigate to="profile" /> },
-                { path: "profile", element: <AccountSettings /> },
-                { path: "password", element: <PasswordSettings /> },
-                { path: "admin", element: <AdminSettings /> },
+                { path: "", element: <Navigate to="/user/account/profile" /> },
+                { path: "account", element: <Navigate to="/user/account/profile" /> },
+                { path: "account/profile", element: <AccountSettingsPage /> },
+                { path: "account/addresses", element: <AddressSettingsPage /> },
+                { path: "account/password", element: <PasswordSettingsPage /> },
+                { path: "orders", element: <MyOrdersPage />}
               ],
             },
           ],

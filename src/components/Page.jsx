@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet-async';
 const Page = forwardRef(({ children, title = '', meta, ...other }, ref) => (
     <>
         <Helmet>
-            <title>{`${title} | HCI`}</title>
+            <title>{`${title} | EStore`}</title>
             {meta}
         </Helmet>
 

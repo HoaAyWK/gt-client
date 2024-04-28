@@ -16,6 +16,13 @@ const myAccount = {
   address: '1 Vo Van Ngan, Thu Duc, Ho Chi Minh, Vietnam'
 };
 
+const ADDRESS = {
+  address: '1 Vo Van Ngan',
+  city: 'Thu Duc',
+  state: 'Ho Chi Minh',
+  country: 'Vietnam',
+};
+
 
 const TABS = [
   { value: PROFILE_TABS.OVERVIEW, label: 'Overview' },

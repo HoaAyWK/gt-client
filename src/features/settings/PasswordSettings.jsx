@@ -12,7 +12,7 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import { FormProvider, RHFTextField } from '../../components/hook-form';
 import { changePassword } from './accountSlice';
 import { logout } from '../auth/authSlice';
-import { Iconify } from '../../components';
+import { Iconify, Page } from '../../components';
 import ACTION_STATUS from '../../constants/actionStatus';
 
 const PasswordSettings = () => {
@@ -61,7 +61,7 @@ const PasswordSettings = () => {
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <>
       <Typography variant='h6' component='h1'>
         Change password
       </Typography>
@@ -117,7 +117,7 @@ const PasswordSettings = () => {
           </Grid>
         </FormProvider>
       </Box>
-    </Box>
+    </>
   );
 };
 

@@ -11,12 +11,11 @@ import OrderSummary from './OrderSummary';
 import { BillingAddress } from './components';
 import PaymentOptions from './PaymentOptions';
 import ACTION_STATUS from '../../constants/actionStatus';
-import { clearCheckoutClick, getCart } from '../common/cartSlice';
+import { clearCheckoutClick, setEmptyCart, getCart } from '../common/cartSlice';
 import { useLocalStorage } from '../../hooks';
 import { PAYMENT_OPTIONS } from '../../constants/payment';
 import { checkoutWithCash, checkoutWithStripe } from './checkoutSlice';
 import { STATUS } from '../../constants/orderStatus';
-import { selectAllShippingAddresses, getShippingAddresses } from './shippingAddressSlice';
 
 const steps = [
   'Cart',
@@ -24,44 +23,62 @@ const steps = [
   'Payment'
 ];
 
+// const SHIPPING_ADDRESSES = [
+//   {
+//     id: 1,
+//     receiverName: 'John Doe',
+//     phoneNumber: '0123456789',
+//     isDefault: true,
+//     street: '1234 Main St',
+//     city: 'HCM',
+//     state: 'HCM',
+//     country: 'Vietnam',
+//     zipCode: '70000'
+//   },
+//   {
+//     id: 2,
+//     receiverName: 'Martin Johnson',
+//     phoneNumber: '0123456780',
+//     isDefault: false,
+//     street: '981 Main St',
+//     city: 'HCM',
+//     state: 'HCM',
+//     country: 'Vietnam',
+//     zipCode: '70000'
+//   },
+// ]
+
 const Checkout = () => {
   const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useLocalStorage('checkoutStep', 0);
-  const [address, setAddress] = useLocalStorage('shippingAddress', 0);
   const { user } = useSelector((state) => state.auth);
-  const [selectedAddress, setSelectedAddress] = useState({});
+
+  const addresses = useMemo(() => {
+    if (!user || !user.addresses) {
+      return [];
+    }
+
+    return user.addresses;
+  }, [user]);
+
+  const [address, setAddress] = useState(() => {
+    return addresses.find((address) => address.isDefault);
+  });
 
   const [paymentOption, setPaymentOption] = useState(PAYMENT_OPTIONS.CASH);
   const navigate = useNavigate();
-  const { getCartStatus, cart, checkoutClicked } = useSelector((state) => state.cart);
+  const { getCartStatus, cart } = useSelector((state) => state.cart);
   const { checkoutStripeStatus } = useSelector((state) => state.checkout);
-  const shippingAddresses = useSelector(selectAllShippingAddresses);
-  const { getShippingAddressesStatus, entities: addressEntities } = useSelector((state) => state.shippingAddresses);
-
-  const numSelected = useMemo(() => {
-    if (!cart || !cart?.cartItems) {
-      return 0;
-    }
-
-    if (cart.cartItems) {
-      const initialValue = 0;
-      return cart.cartItems.reduce((sum, item) => item.status ? sum + 1 : sum, initialValue);
-    }
-  }, [cart]);
 
   const subTotal = useMemo(() => {
-    if (!cart || !cart?.cartItems || cart?.cartItems?.length === 0) {
+    if (!cart || cart.items.length === 0) {
       return 0;
     }
 
-    if (cart.cartItems) {
-      const initialValue = 0;
-      return cart.cartItems.reduce(
-        (sum, item) => item.status ?
-          sum + item.quantity * (item.price - item.price * (item.discount / 100)) : sum + 0, initialValue);
-    }
+    return cart.items.reduce((acc, item) => {
+      return acc + item.subTotal;
+    }, 0);
   }, [cart]);
-
 
   useEffect(() => {
     if (getCartStatus === ACTION_STATUS.IDLE) {
@@ -71,17 +88,10 @@ const Checkout = () => {
   }, []);
 
   useEffect(() => {
-    if (address === 0 && user) {
-      setSelectedAddress({
-        id: 0,
-        acceptorName: user.firstName + " " + user.lastName,
-        acceptorPhone: user.phone,
-        deliveryAddress: user.address
-      });
-    } else if (Object.keys(addressEntities).length > 0) {
-      setSelectedAddress(addressEntities[address]);
+    if (cart && cart.items.length === 0) {
+      setActiveStep(0);
     }
-  }, [address, user, addressEntities]);
+  }, [cart]);
 
   const handleNext = () => {
     setActiveStep(prevStep => prevStep + 1);
@@ -105,45 +115,66 @@ const Checkout = () => {
 
   const handleCompleteOrder = async () => {
     if (paymentOption === PAYMENT_OPTIONS.CASH) {
-      try {
         const actionResult = await dispatch(checkoutWithCash({
-          paymentType: paymentOption,
-          status: STATUS.PROCESSING,
-          shippingAddress: address
+          addressId: address.id
         }));
+
         const result = unwrapResult(actionResult);
 
-        if (result) {
+        if (result.success) {
           enqueueSnackbar('Checkout successfully!', { variant: 'success' });
-          dispatch(getCart(localCart));
           setActiveStep(0);
+          dispatch(setEmptyCart());
           navigate('/checkout-success');
+
+          return;
         }
-      } catch (error) {
-        enqueueSnackbar(error.message, { variant: 'error' });
-      }
+
+        if (result.errors) {
+          const errorKeys = Object.keys(result.errors);
+          errorKeys.forEach((key) => {
+            result.errors[key].forEach(error => {
+              enqueueSnackbar(error, { variant: "error" });
+            }
+          )});
+
+          return;
+        }
+
+        enqueueSnackbar(result.error, { variant: "error" });
     } else if (paymentOption === PAYMENT_OPTIONS.CREDIT) {
-      try {
         const actionResult = await dispatch(checkoutWithStripe({
-          paymentType: paymentOption,
           status: STATUS.PROCESSING,
-          shippingAddress: address
+          addressId: address.id
         }));
+
         const result = unwrapResult(actionResult);
 
-        if (result) {
-          if (result.url) {
-            window.location.href = result.url;
+        if (result.success) {
+          if (result.data.url) {
+            window.location.href = result.data.url;
+            dispatch(setEmptyCart());
+            setActiveStep(0);
+            return;
           }
         }
-      } catch (error) {
-        enqueueSnackbar(error.message, { variant: 'error' });
-      }
+
+        if (result.errors) {
+          const errorKeys = Object.keys(result.errors);
+          errorKeys.forEach((key) => {
+            result.errors[key].forEach(error => {
+              enqueueSnackbar(error, { variant: "error" });
+            }
+          )});
+
+          return;
+        }
+
+        enqueueSnackbar(result.error, { variant: "error" });
     }
   };
 
-  if (getCartStatus === ACTION_STATUS.IDLE ||
-    getCartStatus === ACTION_STATUS.LOADING ||
+  if (!cart || !address ||
     checkoutStripeStatus === ACTION_STATUS.LOADING) {
     return (
       <Box
@@ -181,15 +212,13 @@ const Checkout = () => {
       </Grid>
       <Grid container spacing={2} sx={{ mt: 4 }}>
         <Grid item xs={12} md={8}>
-          <Cart step={activeStep} cart={cart} numSelected={numSelected} />
+          <Cart step={activeStep} cart={cart} />
           <BillingAndAddress
             user={user}
-            addresses={shippingAddresses}
-            status={getShippingAddressesStatus}
+            addresses={addresses}
             step={activeStep}
             onNext={handleNext}
             onBack={handleBack}
-            numSelected={numSelected}
             onBackActiveStep={onBackActiveStep}
             onSelectAddress={handleSelectAddress}
           />
@@ -198,7 +227,6 @@ const Checkout = () => {
             onBackActiveStep={onBackActiveStep}
             step={activeStep}
             onBack={handleBack}
-            numSelected={numSelected}
             paymentOption={paymentOption}
             onSelectPaymentOption={handleSelectPaymentOption}
           />
@@ -208,18 +236,17 @@ const Checkout = () => {
             {activeStep === 2 && (
               <BillingAddress
                 showTitle={true}
-                item={selectedAddress}
+                item={address}
                 onClickEdit={handleBack}
               />
             )}
-            {numSelected > 0 && (
+            {cart.items.length > 0 && (
               <OrderSummary
                 user={user}
                 cart={cart}
                 step={activeStep}
                 onNext={handleNext}
                 onClickEdit={() => setActiveStep(0)}
-                numSelected={numSelected}
                 subTotal={subTotal}
                 onClickCompleteOrder={handleCompleteOrder}
               />

@@ -11,6 +11,9 @@ const initialState = {
   logoutStatus: ACTION_STATUS.IDLE,
   getCurrentUserStatus: ACTION_STATUS.IDLE,
   registerStatus: ACTION_STATUS.IDLE,
+  addAddressStatus: ACTION_STATUS.IDLE,
+  updateAddressStatus: ACTION_STATUS.IDLE,
+  deleteAddressStatus: ACTION_STATUS.IDLE,
   statusCode: null
 };
 
@@ -45,6 +48,30 @@ export const logout = createAsyncThunk(
   'logout',
   async () => {
     return await authApi.logout();
+  }
+);
+
+export const addAddress = createAsyncThunk(
+  'addAddress',
+  async (data) => {
+    const { customerId, ...rest } = data;
+    return await authApi.addAddress(customerId, rest);
+  }
+);
+
+export const updateAddress = createAsyncThunk(
+  'updateAddress',
+  async (data) => {
+    const { customerId, id, ...rest } = data;
+    return await authApi.updateAddress(customerId, id, rest);
+  }
+);
+
+export const deleteAddress = createAsyncThunk(
+  'deleteAddress',
+  async (data) => {
+    const { customerId, id } = data;
+    return await authApi.deleteAddress(customerId, id);
   }
 );
 
@@ -126,6 +153,59 @@ const authSlice = createSlice({
         state.loginStatus = ACTION_STATUS.IDLE;
         state.registerStatus = ACTION_STATUS.IDLE;
         state.statusCode = null;
+      })
+
+
+      .addCase(addAddress.pending, (state) => {
+        state.addAddressStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(addAddress.fulfilled, (state, action) => {
+        state.addAddressStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          state.user.addresses ??= [];
+          state.user.addresses.push(action.payload.data);
+        }
+      })
+      .addCase(addAddress.rejected, (state) => {
+        state.addAddressStatus = ACTION_STATUS.FAILED;
+      })
+
+      .addCase(updateAddress.pending, (state) => {
+        state.updateAddressStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(updateAddress.fulfilled, (state, action) => {
+        state.updateAddressStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          if (!state.user.addresses) {
+            state.user.addresses = [];
+            state.user.addresses.push(action.payload.data);
+
+            return;
+          }
+
+          const index = state.user.addresses.findIndex(address => address.id === action.payload.data.id);
+          state.user.addresses[index] = action.payload.data;
+        }
+      })
+      .addCase(updateAddress.rejected, (state) => {
+        state.updateAddressStatus = ACTION_STATUS.FAILED;
+      })
+
+
+      .addCase(deleteAddress.pending, (state) => {
+        state.deleteAddressStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(deleteAddress.fulfilled, (state, action) => {
+        state.deleteAddressStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          state.user.addresses = state.user.addresses.filter(address => address.id !== action.payload.data.id);
+        }
+      })
+      .addCase(deleteAddress.rejected, (state) => {
+        state.deleteAddressStatus = ACTION_STATUS.FAILED;
       })
   }
 });

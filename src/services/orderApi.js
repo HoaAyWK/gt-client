@@ -1,5 +1,5 @@
 import { STATUS } from '../constants/orderStatus';
-import axiosClient from './axios';
+import { axiosClient } from './axios';
 
 class OrderApi {
   getAll = () => {
@@ -44,6 +44,18 @@ class OrderApi {
 
     return axiosClient.delete(url);
   };
+
+  getOrderStatues = () => {
+    const url = '/api/orders/statuses';
+
+    return axiosClient.get(url);
+  };
+
+  getOrders = (page, pageSize, status) => {
+    const url = `/api/orders/my?page=${page}&pageSize=${pageSize}&status=${status}`;
+
+    return axiosClient.get(url);
+  }
 };
 
 export default new OrderApi();

@@ -1,13 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Box, Button, CircularProgress, Stack } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { BillingAddress } from './components';
 import { Iconify } from '../../components';
 import BillingAddressForm from './BillingAddressForm';
 import ACTION_STATUS from '../../constants/actionStatus';
+import { addAddress } from '../auth/authSlice';
+import { selectAllCountries, getCountries } from '../common/countrySlice';
 
-const BillingAndAddress = ({ addresses, status, step, numSelected, onNext, onBack, user, onBackActiveStep, onSelectAddress }) => {
+const BillingAndAddress = (props) => {
+  const {
+    addresses,
+    status,
+    step,
+    numSelected,
+    onNext,
+    onBack,
+    user,
+    onBackActiveStep,
+    onSelectAddress
+  } = props;
+
+  const dispatch = useDispatch();
   const [openAddAddress, setOpenAddAddress] = useState(false);
+  const { addAddressStatus } = useSelector(state => state.auth);
+  const { getCountriesStatus } = useSelector(state => state.countries);
+  const countries = useSelector(selectAllCountries);
 
   useEffect(() => {
     if (numSelected === 0) {
@@ -21,6 +40,12 @@ const BillingAndAddress = ({ addresses, status, step, numSelected, onNext, onBac
     }
   }, [user]);
 
+  useEffect(() => {
+    if (getCountriesStatus === ACTION_STATUS.IDLE) {
+      dispatch(getCountries());
+    }
+  }, [getCountriesStatus]);
+
   const handleSelectAddress = (address) => {
     onSelectAddress(address);
     onNext();
@@ -33,20 +58,13 @@ const BillingAndAddress = ({ addresses, status, step, numSelected, onNext, onBac
   return (
     <Box sx={{ display: step === 1 ? 'block' : 'none' }}>
       <Stack spacing={2}>
-        {user && (
-          <BillingAddress
-            item={{
-              id: 0,
-              acceptorName: user.firstName + " " + user.lastName,
-              deliveryAddress: user.address,
-              acceptorPhone: user.phone,
-              isDefault: true
-            }}
-            onSelectAddress={handleSelectAddress}
-          />
-        )}
         {addresses.map((address) => (
-          <BillingAddress key={address.name} item={address} onSelectAddress={handleSelectAddress} />
+          <BillingAddress
+            key={address.id}
+            item={address}
+            onSelectAddress={handleSelectAddress}
+            countries={countries}
+          />
         ))}
       </Stack>
       <Box
@@ -73,6 +91,10 @@ const BillingAndAddress = ({ addresses, status, step, numSelected, onNext, onBac
         dialogContent='Add new shipping address'
         open={openAddAddress}
         handleClose={() => setOpenAddAddress(false)}
+        isEdit={false}
+        action={addAddress}
+        status={addAddressStatus}
+        countries={countries}
       />
     </Box>
   );

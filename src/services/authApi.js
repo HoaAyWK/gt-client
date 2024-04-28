@@ -1,4 +1,4 @@
-import axiosClient from './axios';
+import { axiosClient } from './axios';
 
 class AuthApi {
   login = (data) => {
@@ -19,7 +19,25 @@ class AuthApi {
   logout = () => {
     const url = '/api/auth/logout';
     return axiosClient.get(url);
-  }
+  };
+
+  addAddress = (id, data) => {
+    const url = `/api/customers/${id}/addresses`;
+
+    return axiosClient.post(url, data);
+  };
+
+  updateAddress = (customerId, addressId, data) => {
+    const url = `/api/customers/${customerId}/addresses/${addressId}`;
+
+    return axiosClient.put(url, data);
+  };
+
+  deleteAddress = (customerId, addressId) => {
+    const url = `/api/customers/${customerId}/addresses/${addressId}`;
+
+    return axiosClient.delete(url);
+  };
 }
 
 const authApi = new AuthApi();

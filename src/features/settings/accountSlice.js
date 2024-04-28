@@ -18,7 +18,7 @@ export const updateAccount = createAsyncThunk(
 
     if (avatar) {
       const filePath = `files/avatar/${uuidv4()}`;
-      dataToUpdate.avatar = await uploadTaskPromise(filePath, avatar);
+      dataToUpdate.avatarUrl = await uploadTaskPromise(filePath, avatar);
     }
 
     const res = await accountApi.updateAccount(dataToUpdate);

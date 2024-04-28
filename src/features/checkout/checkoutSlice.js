@@ -44,7 +44,6 @@ const checkoutSlice = createSlice({
       })
 
 
-
       .addCase(checkoutWithStripe.pending, (state) => {
         state.checkoutStripeStatus = ACTION_STATUS.LOADING;
       })

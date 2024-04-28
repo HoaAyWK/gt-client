@@ -1,5 +1,5 @@
 export const PAYMENT_OPTIONS = Object.freeze({
-  CASH: 'cash',
+  CASH: 'CashOnDelivery',
   VNPAY: 'vnpay',
-  CREDIT: 'credit'
+  CREDIT: 'CreditCard'
 });

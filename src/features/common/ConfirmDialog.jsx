@@ -8,13 +8,13 @@ import { useSnackbar } from 'notistack';
 import ACTION_STATUS from '../../constants/actionStatus';
 
 const ConfirmDialog = (props) => {
-  const { dialogTitle, dialogContent, open, handleClose, action, billId, status } = props;
+  const { dialogTitle, dialogContent, open, handleClose, action, itemId, status } = props;
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
   const handleClickConfirm = async () => {
     try {
-      const actionResult = await dispatch(action(billId));
+      const actionResult = await dispatch(action(itemId));
       const result = unwrapResult(actionResult);
 
       if (result) {

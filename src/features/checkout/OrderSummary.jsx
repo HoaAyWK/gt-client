@@ -29,7 +29,7 @@ const OrderLine = ({ label, value, color, typoVariant }) => {
   );
 };
 
-const OrderSummary = ({ step, onNext, onClickEdit, numSelected, subTotal, user, onClickCompleteOrder }) => {
+const OrderSummary = ({ step, onNext, onClickEdit, subTotal, user, onClickCompleteOrder }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

@@ -94,7 +94,7 @@ const OrderDetails = ({ id }) => {
             dialogContent='Are you sure to cancel this order'
             open={openConfirmCancelDialog}
             handleClose={handleCloseConfirmCancelDialog}
-            billId={id}
+            itemId={id}
             action={cancelOrder}
             status={cancelOrderStatus}
           />

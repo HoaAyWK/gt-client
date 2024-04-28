@@ -33,6 +33,7 @@ import ACTION_STATUS from "../../../constants/actionStatus";
 import { getCart } from "../../../features/common/cartSlice";
 import { getCategoryTree, selectAllCategories } from "../../../features/common/categorySlice";
 import CategoryPopover from "./CategoryPopover";
+import PATHS from "../../../constants/paths";
 // ----------------------------------------------------------------------
 
 const HEADER_MOBILE = 64;
@@ -83,17 +84,17 @@ const MENU_OPTIONS = [
   {
     label: "Home",
     icon: "eva:home-fill",
-    path: "/",
+    path: PATHS.HOME,
   },
   {
     label: "Profile",
     icon: "eva:person-fill",
-    path: "/profile",
+    path: PATHS.USER_ACCOUNT_PROFILE,
   },
   {
-    label: "Settings",
+    label: "Orders",
     icon: "eva:settings-2-fill",
-    path: "/settings",
+    path: PATHS.USER_ORDERS,
   },
 ];
 

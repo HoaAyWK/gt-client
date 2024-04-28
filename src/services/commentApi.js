@@ -1,4 +1,4 @@
-import axiosClient from './axios/axiosClient';
+import { axiosClient } from './axios';
 
 class CommentApi {
   getByProduct = (productId, num, page, sortByNewest) => {

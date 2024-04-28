@@ -116,7 +116,8 @@ export const lightPalette = {
   background: {
     paper: '#fff',
     default: GREY[100],
-    neutral: GREY[200]
+    neutral: GREY[200],
+    content: '#F6F8Fa'
   },
   action: {
     active: GREY[600],
@@ -152,6 +153,7 @@ export const darkPalette = {
     paper: GREY[800],
     default: GREY[900],
     neutral: GREY[700],
+    content: '#161B22'
   },
   action: {
     active: GREY[600],

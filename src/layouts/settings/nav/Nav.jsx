@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Avatar, Box, Link, Typography } from '@mui/material';
+import { Avatar, Box, Link, Tooltip, Typography } from '@mui/material';
 
 import { NavSection } from '../../../components';
 import { StyledAccount } from './styles';
@@ -18,7 +18,7 @@ const Nav = () => {
       }}
     >
       <Box
-        sx={{ mb: 5, mx: 2.5 }}
+        sx={{ mb: 5, mx: 1 }}
       >
         <Link underline='none'>
           <StyledAccount>
@@ -29,9 +29,16 @@ const Nav = () => {
                 {`${user?.firstName} ${user?.lastName}`}
               </Typography>
 
+              {user?.email?.length > 20 ? (
+                <Tooltip title={user?.email}>
+                  <Typography variant='caption' sx={{ color: 'text.secondary' }}>
+                    {user?.email?.slice(0, 20)}...
+                  </Typography>
+                </Tooltip>
+              ) : (
               <Typography variant='caption' sx={{ color: 'text.secondary' }}>
-                {user?.email?.length > 20 ? `${user?.email?.slice(0, 20)}...` : user?.email}
-              </Typography>
+                {user?.email}
+              </Typography>)}
             </Box>
           </StyledAccount>
         </Link>
