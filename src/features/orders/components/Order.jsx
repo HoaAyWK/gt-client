@@ -12,6 +12,7 @@ import ACTION_STATUS from '../../../constants/actionStatus';
 import { STATUS } from '../../../constants/orderStatus';
 import { PAYMENT_OPTIONS } from '../../../constants/payment';
 import OrderItem from './OrderItem';
+import PATHS from '../../../constants/paths';
 
 const Order = ({ order }) => {
   const {
@@ -96,7 +97,7 @@ const Order = ({ order }) => {
         }}
       >
         <Stack spacing={2} direction='row'>
-          <Button LinkComponent={RouterLink} to={`/orders/${id}`} color='inherit' variant='outlined'>Details</Button>
+          <Button LinkComponent={RouterLink} to={`${PATHS.USER_ORDERS}/${id}`} color='inherit' variant='outlined'>Details</Button>
           {orderStatus === STATUS.PROCESSING && paymentType === PAYMENT_OPTIONS.CASH && (
             <>
               <LoadingButton

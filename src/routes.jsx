@@ -119,7 +119,6 @@ const Router = () => {
           element: <ProtectedRoute />,
           children: [
             { path: "profile", element: <ProfilePage /> },
-            { path: "orders/:id", element: <OrderDetailsPage /> },
             { path: "checkout-success", element: <CheckoutSuccessPage /> },
             {
               path: "user",
@@ -130,7 +129,8 @@ const Router = () => {
                 { path: "account/profile", element: <AccountSettingsPage /> },
                 { path: "account/addresses", element: <AddressSettingsPage /> },
                 { path: "account/password", element: <PasswordSettingsPage /> },
-                { path: "orders", element: <MyOrdersPage />}
+                { path: "orders", element: <MyOrdersPage />},
+                { path: "orders/:id", element: <OrderDetailsPage />}
               ],
             },
           ],

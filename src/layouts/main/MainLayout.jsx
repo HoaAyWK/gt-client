@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { Container } from "@mui/material";
@@ -13,6 +13,8 @@ import { getCurrentUserInfo } from "../../features/auth/authSlice";
 import { Loading } from "../../components";
 import { clearData } from "../../features/common/cartSlice";
 import ACTION_STATUS from "../../constants/actionStatus";
+import { createNotificationsHub } from "../../services/hubs";
+import { setHubConnection } from "../../features/common/notificationSlice";
 
 const APP_ID = import.meta.env.VITE_ALGOLIA_APP_ID;
 const API_KEY = import.meta.env.VITE_ALGOLIA_API_KEY;
@@ -66,8 +68,9 @@ const searchRouting = {
 
 export default function Layout() {
   const { user, isAuthenticated, statusCode, logoutStatus } = useSelector((state) => state.auth);
-  const [accessToken] = useLocalStorage("accessToken", null);
   const dispatch = useDispatch();
+  const [accessToken] = useLocalStorage("accessToken", null);
+  const { hubConnection } = useSelector((state) => state.notifications);
 
   useEffect(() => {
     if (accessToken && !isAuthenticated) {
@@ -78,8 +81,33 @@ export default function Layout() {
   useEffect(() => {
     if (user) {
       window.aa("setUserToken", user.id);
+      dispatch(setHubConnection(createNotificationsHub(accessToken)));
+    } else {
+      dispatch(setHubConnection(null));
     }
   }, [user]);
+
+  useEffect(() => {
+    if (hubConnection) {
+      hubConnection.start()
+        .then(() => {
+          console.log('Connection established');
+        })
+        .catch(err => console.error('Error while establishing connection:', err));
+
+      hubConnection.on('ReceiveNotification', (notification) => {
+        console.log('Notification received:', notification);
+      });
+    }
+
+    return () => {
+      if (hubConnection) {
+        hubConnection.stop()
+          .then(() => console.log('Connection stopped'))
+          .catch(err => console.error('Error while stopping connection:', err));
+      }
+    }
+  }, [hubConnection]);
 
   useEffect(() => {
     if (statusCode === 401) {

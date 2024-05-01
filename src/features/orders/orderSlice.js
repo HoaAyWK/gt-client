@@ -7,6 +7,8 @@ import { STATUS } from "../../constants/orderStatus";
 const orderAdapter = createEntityAdapter();
 
 const orderAdapterInitialState = orderAdapter.getInitialState({
+  order: null,
+  getOrderStatus: ACTION_STATUS.IDLE,
   getOrdersStatus: ACTION_STATUS.IDLE,
   getOrdersPages: [],
   getOrdersPageSize: 5,
@@ -16,8 +18,29 @@ const orderAdapterInitialState = orderAdapter.getInitialState({
   getPendingOrdersPages: [],
   getPendingOrdersPageSize: 5,
   getPendingOrdersTotalPage: 0,
+  processingOrders: [],
+  getProcessingOrdersStatus: ACTION_STATUS.IDLE,
+  getProcessingOrdersPages: [],
+  getProcessingOrdersPageSize: 5,
+  getProcessingOrdersTotalPage: 0,
+  cancelledOrders: [],
+  getCancelledOrdersStatus: ACTION_STATUS.IDLE,
+  getCancelledOrdersPages: [],
+  getCancelledOrdersPageSize: 5,
+  getCancelledOrdersTotalPage: 0,
+  refundedOrders: [],
+  getRefundedOrdersStatus: ACTION_STATUS.IDLE,
+  getRefundedOrdersPages: [],
+  getRefundedOrdersPageSize: 5,
+  getRefundedOrdersTotalPage: 0,
 });
 
+export const getOrder = createAsyncThunk(
+  'orders/getOrder',
+  async (orderId) => {
+    return await orderApi.getOrder(orderId);
+  }
+);
 
 export const getOrders = createAsyncThunk(
   'orders/getOrders',
@@ -35,6 +58,30 @@ export const getPendingOrders = createAsyncThunk(
   }
 );
 
+export const getProcessingOrders = createAsyncThunk(
+  'orders/getProcessingOrders',
+  async (data) => {
+    const { page, pageSize } = data;
+    return await orderApi.getOrders(page, pageSize, STATUS.PROCESSING);
+  }
+);
+
+export const getRefundedOrders = createAsyncThunk(
+  'orders/getRefundedOrders',
+  async (data) => {
+    const { page, pageSize } = data;
+    return await orderApi.getOrders(page, pageSize, STATUS.REFUNDED);
+  }
+);
+
+export const getCancelledOrders = createAsyncThunk(
+  'orders/getCancelledOrders',
+  async (data) => {
+    const { page, pageSize } = data;
+    return await orderApi.getOrders(page, pageSize, STATUS.CANCELLED);
+  }
+);
+
 const orderSlice = createSlice({
   name: 'orders',
   initialState: orderAdapterInitialState,
@@ -42,6 +89,21 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+
+
+      .addCase(getOrder.pending, (state) => {
+        state.getOrderStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(getOrder.fulfilled, (state, action) => {
+        state.getOrderStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          state.order = action.payload.data;
+        }
+      })
+      .addCase(getOrder.rejected, (state) => {
+        state.getOrderStatus = ACTION_STATUS.FAILED;
+      })
 
 
       .addCase(getOrders.pending, (state) => {
@@ -117,7 +179,122 @@ const orderSlice = createSlice({
       })
       .addCase(getPendingOrders.rejected, (state) => {
         state.getPendingOrdersStatus = ACTION_STATUS.FAILED;
-      });
+      })
+
+
+
+      .addCase(getProcessingOrders.pending, (state) => {
+        state.getProcessingOrdersStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(getProcessingOrders.fulfilled, (state, action) => {
+        state.getProcessingOrdersStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          const { page, pageSize, items, totalPages } = action.payload.data;
+
+          const orders = items.map(order => ({ page, ...order }));
+
+          if (pageSize != state.getProcessingOrdersPageSize) {
+
+            state.processingOrders = orders;
+            state.getProcessingOrdersPages = [];
+            state.getProcessingOrdersPages.push(page);
+            state.getProcessingOrdersPageSize = pageSize;
+            state.getProcessingOrdersTotalPage = totalPages;
+
+            return;
+          }
+
+          const isPreviousSelectedPage = state.getProcessingOrdersPages.indexOf(page) > -1;
+
+          if (!isPreviousSelectedPage) {
+            state.getProcessingOrdersPages.push(page);
+            state.processingOrders = state.processingOrders.concat(orders);
+          }
+
+          state.getProcessingOrdersPageSize = pageSize;
+          state.getProcessingOrdersTotalPage = totalPages;
+        }
+      })
+      .addCase(getProcessingOrders.rejected, (state) => {
+        state.getProcessingOrdersStatus = ACTION_STATUS.FAILED;
+      })
+
+
+      .addCase(getCancelledOrders.pending, (state) => {
+        state.getCancelledOrdersStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(getCancelledOrders.fulfilled, (state, action) => {
+        state.getCancelledOrdersStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          const { page, pageSize, items, totalPages } = action.payload.data;
+
+          const orders = items.map(order => ({ page, ...order }));
+
+          if (pageSize != state.getCancelledOrdersPageSize) {
+
+            state.cancelledOrders = orders;
+            state.getCancelledOrdersPages = [];
+            state.getCancelledOrdersPages.push(page);
+            state.getCancelledOrdersPageSize = pageSize;
+            state.getCancelledOrdersTotalPage = totalPages;
+
+            return;
+          }
+
+          const isPreviousSelectedPage = state.getCancelledOrdersPages.indexOf(page) > -1;
+
+          if (!isPreviousSelectedPage) {
+            state.getCancelledOrdersPages.push(page);
+            state.cancelledOrders = state.cancelledOrders.concat(orders);
+          }
+
+          state.getCancelledOrdersPageSize = pageSize;
+          state.getCancelledOrdersTotalPage = totalPages;
+        }
+      })
+      .addCase(getCancelledOrders.rejected, (state) => {
+        state.getCancelledOrdersStatus = ACTION_STATUS.FAILED;
+      })
+
+
+      .addCase(getRefundedOrders.pending, (state) => {
+        state.getRefundedOrdersStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(getRefundedOrders.fulfilled, (state, action) => {
+        state.getRefundedOrdersStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          const { page, pageSize, items, totalPages } = action.payload.data;
+
+          const orders = items.map(order => ({ page, ...order }));
+
+          if (pageSize != state.getRefundedOrdersPageSize) {
+
+            state.refundedOrders = orders;
+            state.getRefundedOrdersPages = [];
+            state.getRefundedOrdersPages.push(page);
+            state.getRefundedOrdersPageSize = pageSize;
+            state.getRefundedOrdersTotalPage = totalPages;
+
+            return;
+          }
+
+          const isPreviousSelectedPage = state.getRefundedOrdersPages.indexOf(page) > -1;
+
+          if (!isPreviousSelectedPage) {
+            state.getRefundedOrdersPages.push(page);
+            state.refundedOrders = state.refundedOrders.concat(orders);
+          }
+
+          state.getRefundedOrdersPageSize = pageSize;
+          state.getRefundedOrdersTotalPage = totalPages;
+        }
+      })
+      .addCase(getRefundedOrders.rejected, (state) => {
+        state.getRefundedOrdersStatus = ACTION_STATUS.FAILED;
+      })
   }
 });
 
@@ -136,6 +313,24 @@ export const selectOrdersByPage = createSelector(
 
 export const selectPendingOrdersByPage = createSelector(
   state => state.orders.pendingOrders,
+  (_, page) => page,
+  (orders, page) => orders.filter((order) => order.page === page)
+);
+
+export const selectProcessingOrdersByPage = createSelector(
+  state => state.orders.processingOrders,
+  (_, page) => page,
+  (orders, page) => orders.filter((order) => order.page === page)
+);
+
+export const selectCancelledOrdersByPage = createSelector(
+  state => state.orders.cancelledOrders,
+  (_, page) => page,
+  (orders, page) => orders.filter((order) => order.page === page)
+);
+
+export const selectRefundedOrdersByPage = createSelector(
+  state => state.orders.refundedOrders,
   (_, page) => page,
   (orders, page) => orders.filter((order) => order.page === page)
 );

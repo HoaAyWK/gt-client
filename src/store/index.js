@@ -16,6 +16,7 @@ import countryReducer from '../features/common/countrySlice';
 import stateReducer from '../features/common/stateSlice';
 import orderStatusReducer from '../features/orders/orderStatusSlice';
 import orderReducer from '../features/orders/orderSlice';
+import notificationReducer from '../features/common/notificationSlice';
 
 export const store = configureStore({
   reducer: {
@@ -34,6 +35,10 @@ export const store = configureStore({
     categories: categoryReducer,
     countries: countryReducer,
     states: stateReducer,
-    orders: orderReducer
-  }
+    orders: orderReducer,
+    notifications: notificationReducer
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+    serializableCheck: false,
+  })
 });

@@ -20,7 +20,7 @@ import {
 // components
 import { Iconify } from "../../../components";
 //
-import { AccountPopover } from "../../common/header";
+import { AccountPopover, NotificationPopover } from "../../common/header";
 import {
   useAppThemeUpdate,
   useAppTheme,
@@ -229,6 +229,7 @@ export default function Header({ user, onOpenNav }) {
               <IconButton onClick={toggleTheme(darkTheme)}>
                 <Iconify icon={icon()} width={24} height={24} />
               </IconButton>
+              <NotificationPopover />
               <IconButton LinkComponent={RouterLink} to="/checkout" underline="none" size="medium" color="default">
                 <Badge badgeContent={totalItems} color="error">
                   <Iconify

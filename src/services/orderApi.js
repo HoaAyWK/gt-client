@@ -55,6 +55,12 @@ class OrderApi {
     const url = `/api/orders/my?page=${page}&pageSize=${pageSize}&status=${status}`;
 
     return axiosClient.get(url);
+  };
+
+  getOrder = (id) => {
+    const url = `/api/orders/${id}`;
+
+    return axiosClient.get(url);
   }
 };
 

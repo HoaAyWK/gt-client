@@ -5,7 +5,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import PATHS from '../../constants/paths';
-import { getOrders, getPendingOrders, selectAllOrders, selectOrdersByPage, selectPendingOrdersByPage } from './orderSlice';
+import {
+  getOrders,
+  getPendingOrders,
+  getProcessingOrders,
+  getCancelledOrders,
+  getRefundedOrders,
+  selectOrdersByPage,
+  selectPendingOrdersByPage,
+  selectProcessingOrdersByPage,
+  selectCancelledOrdersByPage,
+  selectRefundedOrdersByPage,
+} from './orderSlice';
 import OrderTab from './OrderTab';
 import { STATUS } from '../../constants/orderStatus';
 
@@ -22,14 +33,29 @@ const OrderTabs = () => {
   const [allOrdersPage, setAllOrdersPage] = useState(defaultPage);
   const [pendingOrdersPerPage, setPendingOrdersPerPage] = useState(PER_PAGE_OPTIONS[0]);
   const [pendingOrdersPage, setPendingOrdersPage] = useState(defaultPage);
+  const [processingOrdersPage, setProcessingOrdersPage] = useState(defaultPage);
+  const [processingOrdersPerPage, setProcessingOrdersPerPage] = useState(PER_PAGE_OPTIONS[0]);
+  const [cancelledOrdersPage, setCancelledOrdersPage] = useState(defaultPage);
+  const [cancelledOrdersPerPage, setCancelledOrdersPerPage] = useState(PER_PAGE_OPTIONS[0]);
+  const [refundedOrdersPage, setRefundedOrdersPage] = useState(defaultPage);
+  const [refundedOrdersPerPage, setRefundedOrdersPerPage] = useState(PER_PAGE_OPTIONS[0]);
   const dispatch = useDispatch();
   const orders = useSelector(state => selectOrdersByPage(state, allOrdersPage));
   const pendingOrders = useSelector(state => selectPendingOrdersByPage(state, pendingOrdersPage));
+  const processingOrders = useSelector(state => selectProcessingOrdersByPage(state, processingOrdersPage));
+  const cancelledOrders = useSelector(state => selectCancelledOrdersByPage(state, cancelledOrdersPage));
+  const refundedOrders = useSelector(state => selectRefundedOrdersByPage(state, refundedOrdersPage));
   const {
     getOrdersTotalPage,
     getPendingOrdersTotalPage,
+    getProcessingOrdersTotalPage,
+    getCancelledOrdersTotalPage,
+    getRefundedOrdersTotalPage,
     getOrdersPages,
-    getPendingOrdersPages
+    getPendingOrdersPages,
+    getProcessingOrdersPages,
+    getCancelledOrdersPages,
+    getRefundedOrdersPages,
   } = useSelector(state => state.orders);
 
   useEffect(() => {
@@ -46,6 +72,20 @@ const OrderTabs = () => {
         dispatch(getPendingOrders({
           page: defaultPage,
           pageSize: PER_PAGE_OPTIONS[0]}));
+        break;
+
+      case STATUS.PROCESSING:
+        dispatch(getProcessingOrders({
+          page: defaultPage,
+          pageSize: PER_PAGE_OPTIONS[0]
+        }));
+        break;
+
+      case STATUS.CANCELLED:
+        dispatch(getCancelledOrders({
+          page: defaultPage,
+          pageSize: PER_PAGE_OPTIONS[0]
+        }));
         break;
 
       default:
@@ -109,6 +149,72 @@ const OrderTabs = () => {
     }
   };
 
+  const handleProcessingOrdersPerPageChange = (event) => {
+    setProcessingOrdersPerPage(event.target.value);
+    setProcessingOrdersPage(defaultPage);
+    dispatch(getProcessingOrders({
+      page: defaultPage,
+      pageSize: event.target.value
+    }));
+  };
+
+  const handleProcessingOrdersPageChange = (event, value) => {
+    setProcessingOrdersPage(value);
+
+    const isPreviousSelectedPage = getProcessingOrdersPages.indexOf(value) > -1;
+
+    if (!isPreviousSelectedPage) {
+      dispatch(getProcessingOrders({
+        page: value,
+        pageSize: processingOrdersPerPage
+      }));
+    }
+  };
+
+  const handleCancelledOrdersPerPageChange = (event) => {
+    setCancelledOrdersPerPage(event.target.value);
+    setCancelledOrdersPage(defaultPage);
+    dispatch(getCancelledOrders({
+      page: defaultPage,
+      pageSize: event.target.value
+    }));
+  };
+
+  const handleCancelledOrdersPageChange = (event, value) => {
+    setCancelledOrdersPage(value);
+
+    const isPreviousSelectedPage = getCancelledOrdersPages.indexOf(value) > -1;
+
+    if (!isPreviousSelectedPage) {
+      dispatch(getCancelledOrders({
+        page: value,
+        pageSize: cancelledOrdersPerPage
+      }));
+    }
+  };
+
+  const handleRefundedOrdersPerPageChange = (event) => {
+    setRefundedOrdersPerPage(event.target.value);
+    setRefundedOrdersPage(defaultPage);
+    dispatch(getRefundedOrders({
+      page: defaultPage,
+      pageSize: event.target.value
+    }));
+  };
+
+  const handleRefundedOrdersPageChange = (event, value) => {
+    setRefundedOrdersPage(value);
+
+    const isPreviousSelectedPage = getRefundedOrdersPages.indexOf(value) > -1;
+
+    if (!isPreviousSelectedPage) {
+      dispatch(getRefundedOrders({
+        page: value,
+        pageSize: refundedOrdersPerPage
+      }));
+    }
+  };
+
   return (
     <TabContext value={tab}>
     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -138,6 +244,39 @@ const OrderTabs = () => {
             onPerPageChange={handlePendingOrdersPerPageChange}
             perPageOptions={PER_PAGE_OPTIONS}
             totalPage={getPendingOrdersTotalPage}
+          />
+        </TabPanel>
+        <TabPanel sx={{ px: 0 }} value={STATUS.PROCESSING}>
+          <OrderTab
+            orders={processingOrders}
+            page={processingOrdersPage}
+            onPageChange={handleProcessingOrdersPageChange}
+            perPage={processingOrdersPerPage}
+            onPerPageChange={handleProcessingOrdersPerPageChange}
+            perPageOptions={PER_PAGE_OPTIONS}
+            totalPage={getProcessingOrdersTotalPage}
+          />
+        </TabPanel>
+        <TabPanel sx={{ px: 0 }} value={STATUS.CANCELLED}>
+          <OrderTab
+            orders={cancelledOrders}
+            page={cancelledOrdersPage}
+            onPageChange={handleCancelledOrdersPageChange}
+            perPage={cancelledOrdersPerPage}
+            onPerPageChange={handleCancelledOrdersPerPageChange}
+            perPageOptions={PER_PAGE_OPTIONS}
+            totalPage={getCancelledOrdersTotalPage}
+          />
+        </TabPanel>
+        <TabPanel sx={{ px: 0 }} value={STATUS.REFUNDED}>
+          <OrderTab
+            orders={refundedOrders}
+            page={refundedOrdersPage}
+            onPageChange={handleRefundedOrdersPageChange}
+            perPage={refundedOrdersPerPage}
+            onPerPageChange={handleRefundedOrdersPerPageChange}
+            perPageOptions={PER_PAGE_OPTIONS}
+            totalPage={getRefundedOrdersTotalPage}
           />
         </TabPanel>
     </TabContext>

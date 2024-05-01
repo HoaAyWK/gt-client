@@ -52,6 +52,7 @@ const Checkout = () => {
   const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useLocalStorage('checkoutStep', 0);
   const { user } = useSelector((state) => state.auth);
+  const { hubConnection } = useSelector((state) => state.notifications);
 
   const addresses = useMemo(() => {
     if (!user || !user.addresses) {
@@ -125,6 +126,15 @@ const Checkout = () => {
           enqueueSnackbar('Checkout successfully!', { variant: 'success' });
           setActiveStep(0);
           dispatch(setEmptyCart());
+
+          try {
+            if (hubConnection) {
+              await hubConnection.invoke('NotifyAdminWhenOrderPlaced', result.data.id);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+
           navigate('/checkout-success');
 
           return;
