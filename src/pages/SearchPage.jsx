@@ -3,7 +3,7 @@ import { Box, Divider, Grid } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { SearchRefinement, SearchResult, RangeSlider, HierarchicalMenu } from '../features/search';
-import { LoadingPage } from '../components';
+import { LoadingPage, Page } from '../components';
 import SortByPriceButtons from '../features/search/SortByPriceButtons';
 import ACTION_STATUS from '../constants/actionStatus';
 import { getAlgoliaIndexSettings } from '../features/search/searchSlice';
@@ -61,58 +61,60 @@ const SearchPage = () => {
   }
 
   return (
-    <Grid container spacing={2} sx={{ pt: 2 }}>
-      <Grid item xs={12} md={3}>
-        <Box
-          sx={{
-            p: 2,
-            backgroundColor: (theme) => theme.palette.background.paper,
-            borderRadius: 1,
-          }}
-        >
-          {hierarchyAttributes.length > 0 && (
-            <>
-              <HierarchicalMenu
-                label='Categories'
-                attributes={hierarchyAttributes}
-                limit={5}
-                showMore={true}
-              />
-              <Divider sx={{ mb: 1 }} />
-            </>
-          )}
-          <RangeSlider label='Price' attribute='price' />
-          {attributesForFaceting.map(attribute => (
-            <Fragment key={attribute.facet}>
-              <Divider sx={{ my: 1 }} />
-              <SearchRefinement
-                key={attribute.facet}
-                label={attribute.label}
-                attribute={attribute.facet}
-                sortBy={['name:asc', 'count:desc']}
-                limit={5}
-                showMore={true}
-              />
-            </Fragment>
-          ))}
-        </Box>
+    <Page title='Search Products' sx={{ mt: 12 }}>
+      <Grid container spacing={2} sx={{ pt: 2 }}>
+        <Grid item xs={12} md={3}>
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: (theme) => theme.palette.background.paper,
+              borderRadius: 1,
+            }}
+          >
+            {hierarchyAttributes.length > 0 && (
+              <>
+                <HierarchicalMenu
+                  label='Categories'
+                  attributes={hierarchyAttributes}
+                  limit={5}
+                  showMore={true}
+                />
+                <Divider sx={{ mb: 1 }} />
+              </>
+            )}
+            <RangeSlider label='Price' attribute='price' />
+            {attributesForFaceting.map(attribute => (
+              <Fragment key={attribute.facet}>
+                <Divider sx={{ my: 1 }} />
+                <SearchRefinement
+                  key={attribute.facet}
+                  label={attribute.label}
+                  attribute={attribute.facet}
+                  sortBy={['name:asc', 'count:desc']}
+                  limit={5}
+                  showMore={true}
+                />
+              </Fragment>
+            ))}
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={9}>
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              mb: 2,
+              backgroundColor: (theme) => theme.palette.background.neutral,
+              p: 1,
+              borderRadius: 1
+            }}
+          >
+            <SortByPriceButtons items={sortByItems} />
+          </Box>
+          <SearchResult />
+        </Grid>
       </Grid>
-      <Grid item xs={12} md={9}>
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            mb: 2,
-            backgroundColor: (theme) => theme.palette.background.neutral,
-            p: 1,
-            borderRadius: 1
-          }}
-        >
-          <SortByPriceButtons items={sortByItems} />
-        </Box>
-        <SearchResult />
-      </Grid>
-    </Grid>
+    </Page>
   );
 };
 

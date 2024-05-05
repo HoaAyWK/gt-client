@@ -19,7 +19,6 @@ import { Cover, Iconify, Label } from "../../../components";
 import { fCurrency } from "../../../utils/formatNumber";
 import { addToCart } from "../cartSlice";
 import { createFavorite, deleteFavorite } from "../productFavoriteSlice";
-import { useLocalStorage } from "../../../hooks";
 import path from "path";
 
 const StyledDefaultIconButton = styled(IconButton)(({ theme }) => ({
@@ -47,7 +46,8 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
     discount,
     averageRating,
     finalPrice,
-    hasVariant
+    hasVariant,
+    attributes
   } = product;
 
   const dispatch = useDispatch();
@@ -270,6 +270,23 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
             {name}
           </Typography>
         </Link>
+        <Stack spacing={0.5} direction='row' sx={{ mb: 1 }}>
+          {Object.keys(attributes).map(key => (
+            <Box
+              key={key}
+              sx={{
+                borderRadius: theme => theme.spacing(0.5),
+                border: theme => `1px solid ${theme.palette.primary.main}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                px: 1
+              }}
+            >
+              <Typography variant='caption' color='primary'>{attributes[key]}</Typography>
+            </Box>
+          ))}
+        </Stack>
         <Rating readOnly value={averageRating} size="small" precision={0.5} />
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Stack

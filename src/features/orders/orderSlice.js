@@ -8,6 +8,7 @@ const orderAdapter = createEntityAdapter();
 
 const orderAdapterInitialState = orderAdapter.getInitialState({
   order: null,
+  confirmOrderReceivedStatus: ACTION_STATUS.IDLE,
   getOrderStatus: ACTION_STATUS.IDLE,
   getOrdersStatus: ACTION_STATUS.IDLE,
   getOrdersPages: [],
@@ -79,6 +80,13 @@ export const getCancelledOrders = createAsyncThunk(
   async (data) => {
     const { page, pageSize } = data;
     return await orderApi.getOrders(page, pageSize, STATUS.CANCELLED);
+  }
+);
+
+export const confirmOrderReceived = createAsyncThunk(
+  'orders/confirmOrderReceived',
+  async (orderId) => {
+    return await orderApi.confirmOrderReceived(orderId);
   }
 );
 
@@ -294,6 +302,21 @@ const orderSlice = createSlice({
       })
       .addCase(getRefundedOrders.rejected, (state) => {
         state.getRefundedOrdersStatus = ACTION_STATUS.FAILED;
+      })
+
+
+      .addCase(confirmOrderReceived.pending, (state) => {
+        state.confirmOrderReceivedStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(confirmOrderReceived.fulfilled, (state, action) => {
+        state.confirmOrderReceivedStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          state.order = action.payload.data;
+        }
+      })
+      .addCase(confirmOrderReceived.rejected, (state) => {
+        state.confirmOrderReceivedStatus = ACTION_STATUS.FAILED;
       })
   }
 });

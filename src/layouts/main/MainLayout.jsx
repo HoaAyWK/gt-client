@@ -14,7 +14,7 @@ import { Loading } from "../../components";
 import { clearData } from "../../features/common/cartSlice";
 import ACTION_STATUS from "../../constants/actionStatus";
 import { createNotificationsHub } from "../../services/hubs";
-import { setHubConnection } from "../../features/common/notificationSlice";
+import { setHubConnection, addNewNotification } from "../../features/common/notificationSlice";
 
 const APP_ID = import.meta.env.VITE_ALGOLIA_APP_ID;
 const API_KEY = import.meta.env.VITE_ALGOLIA_API_KEY;
@@ -97,6 +97,11 @@ export default function Layout() {
 
       hubConnection.on('ReceiveNotification', (notification) => {
         console.log('Notification received:', notification);
+      });
+
+      hubConnection.on('NotifyCustomerWhenOrderStatusChange', (notification) => {
+        console.log(notification);
+        dispatch(addNewNotification(notification));
       });
     }
 

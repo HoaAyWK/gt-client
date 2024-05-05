@@ -10,7 +10,6 @@ import { Label } from '../../../../components';
 import { STATUS } from '../../../../constants/orderStatus';
 import { fCurrency } from '../../../../utils/formatNumber';
 import { fDateTime } from '../../../../utils/formatTime';
-import { cancelOrder, refresh } from '../../../common/orderSlice';
 import ACTION_STATUS from '../../../../constants/actionStatus';
 import { PAYMENT_OPTIONS } from '../../../../constants/payment';
 import ConfirmDialog from '../../../common/ConfirmDialog';

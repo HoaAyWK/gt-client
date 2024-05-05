@@ -1,22 +1,27 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   IconButton,
   Grid,
   Stack,
   Typography,
-  styled
+  styled,
+  Button
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { enqueueSnackbar } from 'notistack';
+import { unwrapResult } from '@reduxjs/toolkit';
 
 import { Iconify, Label, DashedLine, Loading } from '../../../components';
 import { OrderItemLine, OrderTimelines } from './components';
 import { fDateTime } from '../../../utils/formatTime';
 import { fCurrency } from '../../../utils/formatNumber';
 import creditCard from '../../../assets/icons/payments/ic_visa.svg';
-import { getOrder } from '../orderSlice';
+import { confirmOrderReceived, getOrder } from '../orderSlice';
 import ACTION_STATUS from '../../../constants/actionStatus';
+import { STATUS, ORDER_STATUS_HISTORY } from '../../../constants/orderStatus';
+import ConfirmDialogV2 from '../../common/ConfirmDialogV2';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.content,
@@ -25,7 +30,14 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }));
 
 const OrderDetails = ({ id }) => {
-  const { order, getOrderStatus } = useSelector(state => state.orders);
+  const {
+    order,
+    getOrderStatus,
+    confirmOrderReceivedStatus
+  } = useSelector(state => state.orders);
+
+  const { hubConnection } = useSelector((state) => state.notifications);
+  const [openConfirmReceivedDialog, setOpenConfirmReceivedDialog] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const totalDiscount = useMemo(() => {
@@ -36,12 +48,80 @@ const OrderDetails = ({ id }) => {
     return order.orderItems.reduce((acc, item) => acc + item.totalDiscount, 0);
   }, [order]);
 
+  const statusColor = useMemo(() => {
+    if (!order) {
+      return 'inherit';
+    }
+
+    switch (order.orderStatus) {
+      case STATUS.PENDING:
+        return 'warning';
+      case STATUS.PROCESSING:
+        return 'warning';
+      case STATUS.COMPLETED:
+        return 'success';
+      default:
+        return 'error';
+    }
+  }, [order]);
+
+  const canCompleteOrder = useMemo(() => {
+    if (!order) {
+      return false;
+    }
+
+    const latestStatusTracking = order.orderStatusHistoryTrackings[0];
+
+    return latestStatusTracking.status === ORDER_STATUS_HISTORY.ORDER_RECEIVED;
+  }, [order]);
+
   useEffect(() => {
     dispatch(getOrder(id));
   }, [id]);
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handleOpenConfirmReceivedDialog = () => {
+    setOpenConfirmReceivedDialog(true);
+  };
+
+  const handleCloseConfirmReceivedDialog = () => {
+    setOpenConfirmReceivedDialog(false);
+  };
+
+  const handleConfirmReceived = async () => {
+    const actionResult = await dispatch(confirmOrderReceived(order.id));
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+      enqueueSnackbar('Confirmed successfully', { variant: 'success' });
+
+      if (hubConnection) {
+        try {
+          await hubConnection.invoke('NotifyAdminWhenOrderCompletedByCustomer', order.id);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      handleCloseConfirmReceivedDialog();
+      return;
+    }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   if ( getOrderStatus === ACTION_STATUS.IDLE ||
@@ -59,20 +139,42 @@ const OrderDetails = ({ id }) => {
 
   return (
     <Box>
-      <Stack spacing={0.5} sx={{ mb: 2 }}>
-        <Stack spacing={1} direction='row' sx={{ alignItems: 'center' }}>
-          <IconButton onClick={handleBack}>
-            <Iconify icon='eva:arrow-ios-back-outline' width={24} height={24} />
-          </IconButton>
-          <Typography variant='h6' component='h1'>Order #{order.orderNumber}</Typography>
-          <Label>{order.orderStatus}</Label>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2,
+          flexWrap: 'wrap'
+        }}
+      >
+        <Stack spacing={0.5}>
+          <Stack spacing={1} direction='row' sx={{ alignItems: 'center' }}>
+            <IconButton onClick={handleBack}>
+              <Iconify icon='eva:arrow-ios-back-outline' width={24} height={24} />
+            </IconButton>
+            <Typography variant='h6' component='h1'>Order #{order.orderNumber}</Typography>
+            <Label color={statusColor}>{order.orderStatus}</Label>
+          </Stack>
+          <Box>
+            <Typography variant='body1' color='text.secondary' sx={{ ml: 6 }}>
+              Order date: {fDateTime(order.createdDateTime)}
+            </Typography>
+          </Box>
         </Stack>
-        <Box>
-          <Typography variant='body1' color='text.secondary' sx={{ ml: 6 }}>
-            Order date: {fDateTime(order.createdDateTime)}
-          </Typography>
-        </Box>
-      </Stack>
+        <Stack direction='row' spacing={0.5}>
+          {canCompleteOrder && (
+            <Button
+              variant='contained'
+              color='primary'
+              size='small'
+              onClick={handleOpenConfirmReceivedDialog}
+            >
+              Confirm Received
+            </Button>
+          )}
+        </Stack>
+      </Box>
       <Box>
         <Grid container spacing={0}>
           <Grid xs={12} md={7.95}>
@@ -202,6 +304,14 @@ const OrderDetails = ({ id }) => {
           </Grid>
         </Grid>
       </Box>
+      <ConfirmDialogV2
+        dialogTitle='Confirm Received'
+        dialogContent='Are you sure you want to confirm that you have received the order?'
+        open={openConfirmReceivedDialog}
+        handleClose={handleCloseConfirmReceivedDialog}
+        status={confirmOrderReceivedStatus}
+        onConfirm={handleConfirmReceived}
+      />
     </Box>
   );
 };

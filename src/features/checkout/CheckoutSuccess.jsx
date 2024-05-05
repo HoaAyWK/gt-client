@@ -5,14 +5,12 @@ import { useDispatch } from 'react-redux';
 
 import checkout from '../../assets/images/checkout.png';
 import { runFireworks } from '../../utils/runFireworks';
-import { clearGetDataStatus } from '../common/orderSlice';
 
 const CheckoutSuccess = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
     runFireworks();
-    dispatch(clearGetDataStatus());
   }, []);
 
   return (

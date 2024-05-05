@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Typography, Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -13,6 +13,7 @@ import { STATUS } from '../../../constants/orderStatus';
 import { PAYMENT_OPTIONS } from '../../../constants/payment';
 import OrderItem from './OrderItem';
 import PATHS from '../../../constants/paths';
+// import ConfirmDialogV2 from '../../common/ConfirmDialogV2';
 
 const Order = ({ order }) => {
   const {
@@ -24,20 +25,25 @@ const Order = ({ order }) => {
     orderItems,
     paymentMethod
   } = order;
+
   const dispatch = useDispatch();
   const [openConfirmCancelDialog, setOpenConfirmCancelDialog] = useState(false);
+  const [openConfirmOrderReceivedDialog, setOpenConfirmOrderReceivedDialog] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const { cancelOrderStatus } = useSelector((state) => state.orders);
 
-  const labelColor = (status) => {
-    if (status === STATUS.PAID) {
-      return 'primary';
-    } else if (status === STATUS.PROCESSING) {
-      return 'warning';
-    } else if (status === STATUS.DELIVERED) {
-      return 'success';
-    } return 'error';
-  };
+  const statusColor = useMemo(() => {
+    switch (orderStatus) {
+      case STATUS.PENDING:
+        return 'warning';
+      case STATUS.PROCESSING:
+        return 'warning';
+      case STATUS.COMPLETED:
+        return 'success';
+      default:
+        return 'error';
+    }
+  }, [orderStatus]);
 
   const handleOpenConfirmCancelDialog = () => {
     setOpenConfirmCancelDialog(true);
@@ -45,6 +51,14 @@ const Order = ({ order }) => {
 
   const handleCloseConfirmCancelDialog = () => {
     setOpenConfirmCancelDialog(false);
+  };
+
+  const handleOpenConfirmOrderReceivedDialog = () => {
+    setOpenConfirmOrderReceivedDialog(true);
+  };
+
+  const handleCloseConfirmOrderReceivedDialog = () => {
+    setOpenConfirmOrderReceivedDialog(false);
   };
 
   return (
@@ -71,7 +85,7 @@ const Order = ({ order }) => {
             Order Date: {fDateTime(createdDateTime)}
           </Typography>
         </Stack>
-        <Label color={labelColor(orderStatus)}>{orderStatus}</Label>
+        <Label color={statusColor}>{orderStatus}</Label>
       </Box>
       <Box sx={{ mt: 1, mb: 3, borderBottom: `1px dashed`, borderColor: 'divider' }} />
       <Stack spacing={2}>
@@ -98,7 +112,7 @@ const Order = ({ order }) => {
       >
         <Stack spacing={2} direction='row'>
           <Button LinkComponent={RouterLink} to={`${PATHS.USER_ORDERS}/${id}`} color='inherit' variant='outlined'>Details</Button>
-          {orderStatus === STATUS.PROCESSING && paymentType === PAYMENT_OPTIONS.CASH && (
+          {orderStatus === STATUS.PENDING && paymentMethod === PAYMENT_OPTIONS.CASH && (
             <>
               <LoadingButton
                 color='error'
@@ -108,7 +122,7 @@ const Order = ({ order }) => {
               >
                 Cancel
               </LoadingButton>
-              <ConfirmDialog
+              {/* <ConfirmDialog
                 dialogTitle='Confirm cancel order'
                 dialogContent='Are you sure to cancel this order'
                 open={openConfirmCancelDialog}
@@ -116,7 +130,7 @@ const Order = ({ order }) => {
                 itemId={id}
                 // action={cancelOrder}
                 status={cancelOrderStatus}
-              />
+              /> */}
             </>
           )}
         </Stack>

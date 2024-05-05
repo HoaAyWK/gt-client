@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Grid, Box, Tab } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Tab } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -218,67 +218,67 @@ const OrderTabs = () => {
   return (
     <TabContext value={tab}>
     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-      <TabList onChange={handleTabChange} aria-label='profile tabs'>
+      <TabList onChange={handleTabChange} aria-label='order-tabs'>
         {Object.keys(STATUS).map((key) => (
           <Tab label={STATUS[key]} key={STATUS[key]} value={STATUS[key]} />
         ))}
       </TabList>
-      </Box>
-        <TabPanel sx={{ px: 0 }} value={STATUS.ALL}>
-          <OrderTab
-            orders={orders}
-            page={allOrdersPage}
-            onPageChange={handleAllOrdersPageChange}
-            perPage={allOrdersPerPage}
-            onPerPageChange={handleAllOrdersPerPageChange}
-            perPageOptions={PER_PAGE_OPTIONS}
-            totalPage={getOrdersTotalPage}
-          />
-        </TabPanel>
-        <TabPanel sx={{ px: 0 }} value={STATUS.PENDING}>
-          <OrderTab
-            orders={pendingOrders}
-            page={pendingOrdersPage}
-            onPageChange={handlePendingOrdersPageChange}
-            perPage={pendingOrdersPerPage}
-            onPerPageChange={handlePendingOrdersPerPageChange}
-            perPageOptions={PER_PAGE_OPTIONS}
-            totalPage={getPendingOrdersTotalPage}
-          />
-        </TabPanel>
-        <TabPanel sx={{ px: 0 }} value={STATUS.PROCESSING}>
-          <OrderTab
-            orders={processingOrders}
-            page={processingOrdersPage}
-            onPageChange={handleProcessingOrdersPageChange}
-            perPage={processingOrdersPerPage}
-            onPerPageChange={handleProcessingOrdersPerPageChange}
-            perPageOptions={PER_PAGE_OPTIONS}
-            totalPage={getProcessingOrdersTotalPage}
-          />
-        </TabPanel>
-        <TabPanel sx={{ px: 0 }} value={STATUS.CANCELLED}>
-          <OrderTab
-            orders={cancelledOrders}
-            page={cancelledOrdersPage}
-            onPageChange={handleCancelledOrdersPageChange}
-            perPage={cancelledOrdersPerPage}
-            onPerPageChange={handleCancelledOrdersPerPageChange}
-            perPageOptions={PER_PAGE_OPTIONS}
-            totalPage={getCancelledOrdersTotalPage}
-          />
-        </TabPanel>
-        <TabPanel sx={{ px: 0 }} value={STATUS.REFUNDED}>
-          <OrderTab
-            orders={refundedOrders}
-            page={refundedOrdersPage}
-            onPageChange={handleRefundedOrdersPageChange}
-            perPage={refundedOrdersPerPage}
-            onPerPageChange={handleRefundedOrdersPerPageChange}
-            perPageOptions={PER_PAGE_OPTIONS}
-            totalPage={getRefundedOrdersTotalPage}
-          />
-        </TabPanel>
+    </Box>
+      <TabPanel sx={{ px: 0 }} value={STATUS.ALL}>
+        <OrderTab
+          orders={orders}
+          page={allOrdersPage}
+          onPageChange={handleAllOrdersPageChange}
+          perPage={allOrdersPerPage}
+          onPerPageChange={handleAllOrdersPerPageChange}
+          perPageOptions={PER_PAGE_OPTIONS}
+          totalPage={getOrdersTotalPage}
+        />
+      </TabPanel>
+      <TabPanel sx={{ px: 0 }} value={STATUS.PENDING}>
+        <OrderTab
+          orders={pendingOrders}
+          page={pendingOrdersPage}
+          onPageChange={handlePendingOrdersPageChange}
+          perPage={pendingOrdersPerPage}
+          onPerPageChange={handlePendingOrdersPerPageChange}
+          perPageOptions={PER_PAGE_OPTIONS}
+          totalPage={getPendingOrdersTotalPage}
+        />
+      </TabPanel>
+      <TabPanel sx={{ px: 0 }} value={STATUS.PROCESSING}>
+        <OrderTab
+          orders={processingOrders}
+          page={processingOrdersPage}
+          onPageChange={handleProcessingOrdersPageChange}
+          perPage={processingOrdersPerPage}
+          onPerPageChange={handleProcessingOrdersPerPageChange}
+          perPageOptions={PER_PAGE_OPTIONS}
+          totalPage={getProcessingOrdersTotalPage}
+        />
+      </TabPanel>
+      <TabPanel sx={{ px: 0 }} value={STATUS.CANCELLED}>
+        <OrderTab
+          orders={cancelledOrders}
+          page={cancelledOrdersPage}
+          onPageChange={handleCancelledOrdersPageChange}
+          perPage={cancelledOrdersPerPage}
+          onPerPageChange={handleCancelledOrdersPerPageChange}
+          perPageOptions={PER_PAGE_OPTIONS}
+          totalPage={getCancelledOrdersTotalPage}
+        />
+      </TabPanel>
+      <TabPanel sx={{ px: 0 }} value={STATUS.REFUNDED}>
+        <OrderTab
+          orders={refundedOrders}
+          page={refundedOrdersPage}
+          onPageChange={handleRefundedOrdersPageChange}
+          perPage={refundedOrdersPerPage}
+          onPerPageChange={handleRefundedOrdersPerPageChange}
+          perPageOptions={PER_PAGE_OPTIONS}
+          totalPage={getRefundedOrdersTotalPage}
+        />
+      </TabPanel>
     </TabContext>
   );
 };

@@ -29,7 +29,7 @@ const StyledRedIconButton = styled(IconButton)(({ theme }) => ({
 }));
 
 const SearchHit = ({ hit, sendEvent, favorites }) => {
-  const { objectID, name, price, discount, image, averageRating } = hit;
+  const { objectID, name, price, discount, image, averageRating, attributes } = hit;
   const dispatch = useDispatch();
   const [localCart] = useLocalStorage('cart', null);
   const user = useSelector((state) => state.auth);
@@ -193,6 +193,23 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
             </Typography>
           </Link>
         </Tooltip>
+        <Stack spacing={0.5} direction='row' sx={{ mb: 1 }}>
+          {Object.keys(attributes).map(key => (
+            <Box
+              key={key}
+              sx={{
+                borderRadius: theme => theme.spacing(0.5),
+                border: theme => `1px solid ${theme.palette.primary.main}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                px: 1
+              }}
+            >
+              <Typography variant='caption' color='primary'>{attributes[key]}</Typography>
+            </Box>
+          ))}
+        </Stack>
         <Rating readOnly value={averageRating} size='small' precision={0.5} />
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Stack direction="row" alignItems="center" justifyContent="space-between">

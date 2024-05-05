@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ORDER_STATUS, STATUS } from '../../../constants/orderStatus';
 import { Order } from './components';
 import { Page } from '../../../components';
-import { getMyBills, selectAllBills } from '../../common/orderSlice';
 import ACTION_STATUS from '../../../constants/actionStatus';
 import { Navigate } from 'react-router-dom';
 

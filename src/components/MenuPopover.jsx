@@ -21,22 +21,24 @@ const ArrowStyle = styled('span')(({ theme }) => ({
 
 const MenuPopover = ({ children, sx, ...other }) => {
     return (
-        <Popover
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            PaperProps={{
-                sx: {
-                p: 1,
-                width: 200,
-                overflow: 'inherit',
-                ...sx,
-                },
-            }}
-            {...other}
-        >
-        <ArrowStyle className="arrow" />
-            {children}
-        </Popover>
+      <Popover
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{
+          paper: {
+            sx: {
+              p: 1,
+              width: 320,
+              overflow: 'inherit',
+              ...sx,
+            },
+          }
+        }}
+        {...other}
+      >
+      <ArrowStyle className="arrow" />
+          {children}
+      </Popover>
     );
 };
 

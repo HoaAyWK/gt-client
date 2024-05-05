@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Badge,
@@ -10,169 +10,42 @@ import {
   Button,
   Tooltip
 } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { unwrapResult } from '@reduxjs/toolkit';
 
-import { Iconify, Scrollbar } from '../../../components';
+import { Iconify, Scrollbar, MenuPopover } from '../../../components';
 import NotificationItem from './NotificationItem';
+import {
+  selectAllNotifications,
+  getNotifications,
+  markAllNotificationsAsRead
+} from '../../../features/common/notificationSlice';
+import ACTION_STATUS from '../../../constants/actionStatus';
 
-const NOTIFICATIONS = [
-  {
-    id: '1',
-    message: 'Your order is placed',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '2',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '3',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '4',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '5',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '6',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '7',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '8',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '9',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-  {
-    id: '10',
-    message: 'Your order is shipped out',
-    domain: 'Orders',
-    isRead: false,
-    timestamp: '2021-06-12T09:30:00.000Z',
-    from: {
-      id: '1',
-      name: 'Cameron Williamson',
-    },
-    to: {
-      id: '2',
-      name: 'You',
-    }
-  },
-];
 
 const NotificationPopover = () => {
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
-
-  const totalUnRead = notifications.filter((item) => item.isRead === false).length;
-
+  const dispatch = useDispatch();
+  const notifications = useSelector(selectAllNotifications);
   const [open, setOpen] = useState(null);
+  const { user } = useSelector(state => state.auth);
+  const { getNotificationsStatus } = useSelector(state => state.notifications);
+
+  const totalUnRead = useMemo(() => {
+    if (notifications.length === 0) {
+      return 0;
+    }
+    return notifications.filter((item) => item.isRead === false).length;
+  }, [notifications]);
+
+  const sortedNotifications = useMemo(() => {
+    return notifications.toSorted((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  }, [notifications]);
+
+  useEffect(() => {
+    if (getNotificationsStatus === ACTION_STATUS.IDLE && user) {
+      dispatch(getNotifications(user.id));
+    }
+  }, [getNotificationsStatus, user]);
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -182,13 +55,28 @@ const NotificationPopover = () => {
     setOpen(null);
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        isRead: true,
-      }))
-    );
+  const handleMarkAllAsRead = async () => {
+    const actionResult = await dispatch(markAllNotificationsAsRead());
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+
+      return;
+    }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   return (
@@ -199,19 +87,10 @@ const NotificationPopover = () => {
         </Badge>
       </IconButton>
 
-      <Popover
+      <MenuPopover
         open={!!open}
         anchorEl={open}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            mt: 1.5,
-            ml: 0.75,
-            width: 360,
-          },
-        }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', py: 2, px: 2.5 }}>
           <Box sx={{ flexGrow: 1 }}>
@@ -234,7 +113,7 @@ const NotificationPopover = () => {
 
         <Scrollbar sx={{ height: { xs: 340, sm: 'auto' } }}>
           <List disablePadding>
-            {notifications.map((notification) => (
+            {sortedNotifications.map((notification) => (
               <NotificationItem key={notification.id} notification={notification} />
             ))}
           </List>
@@ -247,7 +126,7 @@ const NotificationPopover = () => {
             View All
           </Button>
         </Box>
-      </Popover>
+      </MenuPopover>
     </>
   );
 }
