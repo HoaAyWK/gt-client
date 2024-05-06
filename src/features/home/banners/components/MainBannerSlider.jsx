@@ -4,7 +4,8 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Box, List } from '@mui/material';
 
-import MainBannerSlide from './MainBannerSlide';
+import VerticalBannerSlide from './VerticalBannerSlide';
+import HorizontalBannerSlide from './HorizontalBannerSlide';
 
 const MainBannerSlider = ({ banners }) => {
   const sliderSettings = {
@@ -57,7 +58,9 @@ const MainBannerSlider = ({ banners }) => {
   return (
     <Slider {...sliderSettings}>
       {banners.map((banner) => (
-        <MainBannerSlide image={banner?.image} key={banner?.id} />
+        banner.direction === 'Horizontal'
+        ? (<HorizontalBannerSlide banner={banner} key={banner.id} />)
+        : (<VerticalBannerSlide banner={banner} key={banner.id} />)
       ))}
     </Slider>
   );

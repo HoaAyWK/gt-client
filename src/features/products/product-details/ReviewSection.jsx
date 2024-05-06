@@ -9,55 +9,53 @@ import { ProductReviewDialog } from '../../common/product-reviews';
 import { fShortenNumber2 } from '../../../utils/formatNumber';
 import ACTION_STATUS from '../../../constants/actionStatus';
 import ProductReviews from './product-reviews/ProductReviews';
-import { getProductReviewsByProductId, refresh } from '../../common/product-reviews/productReviewSlice';
 import discuss from '../../../assets/images/discuss.png';
 
-const REVIEWS = [
-  {
-    id: 1,
-    title: 'nice',
-    content: 'good product',
-    rating: 5,
-    createdDateTime: '2021-10-10T10:00:00Z',
-    owner: {
-      id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-      avatarUrl: 'https://randomuser.me/api/portraits'
-    },
-    comments: [
-      {
-        content: 'Thank you for your review',
-        createdDateTime: '2021-10-10T10:00:00Z',
-        owner: {
-          id: 2,
-          firstName: 'Jane',
-          lastName: 'Doe',
-          avatarUrl: 'https://randomuser.me/api/portraits'
-        }
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: 'good',
-    content: 'good product',
-    rating: 4,
-    createdDateTime: '2021-10-10T10:00:00Z',
-    owner: {
-      id: 2,
-      firstName: 'Jane',
-      lastName: 'Doe',
-      avatarUrl: 'https://randomuser.me/api/portraits'
-    },
-    comments: []
-  }
-];
+// const REVIEWS = [
+//   {
+//     id: 1,
+//     title: 'nice',
+//     content: 'good product',
+//     rating: 5,
+//     createdDateTime: '2021-10-10T10:00:00Z',
+//     owner: {
+//       id: 1,
+//       firstName: 'John',
+//       lastName: 'Doe',
+//       avatarUrl: 'https://randomuser.me/api/portraits'
+//     },
+//     comments: [
+//       {
+//         content: 'Thank you for your review',
+//         createdDateTime: '2021-10-10T10:00:00Z',
+//         owner: {
+//           id: 2,
+//           firstName: 'Jane',
+//           lastName: 'Doe',
+//           avatarUrl: 'https://randomuser.me/api/portraits'
+//         }
+//       }
+//     ]
+//   },
+//   {
+//     id: 2,
+//     title: 'good',
+//     content: 'good product',
+//     rating: 4,
+//     createdDateTime: '2021-10-10T10:00:00Z',
+//     owner: {
+//       id: 2,
+//       firstName: 'Jane',
+//       lastName: 'Doe',
+//       avatarUrl: 'https://randomuser.me/api/portraits'
+//     },
+//     comments: []
+//   }
+// ];
 
-const ReviewSection = ({ id, product, variant }) => {
+const ReviewSection = ({ id, product, variant, canReview }) => {
   const dispatch = useDispatch();
   const [openReview, setOpenReview] = useState(false);
-  const { user } = useSelector((state) => state.auth);
 
   const averageRating = useMemo(() => {
     if (variant) {
@@ -75,13 +73,44 @@ const ReviewSection = ({ id, product, variant }) => {
     return product.averageRating ? product.averageRating.numRatings : 0;
   }, [variant]);
 
-  const canReview = useMemo(() => {
-    if (user) {
-      return false;
+  const reviews = useMemo(() => {
+    if (product) {
+      return product.reviews;
     }
 
-    return false;
-  }, [user]);
+    return [];
+  }, [product]);
+
+  const reviewStats = useMemo(() => {
+    let stats = [
+      { 'value': 1, 'total': 0 },
+      { 'value': 2, 'total': 0 },
+      { 'value': 3, 'total': 0 },
+      { 'value': 4, 'total': 0 },
+      { 'value': 5, 'total': 0 }
+    ];
+
+    if (reviews.length === 0) {
+      return stats.reverse();
+    }
+
+    if (!variant) {
+      return stats.reverse();
+    }
+
+    const variantReviews = reviews.filter(review =>
+      JSON.stringify(review.attributeSelection) === JSON.stringify(variant.attributeSelection));
+
+    for (let i = 1; i <= 5; i++) {
+      variantReviews.forEach(review => {
+        if (review.rating === i) {
+          stats[i - 1].total += 1;
+        }
+      });
+    }
+
+    return stats.reverse();
+  }, [reviews, variant]);
 
   const handleCloseReview = () => {
     setOpenReview(false);
@@ -94,7 +123,7 @@ const ReviewSection = ({ id, product, variant }) => {
 
   return (
     <Box
-      sx={{ width: '100%', my: 4 }}
+      sx={{ width: '100%', mt: 4, mb: 8 }}
     >
       <StyledPaper>
         {averageRating > 0 && (
@@ -153,17 +182,17 @@ const ReviewSection = ({ id, product, variant }) => {
                 }}
               >
                 <Stack spacing={1}>
-                  {/* {reviewStats.map((rating) => (
+                  {reviewStats.map((rating) => (
                     <Stack spacing={2} direction='row' key={rating.name} alignItems='center'>
                       <Typography variant='subtitle1' color='text.primary'>
                         {rating.value} &nbsp; Star
                       </Typography>
-                      <LinearProgress color='inherit' variant='determinate' value={5} sx={{ minWidth: 200 }} />
+                      <LinearProgress color='inherit' variant='determinate' value={Math.ceil(rating.total / numRatings) * 100} sx={{ minWidth: 200 }} />
                       <Typography variant='subtitle1' color='text.secondary'>
                         {rating.total}
                       </Typography>
                     </Stack>
-                  ))} */}
+                  ))}
                 </Stack>
               </Box>
 
@@ -195,21 +224,21 @@ const ReviewSection = ({ id, product, variant }) => {
           dialogTitle='Write Review'
           open={openReview}
           handleClose={handleCloseReview}
-          isEdit={false}
-          productId={id}
+          productId={product?.id}
+          variant={variant}
         />
         <Box sx={{ px: 2, pb: 2 }}>
-          {REVIEWS.length === 0 ? (
+          {reviews.length === 0 ? (
               !canReview && (
                 <MessageForEmptyItem image={discuss} message='This product does not have any reviews.' />
               )
             ) : (
               <>
-                <ProductReviews reviews={REVIEWS} />
+                <ProductReviews reviews={reviews} />
               </>
             )}
         </Box>
-        {REVIEWS.length === 0 && canReview && (
+        {reviews.length === 0 && canReview && (
           <Box
             sx={{
               display: 'flex',

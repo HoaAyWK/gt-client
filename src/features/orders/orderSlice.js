@@ -8,6 +8,8 @@ const orderAdapter = createEntityAdapter();
 
 const orderAdapterInitialState = orderAdapter.getInitialState({
   order: null,
+  ordersByProductIdAndProductVariantId: [],
+  getOrdersByProductIdAndProductVariantIdStatus: ACTION_STATUS.IDLE,
   confirmOrderReceivedStatus: ACTION_STATUS.IDLE,
   getOrderStatus: ACTION_STATUS.IDLE,
   getOrdersStatus: ACTION_STATUS.IDLE,
@@ -87,6 +89,14 @@ export const confirmOrderReceived = createAsyncThunk(
   'orders/confirmOrderReceived',
   async (orderId) => {
     return await orderApi.confirmOrderReceived(orderId);
+  }
+);
+
+export const getOrdersByProductIdAndProductVariantId = createAsyncThunk(
+  'orders/getOrdersByProductIdAndProductVariantId',
+  async (data) => {
+    const { productId, productVariantId } = data;
+    return await orderApi.getOrdersByProductIdAndProductVariantId(productId, productVariantId);
   }
 );
 
@@ -317,6 +327,21 @@ const orderSlice = createSlice({
       })
       .addCase(confirmOrderReceived.rejected, (state) => {
         state.confirmOrderReceivedStatus = ACTION_STATUS.FAILED;
+      })
+
+
+      .addCase(getOrdersByProductIdAndProductVariantId.pending, (state) => {
+        state.getOrdersByProductIdAndProductVariantIdStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(getOrdersByProductIdAndProductVariantId.fulfilled, (state, action) => {
+        state.getOrdersByProductIdAndProductVariantIdStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          state.ordersByProductIdAndProductVariantId = action.payload.data.data;
+        }
+      })
+      .addCase(getOrdersByProductIdAndProductVariantId.rejected, (state) => {
+        state.getOrdersByProductIdAndProductVariantIdStatus = ACTION_STATUS.FAILED;
       })
   }
 });

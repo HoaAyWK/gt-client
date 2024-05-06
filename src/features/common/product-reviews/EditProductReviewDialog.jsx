@@ -9,7 +9,7 @@ import { LoadingButton } from '@mui/lab';
 import { unwrapResult } from '@reduxjs/toolkit';
 
 import { FormProvider, RHFRating, RHFEditor, RHFTextField } from '../../../components/hook-form';
-import { editProductReview, getProductReviewsByProductId } from './productReviewSlice';
+// import { editProductReview } from './productReviewSlice';
 import ACTION_STATUS from '../../../constants/actionStatus';
 
 const EditProductReviewDialog = (props) => {
@@ -48,7 +48,7 @@ const EditProductReviewDialog = (props) => {
 
       if (result) {
         enqueueSnackbar('Created successfully', { variant: 'success' });
-        dispatch(getProductReviewsByProductId(review.productId));
+        // dispatch(getProductReviewsByProductId(review.productId));
         handleClose();
         reset();
       }

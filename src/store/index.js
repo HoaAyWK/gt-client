@@ -17,6 +17,7 @@ import stateReducer from '../features/common/stateSlice';
 import orderStatusReducer from '../features/orders/orderStatusSlice';
 import orderReducer from '../features/orders/orderSlice';
 import notificationReducer from '../features/common/notificationSlice';
+import bannerReducer from '../features/home/banners/bannerSlice';
 
 export const store = configureStore({
   reducer: {
@@ -36,7 +37,8 @@ export const store = configureStore({
     countries: countryReducer,
     states: stateReducer,
     orders: orderReducer,
-    notifications: notificationReducer
+    notifications: notificationReducer,
+    banners: bannerReducer
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
     serializableCheck: false,

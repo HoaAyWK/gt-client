@@ -10,20 +10,16 @@ import { SyncSlider } from '../components';
 import { StyledPaper } from '../components/styles';
 import { Iconify, LoadingPage, QuantityControl, ShowMoreParagraph } from '../../../components';
 import { ColorButton, SpecificationsButton, AttributeValueButton, Divider as DashedDivider } from './components';
-import ACTION_STATUS from '../../../constants/actionStatus';
 import { fCurrency } from '../../../utils/formatNumber';
-import { createMarkup } from '../../../utils/sanitizeHtml';
 import { addToCart } from '../../common/cartSlice';
-import CommentSection from './CommentSection';
 import ReviewSection from './ReviewSection';
-import RelatedProducts from './RelatedProducts';
-import { getProduct } from '../productSlice';
 import AttributeList from './AttributeList';
 import PATHS from '../../../constants/paths';
 
 const ProductDetails = (props) => {
-  const { product, variant, combinableAttributes } = props;
+  const { product, variant, combinableAttributes, canReview } = props;
   const navigate = useNavigate();
+
   const [selectedAttributeValue, setSelectedAttributeValue] = useState(() => {
     if (!product.hasVariant ||
       combinableAttributes.length === 0 ||
@@ -257,6 +253,7 @@ const ProductDetails = (props) => {
       <ReviewSection
         product={product}
         variant={variant}
+        canReview={canReview}
       />
       {/* <CommentSection productId={id} /> */}
     </>

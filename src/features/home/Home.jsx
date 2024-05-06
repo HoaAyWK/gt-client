@@ -3,36 +3,30 @@ import { useDispatch, useSelector } from "react-redux";
 import { Box, Button } from "@mui/material";
 import { useHits } from "react-instantsearch-hooks-web";
 
-import {
-  getProductsPerCategory,
-} from "../common/productDetailsSlice";
-// import Banners from "./banners/Banners";
+import Banners from "./banners";
 import ProductListSection from "./ProductListSection";
 import ACTION_STATUS from "../../constants/actionStatus";
 import { BannersSkeleton } from "./banners/components";
 import ProductListSectionSkeleton from "./components/ProductListSectionSkeleton";
 import { SomethingWentWrong } from "../common/components";
 import {
-  getMyFavorites,
   selectAllFavorites,
 } from "../common/productFavoriteSlice";
 
 import { selectAllCategories, getCategoryTree } from "../common/categorySlice";
+import { getBanners, selectAllBanners } from "./banners/bannerSlice";
 
 const Home = () => {
   const dispatch = useDispatch();
   const [laptopPage, setLaptopPage] = useState(1);
-  const [smartphonePage, setSmartphonePage] = useState(1);
   const [laptopPerPage, setLaptopPerPage] = useState(8);
-  const [smartphonePerPage, setSmartphonePerPage] = useState(8);
-  const { getProductsPerCategoryStatus } = useSelector(
-    (state) => state.productDetails
-  );
   const { getCategoryTreeStatus } = useSelector((state) => state.categories);
   const categories = useSelector(selectAllCategories);
   const { user } = useSelector((state) => state.auth);
   const favorites = useSelector(selectAllFavorites);
   const { getFavoritesStatus } = useSelector((state) => state.favorites);
+  const { getBannersStatus } = useSelector((state) => state.banners);
+  const banners = useSelector(selectAllBanners);
   const { sendEvent, hits } = useHits();
 
   const laptops = [];
@@ -59,6 +53,10 @@ const Home = () => {
     if (getCategoryTreeStatus === ACTION_STATUS.IDLE) {
       dispatch(getCategoryTree());
     }
+
+    if (getBannersStatus === ACTION_STATUS.IDLE) {
+      dispatch(getBanners({ page: 0, pageSize: 0, order: 'asc', orderBy: 'displayOrder' }));
+    }
   }, []);
 
   const handleClickShowMoreLaptop = () => {
@@ -68,6 +66,8 @@ const Home = () => {
   if (
     getCategoryTreeStatus === ACTION_STATUS.IDLE ||
     getCategoryTreeStatus === ACTION_STATUS.LOADING ||
+    getBannersStatus === ACTION_STATUS.IDLE ||
+    getBannersStatus === ACTION_STATUS.LOADING ||
     hits.length === 0
   ) {
     return (
@@ -83,8 +83,8 @@ const Home = () => {
   }
 
   return (
-    <>
-      {/* <Banners banners={banners} /> */}
+    <Box sx={{ mt: 4 }}>
+      <Banners banners={banners} />
       <ProductListSection
         title="Laptops"
         // products={laptopsToShow}
@@ -138,7 +138,7 @@ const Home = () => {
           )}
         </>
       )} */}
-    </>
+    </Box>
   );
 };
 

@@ -10,9 +10,9 @@ const initialState = bannersAdapter.getInitialState({
 });
 
 export const getBanners = createAsyncThunk(
-  'banners/all',
-  async () => {
-    return await bannerApi.getAll();
+  'banners/getBanners',
+  async (params) => {
+    return await bannerApi.getBanners(params);
   }
 );
 
@@ -27,7 +27,10 @@ const bannerSlice = createSlice({
       })
       .addCase(getBanners.fulfilled, (state, action) => {
         state.getBannersStatus = ACTION_STATUS.SUCCEEDED;
-        bannersAdapter.setAll(state, action.payload);
+
+        if (action.payload.success) {
+          bannersAdapter.setAll(state, action.payload.data.items);
+        }
       })
       .addCase(getBanners.rejected, (state) => {
         state.getBannersStatus = ACTION_STATUS.FAILED;

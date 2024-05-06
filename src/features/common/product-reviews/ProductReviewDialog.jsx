@@ -10,13 +10,13 @@ import { useSnackbar } from 'notistack';
 
 import ACTION_STATUS from '../../../constants/actionStatus';
 import { FormProvider, RHFEditor, RHFRating } from '../../../components/hook-form';
-import { createProductReview } from './productReviewSlice';
+import { addReview } from './productReviewSlice';
 
 const ProductReviewDialog = (props) => {
   const { dialogTitle, dialogContent, open, handleClose, orderId, productId, variant } = props;
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const { createReviewStatus } = useSelector((state) => state.productReviews);
+  const { addReviewStatus } = useSelector((state) => state.productReviews);
 
   const ReviewSchema = Yup.object().shape({
     rating: Yup.number()
@@ -39,13 +39,14 @@ const ProductReviewDialog = (props) => {
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (data) => {
+    data.id = productId;
     data.productId = productId;
 
     if (variant) {
       data.productVariantId = variant.id;
     }
 
-    const actionResult = await dispatch(createProductReview(data));
+    const actionResult = await dispatch(addReview(data));
     const result = unwrapResult(actionResult);
 
     if (result.success) {
@@ -84,7 +85,7 @@ const ProductReviewDialog = (props) => {
           <Stack spacing={2}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography variant='body1'>Your review about this product: &nbsp;</Typography>
-              <RHFRating name='stars' />
+              <RHFRating name='rating' />
             </Box>
             <RHFEditor name='content' label='Content' />
           </Stack>
@@ -96,7 +97,7 @@ const ProductReviewDialog = (props) => {
               variant='contained'
               color='primary'
               type='submit'
-              loading={createReviewStatus === ACTION_STATUS.LOADING ? true : false}
+              loading={addReviewStatus === ACTION_STATUS.LOADING ? true : false}
             >
               Post Review
             </LoadingButton>

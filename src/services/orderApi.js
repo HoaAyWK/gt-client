@@ -23,6 +23,16 @@ class OrderApi {
     const url = `/api/orders/${id}/confirm-received`;
 
     return axiosClient.put(url, {});
+  };
+
+  getOrdersByProductIdAndProductVariantId = (productId, productVariantId) => {
+    let url = `/api/orders/specific-product?productId=${productId}`;
+
+    if (productVariantId) {
+      url += `&productVariantId=${productVariantId}`;
+    }
+
+    return axiosClient.get(url);
   }
 };
 
