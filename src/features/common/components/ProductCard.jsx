@@ -45,6 +45,7 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
     price,
     discount,
     averageRating,
+    numRatings,
     finalPrice,
     hasVariant,
     attributes
@@ -287,7 +288,14 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
             </Box>
           ))}
         </Stack>
-        <Rating readOnly value={averageRating} size="small" precision={0.5} />
+        <Stack spacing={0.5} direction='row' sx={{ alignItems: 'center' }} >
+          <Rating readOnly value={averageRating} size="small" precision={0.5} />
+          {numRatings > 0 && (
+            <Typography variant="body1" color="text.secondary">
+              ({numRatings})
+            </Typography>
+          )}
+        </Stack>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Stack
             direction="row"

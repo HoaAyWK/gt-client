@@ -13,6 +13,7 @@ const ProductPage = () => {
   const { id, variantId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth)
   const { getProductStatus, product } = useSelector(state => state.products);
   const { ordersByProductIdAndProductVariantId: orderedOrders } = useSelector(state => state.orders);
 
@@ -25,10 +26,10 @@ const ProductPage = () => {
   }, [id]);
 
   useEffect(() => {
-    if (product) {
+    if (product && user) {
       dispatch(getOrdersByProductIdAndProductVariantId({ productId: id, productVariantId: variantId }));
     }
-  }, [id, product, variantId]);
+  }, [id, product, variantId, user]);
 
   const variant = useMemo(() => {
     if (product) {

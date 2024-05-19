@@ -181,9 +181,15 @@ const ReviewSection = ({ id, product, variant, canReview }) => {
                   my: 2
                 }}
               >
-                <Stack spacing={1}>
+                <Stack spacing={1} sx={{ pr: 2 }}>
                   {reviewStats.map((rating) => (
-                    <Stack spacing={2} direction='row' key={rating.name} alignItems='center'>
+                    <Stack
+                      spacing={2}
+                      direction='row'
+                      key={rating.value}
+                      sx={{ alignItems: 'center', justifyContent: 'center' }}
+
+                    >
                       <Typography variant='subtitle1' color='text.primary'>
                         {rating.value} &nbsp; Star
                       </Typography>
@@ -195,7 +201,6 @@ const ReviewSection = ({ id, product, variant, canReview }) => {
                   ))}
                 </Stack>
               </Box>
-
             </Grid>
             <Grid item xs={12} md={4}
               sx={{

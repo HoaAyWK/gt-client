@@ -1,15 +1,14 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
-import { Box, Grid, Stack, Typography, Rating, Button } from '@mui/material';
+import React, { Fragment, useMemo, useState } from 'react';
+import { Box, Grid, Stack, Typography, Button } from '@mui/material';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import { Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
 import { SyncSlider } from '../components';
 import { StyledPaper } from '../components/styles';
-import { Iconify, LoadingPage, QuantityControl, ShowMoreParagraph } from '../../../components';
-import { ColorButton, SpecificationsButton, AttributeValueButton, Divider as DashedDivider } from './components';
+import { Iconify, QuantityControl, ShowMoreParagraph } from '../../../components';
+import { Divider as DashedDivider } from './components';
 import { fCurrency } from '../../../utils/formatNumber';
 import { addToCart } from '../../common/cartSlice';
 import ReviewSection from './ReviewSection';
