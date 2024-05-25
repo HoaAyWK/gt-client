@@ -19,7 +19,6 @@ import { Cover, Iconify, Label } from "../../../components";
 import { fCurrency } from "../../../utils/formatNumber";
 import { addToCart } from "../cartSlice";
 import { createFavorite, deleteFavorite } from "../productFavoriteSlice";
-import path from "path";
 
 const StyledDefaultIconButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.grey[900], 0.08),
@@ -272,7 +271,7 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
           </Typography>
         </Link>
         <Stack spacing={0.5} direction='row' sx={{ mb: 1 }}>
-          {Object.keys(attributes).map(key => (
+          {Object.keys(attributes).slice(0, 4).map(key => (
             <Box
               key={key}
               sx={{

@@ -46,8 +46,8 @@ const Footer = () => {
               sx={{ mr: 0.5 }}
             />
             <Stack spacing={-1.5}>
-              <StyledTextLogo variant='h6' component='h1'>HCI</StyledTextLogo>
-              <Typography variant='h6' component='h1'>2023</Typography>
+              <StyledTextLogo variant='h6' component='h1'>EStore</StyledTextLogo>
+              <Typography variant='h6' component='h1'>2024</Typography>
             </Stack>
           </Box>
           <Grid container spacing={2}>
