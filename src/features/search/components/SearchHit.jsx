@@ -194,7 +194,7 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
           </Link>
         </Tooltip>
         <Stack spacing={0.5} direction='row' sx={{ mb: 1 }}>
-          {Object.keys(attributes).map(key => (
+          {Object.keys(attributes).slice(0, 3).map(key => (
             <Box
               key={key}
               sx={{

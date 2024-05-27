@@ -5,16 +5,26 @@ import { fCurrency } from '../../../../utils/formatNumber';
 const SearchedProductItem = (props) => {
   const { item, components, navigate } = props;
   const realPrice = useMemo(() => {
-    return item.price - item.price * (item.discount / 100);
+    return item.price;
+  }, [item]);
+
+  const itemUrl = useMemo(() => {
+    let url = `/products/${item.productId}`;
+
+    if (item.productId !== item.objectID) {
+      url = `/products/${item.productId}/variants/${item.objectID}`;
+    }
+
+    return url;
   }, [item]);
 
   const handleClick = (e) => {
     e.preventDefault();
-    navigate(`/products/${item.objectID}`);
+    navigate(itemUrl);
   };
 
   return (
-    <a href={`/products/${item.objectID}`} onClick={handleClick} className='aa-ItemLink'>
+    <a href={itemUrl} onClick={handleClick} className='aa-ItemLink'>
       <Box className='aa-ItemContent' sx={{ display: 'flex' }}>
         <div className='aa-ItemIcon aa-ItemIcon--picture aa-ItemIcon--alignTop'>
           <Box

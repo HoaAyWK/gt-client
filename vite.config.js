@@ -12,6 +12,7 @@ export default defineConfig(({
     plugins: [react()],
     define: {
       __APP_ENV__: env.APP_ENV,
+      _global: ({})
     },
     server: {
       port: 3000,
