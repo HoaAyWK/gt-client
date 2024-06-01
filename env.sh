@@ -1,34 +1,27 @@
-# Build stage
-FROM node:20-alpine as build
+#!/bin/bash
+# Recreate config file
+rm -rf ./env-config.js
+touch ./env-config.js
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+# Add assignment
+echo "window._env_ = {" >> ./env-config.js
+# Read each line in .env file
+# Each line represents key=value pairs
+while read -r line || [[ -n "$line" ]];
+do
+  # Split env variables by character `=`
+  if printf '%s\n' "$line" | grep -q -e '='; then
+    varname=$(printf '%s\n' "$line" | sed -e 's/=.*//')
+    varvalue=$(printf '%s\n' "$line" | sed -e 's/^[^=]*=//')
+  fi
 
-# Production stage
-FROM nginx:1.23.2-alpine
+  # Read value of current variable if exists as Environment variable
+  value=$(printf '%s\n' "${!varname}")
+  # Otherwise use value from .env file
+  [[ -z $value ]] && value=${varvalue}
 
-# Copy the build output to the nginx html directory
-COPY --from=build /app/dist /usr/share/nginx/html
+  # Append configuration property to JS file
+  echo "  $varname: \"$value\"," >> ./env-config.js
+done < .env
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copy .env file and shell script to container
-WORKDIR /usr/share/nginx/html
-COPY env.sh ./
-COPY .env ./
-
-# Expose port 80
-EXPOSE 80
-
-# Add bash and dos2unix
-RUN apk add --no-cache bash dos2unix
-
-# Convert line endings and make our shell script executable
-RUN dos2unix env.sh && chmod +x env.sh
-
-# Start Nginx server
-CMD ["/bin/bash", "-c", "/usr/share/nginx/html/env.sh && nginx -g 'daemon off;'"]
+echo "}" >> ./env-config.js
