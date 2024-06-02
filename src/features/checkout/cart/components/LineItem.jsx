@@ -50,12 +50,12 @@ const LineItem = ({ cartId, item }) => {
 
   const handleIncreaseQuantity = () => {
     setItemQuantity(prev => prev + 1);
-    dispatch(addToCart({ productId, quantity: 1, type: TYPES.ADD }));
+    dispatch(addToCart({ productId, productVariantId, quantity: 1 }));
   };
 
   const handleDecreaseQuantity = () => {
     setItemQuantity(prev => prev - 1);
-    dispatch(addToCart({ productId, quantity: -1, type: TYPES.SUB }));
+    dispatch(addToCart({ productId, productVariantId, quantity: -1 }));
   };
 
   const handleClickDelete = () => {

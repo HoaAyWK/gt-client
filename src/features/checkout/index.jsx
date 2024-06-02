@@ -23,31 +23,6 @@ const steps = [
   'Payment'
 ];
 
-// const SHIPPING_ADDRESSES = [
-//   {
-//     id: 1,
-//     receiverName: 'John Doe',
-//     phoneNumber: '0123456789',
-//     isDefault: true,
-//     street: '1234 Main St',
-//     city: 'HCM',
-//     state: 'HCM',
-//     country: 'Vietnam',
-//     zipCode: '70000'
-//   },
-//   {
-//     id: 2,
-//     receiverName: 'Martin Johnson',
-//     phoneNumber: '0123456780',
-//     isDefault: false,
-//     street: '981 Main St',
-//     city: 'HCM',
-//     state: 'HCM',
-//     country: 'Vietnam',
-//     zipCode: '70000'
-//   },
-// ]
-
 const Checkout = () => {
   const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useLocalStorage('checkoutStep', 0);
@@ -184,7 +159,7 @@ const Checkout = () => {
     }
   };
 
-  if (!cart || !address ||
+  if (!cart ||
     checkoutStripeStatus === ACTION_STATUS.LOADING) {
     return (
       <Box

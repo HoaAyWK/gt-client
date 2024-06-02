@@ -110,7 +110,11 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
 
   const handleClickAddToCart = async () => {
     sendEvent("conversion", hit, "Add to cart");
-    const actionResult = await dispatch(addToCart({ productId: productId, productVariantId: variantId }));
+    const actionResult = await dispatch(addToCart({
+      productId: productId,
+      productVariantId: variantId,
+      quantity: 1 }));
+
     const result = unwrapResult(actionResult);
 
     if (result.success) {
@@ -134,7 +138,10 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
 
   const handleClickBuyNow = async () => {
     sendEvent("conversion", hit, "Add to cart and view cart");
-    const actionResult = await dispatch(addToCart({ productId: productId, productVariantId: variantId }));
+    const actionResult = await dispatch(addToCart({
+      productId: productId,
+      productVariantId: variantId,
+      quantity: 1 }));
     const result = unwrapResult(actionResult);
 
     if (result.success) {

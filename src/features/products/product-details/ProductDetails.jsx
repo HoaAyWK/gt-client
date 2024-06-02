@@ -95,7 +95,10 @@ const ProductDetails = (props) => {
 
   const handleClickAddToCart = async () => {
     try {
-      const actionResult = await dispatch(addToCart({ productId: id, quantity: quantity }));
+      const actionResult = await dispatch(addToCart({
+        productId: product.id,
+        productVariantId: variant?.id,
+        quantity: quantity }));
       const result = unwrapResult(actionResult);
 
       if (result) {

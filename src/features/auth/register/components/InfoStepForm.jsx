@@ -15,15 +15,13 @@ const InfoStepForm = (props) => {
   const InfoSchema = Yup.object().shape({
     firstName: Yup.string().required('First Name is required'),
     lastName: Yup.string().required('LastName is required'),
-    phone: Yup.string().required('Phone is required'),
-    dateOfBirth: Yup.string().required('Date Of Birth is required')
+    phone: Yup.string().required('Phone is required')
   });
 
   const defaultValues = {
     firstName: '',
     lastName: '',
     phone: '',
-    dateOfBirth: ''
   };
 
   const methods = useForm({
@@ -57,7 +55,6 @@ const InfoStepForm = (props) => {
             </Grid>
           </Grid>
           <RHFTextField name='phone' label='Phone' />
-          <RHFDateTextField name='dateOfBirth' label='Date Of Birth' />
         </Stack>
         <Box
           sx={{
