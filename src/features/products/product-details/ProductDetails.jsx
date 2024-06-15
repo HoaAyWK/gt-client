@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo, useState } from 'react';
-import { Box, Grid, Stack, Typography, Button } from '@mui/material';
+import { Box, Grid, Stack, Typography, Button, Rating } from '@mui/material';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
@@ -74,6 +74,20 @@ const ProductDetails = (props) => {
       !attribute.canCombine && attribute.attributeValues.length !== 0);
   }, [product]);
 
+  const averageRating = useMemo(() => {
+    if (variant) {
+      return variant.averageRating?.value ?? 0;
+    }
+    return product?.averageRating?.value ?? 0;
+  }, [variant]);
+
+  const numRatings = useMemo(() => {
+    if (variant) {
+      return variant.averageRating?.numRatings ?? 0;
+    }
+    return product?.averageRating?.numRatings ?? 0;
+  }, [variant]);
+
   const handleIncreaseQuantity = () => {
     setQuantity(prev => prev + 1);
   };
@@ -112,10 +126,15 @@ const ProductDetails = (props) => {
 
   const handleClickBuyNow = async () => {
     try {
-      const actionResult = await dispatch(addToCart({ productId: id, quantity: quantity }));
+      const actionResult = await dispatch(addToCart({
+        productId: product?.id,
+        productVariantId: variant?.id,
+        quantity: quantity }));
+
       const result = unwrapResult(actionResult);
 
       if (result) {
+        enqueueSnackbar(`Added ${quantity} item to your cart`, { variant: 'success' });
         setQuantity(1);
         navigate('/checkout');
       }
@@ -135,14 +154,13 @@ const ProductDetails = (props) => {
               <Typography variant='h5' component='h1'>
                 {product.name}
               </Typography>
-              {/* {product.averageRating > 0 && (
+
                 <Stack spacing={1} direction='row'>
-                  <Rating readOnly value={product.averageRating} precision={0.5} />
+                  <Rating readOnly value={averageRating} precision={0.5} />
                   <Typography variant='body1' color='text.secondary'>
-                    {`(${product.numReviews} ${product.numReviews > 1 ? 'reviews' : 'review'})`}
+                    {`(${numRatings} ${numRatings > 1 ? 'reviews' : 'review'})`}
                   </Typography>
                 </Stack>
-              )} */}
               <Stack spacing={1} direction='row' alignItems='center'>
                 <Typography variant='h3' component='span' color='error'>
                   {fCurrency(price)}

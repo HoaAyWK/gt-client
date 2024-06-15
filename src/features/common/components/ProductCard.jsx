@@ -55,6 +55,9 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const hit = { ...product };
+  const hasDiscount = useMemo(() => {
+    return finalPrice !== price;
+  }, [finalPrice, price]);
 
   const variantId = useMemo(() => {
     if (objectID === productId) {
@@ -99,14 +102,6 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
 
     return undefined;
   }, [favorites]);
-
-  const priceReal = useMemo(() => {
-    if (discount > 0) {
-      return price - price * (discount / 100);
-    }
-
-    return price;
-  }, [price, discount]);
 
   const handleClickAddToCart = async () => {
     sendEvent("conversion", hit, "Add to cart");
@@ -277,20 +272,22 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
             {name}
           </Typography>
         </Link>
-        <Stack spacing={0.5} direction='row' sx={{ mb: 1 }}>
-          {Object.keys(attributes).slice(0, 4).map(key => (
-            <Box
-              key={key}
-              sx={{
-                borderRadius: theme => theme.spacing(0.5),
-                border: theme => `1px solid ${theme.palette.primary.main}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                px: 1
-              }}
-            >
-              <Typography variant='caption' color='primary'>{attributes[key]}</Typography>
+        <Stack spacing={0} direction='row' sx={{ mb: 1, flexWrap: 'wrap' }}>
+          {Object.keys(attributes).slice(0, 3).map(key => (
+            <Box sx={{ mr: 1, mb: 0.5 }}>
+              <Box
+                key={key}
+                sx={{
+                  borderRadius: theme => theme.spacing(0.5),
+                  border: theme => `1px solid ${theme.palette.primary.main}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  px: 1
+                }}
+              >
+                <Typography variant='caption' color='primary'>{attributes[key]}</Typography>
+              </Box>
             </Box>
           ))}
         </Stack>
@@ -309,10 +306,9 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
             justifyContent="space-between"
           >
             <Typography variant="h6" component="p" color="error">
-              {/* {fCurrency(priceReal)} */}
-              {fCurrency(price)}
+              {fCurrency(finalPrice)}
               &nbsp;
-              {discount > 0 && (
+              {hasDiscount && (
                 <Typography
                   component="span"
                   variant="body1"
@@ -321,16 +317,16 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
                     textDecoration: "line-through",
                   }}
                 >
-                  {/* {discount && fCurrency(price)} */}
-                  {fCurrency(finalPrice)}
+                  {fCurrency(price)}
                 </Typography>
               )}
             </Typography>
           </Stack>
-          {discount > 0 && (
-            // <Label variant='outlined' color='error'>-{discount}%</Label>
-            <Label variant="outlined" color="error">
-              -50%
+          {discount && (
+            <Label variant='filled' color='error'>
+              {discount.usePercentage
+                ? `-${discount.discountPercentage * 100}%`
+                : `-${fCurrency(discount.discountAmount)}`}
             </Label>
           )}
         </Box>

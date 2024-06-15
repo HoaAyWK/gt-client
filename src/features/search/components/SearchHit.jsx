@@ -29,19 +29,24 @@ const StyledRedIconButton = styled(IconButton)(({ theme }) => ({
 }));
 
 const SearchHit = ({ hit, sendEvent, favorites }) => {
-  const { objectID, name, price, discount, image, averageRating, attributes } = hit;
+  const {
+    objectID,
+    name,
+    price,
+    finalPrice,
+    discount,
+    image,
+    averageRating,
+    numRatings,
+    attributes
+  } = hit;
   const dispatch = useDispatch();
   const [localCart] = useLocalStorage('cart', null);
   const user = useSelector((state) => state.auth);
   const { enqueueSnackbar } = useSnackbar();
-
-  const priceReal = useMemo(() => {
-    if (discount > 0) {
-      return price - (price * (discount / 100));
-    }
-
-    return price;
-  }, [price, discount]);
+  const hasDiscount = useMemo(() => {
+    return finalPrice !== price;
+  }, [finalPrice, price]);
 
   const isFavorite = useMemo(() => {
     if (favorites) {
@@ -138,6 +143,23 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
       onClick={() => sendEvent('click', hit, 'Product hit Clicked')}
     >
       <Box sx={{ pt: '100%', position: 'relative' }}>
+        <Box
+          sx={{
+            zIndex: 9,
+            top: 8,
+            left: 8,
+            position: 'absolute',
+            textTransform: 'uppercase',
+          }}
+        >
+          {discount && (
+            <Label variant='filled' color='error'>
+              {discount.usePercentage
+                ? `-${discount.discountPercentage * 100}%`
+                : `-${fCurrency(discount.discountAmount)}`}
+            </Label>
+          )}
+        </Box>
       {isFavorite ? (
           <StyledRedIconButton
             size='small'
@@ -214,9 +236,9 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Typography variant="h6" component='p' color='error'>
-              {fCurrency(priceReal)}
+              {fCurrency(finalPrice)}
               &nbsp;
-              {discount > 0 && (
+              {hasDiscount && (
                 <Typography
                   component="span"
                   variant="body1"
@@ -225,14 +247,11 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
                     textDecoration: 'line-through',
                   }}
                 >
-                  {discount && fCurrency(price)}
+                  {fCurrency(price)}
                 </Typography>
               )}
             </Typography>
           </Stack>
-          {discount > 0 && (
-            <Label variant='outlined' color='error'>-{discount}%</Label>
-          )}
         </Box>
       </Stack>
       <Box

@@ -1,6 +1,12 @@
 import { axiosClient } from './axios';
 
 class BrandApi {
+  getBrands = () => {
+    const url = '/api/brands';
+
+    return axiosClient.get(url);
+  };
+
   getAll = () => {
     const url = '/distributor/api';
 

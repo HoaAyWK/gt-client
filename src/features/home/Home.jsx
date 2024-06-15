@@ -15,6 +15,7 @@ import {
 
 import { selectAllCategories, getCategoryTree } from "../common/categorySlice";
 import { getBanners, selectAllBanners } from "./banners/bannerSlice";
+import { Brands } from "./brands";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -138,6 +139,7 @@ const Home = () => {
           )}
         </>
       )} */}
+      <Brands />
     </Box>
   );
 };
