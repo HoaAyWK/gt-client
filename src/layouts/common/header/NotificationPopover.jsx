@@ -114,7 +114,11 @@ const NotificationPopover = () => {
         <Scrollbar sx={{ height: { xs: 340, sm: 'auto' } }}>
           <List disablePadding>
             {sortedNotifications.map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                onClick={handleClose}
+              />
             ))}
           </List>
         </Scrollbar>

@@ -26,3 +26,12 @@ export const ORDER_STATUS_HISTORY = Object.freeze({
   ORDER_RECEIVED: 'OrderReceived',
   ORDER_COMPLETED: 'OrderCompleted'
 });
+
+export const ORDER_STATUS_LABEL = Object.freeze({
+  [ORDER_STATUS_HISTORY.ORDER_PLACED]: 'Order Placed',
+  [ORDER_STATUS_HISTORY.PAYMENT_INFO_CONFIRMED]: 'Payment Info Confirmed',
+  [ORDER_STATUS_HISTORY.ORDER_SHIPPED_OUT]: 'Order Shipped Out',
+  [ORDER_STATUS_HISTORY.IN_TRANSIT]: 'In Transit',
+  [ORDER_STATUS_HISTORY.ORDER_RECEIVED]: 'Order Received',
+  [ORDER_STATUS_HISTORY.ORDER_COMPLETED]: 'Order Completed'
+});

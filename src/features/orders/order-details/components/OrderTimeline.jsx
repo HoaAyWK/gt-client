@@ -10,6 +10,7 @@ import {
 import TimelineItem, { timelineItemClasses } from '@mui/lab/TimelineItem';
 
 import { fDateTime } from '../../../../utils/formatTime';
+import { ORDER_STATUS_LABEL } from '../../../../constants/orderStatus';
 
 const OrderTimeline = ({ orderStatusHistory, isActive }) => {
   return (
@@ -29,7 +30,7 @@ const OrderTimeline = ({ orderStatusHistory, isActive }) => {
         <TimelineContent>
           <Stack spacing={0.5}>
             <Typography variant='subtitle2' color='text.primary'>
-              {orderStatusHistory.status}
+              {ORDER_STATUS_LABEL[orderStatusHistory.status]}
             </Typography>
             <Typography variant='body2' color='text.secondary'>
               {fDateTime(orderStatusHistory.createdDateTime)}
