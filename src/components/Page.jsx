@@ -9,9 +9,10 @@ const Page = forwardRef(({ children, title = '', meta, ...other }, ref) => (
             <title>{`${title} | EStore`}</title>
             {meta}
         </Helmet>
-
-        <Box ref={ref} {...other}>
-            {children}
+        <Box sx={{ mb: 32 }}>
+          <Box ref={ref} {...other}>
+              {children}
+          </Box>
         </Box>
     </>
 ));

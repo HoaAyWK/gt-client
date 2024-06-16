@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Button, Grid, Stack, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { Cover } from '../../../../components';
+import PATHS from '../../../../constants/paths';
 
 const HorizontalBannerSlide = ({ banner }) => {
+  const url = useMemo(() => {
+    if (banner?.product) {
+      return PATHS.PRODUCTS + '/' + banner.product.id;
+    }
+
+    return '#';
+  }, [banner]);
+
   return (
     <Box
       component='span'
@@ -29,11 +39,11 @@ const HorizontalBannerSlide = ({ banner }) => {
               <Typography variant='h4' component='h1' textAlign='center' color='text.secondary'>
                 {banner?.product?.name}
               </Typography>
-              <Typography variant='body1' textAlign='center'>
+              <Typography variant='body1' textAlign='end'>
                 {banner?.product?.shortDescription}
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button variant='outlined'>
+                <Button variant='outlined' component={RouterLink} to={url} >
                   Details
                 </Button>
               </Box>
@@ -41,18 +51,27 @@ const HorizontalBannerSlide = ({ banner }) => {
         </Box>
         </Grid>
         <Grid item xs={12} md={7}>
-          <Cover
+          <Box
             sx={{
-              width: 'auto',
-              height: 480,
-              display: 'inline-block',
-              objectFit: 'cover',
-              borderRadius: 1
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%'
             }}
-            src={banner?.product?.imageUrl}
-            alt='Product Image'
-            loading='lazy'
-          />
+          >
+            <Cover
+              sx={{
+                width: 'auto',
+                height: 480,
+                display: 'inline-block',
+                objectFit: 'cover',
+                borderRadius: 1
+              }}
+              src={banner?.product?.imageUrl}
+              alt='Product Image'
+              loading='lazy'
+            />
+          </Box>
         </Grid>
       </Grid>
     </Box>

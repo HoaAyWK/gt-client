@@ -3,6 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { Box, Container, Grid, Link, Stack, Typography } from '@mui/material';
 
+import { Iconify } from '../../../components';
 import hciLogo from '/new_hci_logo.svg';
 import vnpay from '../../../assets/icons/payments/ic_vnpay.svg';
 import mastercard from '../../../assets/icons/payments/ic_mastercard.svg';
@@ -14,10 +15,25 @@ const StyledTextLogo = styled(Typography)(({ theme }) => ({
   WebkitBackdropFilter: 'transparent'
 }));
 
-const LINKS = [
-  { label: 'Home', path: '/'},
-  { label: 'About', path: '/' },
-  { label: 'Our Team', path: '/' }
+const ABOUT_LINKS = [
+  { label: 'About us', path: '/'},
+  { label: 'Trade-in', path: '/' },
+  { label: 'Student offer', path: '/' },
+  { label: "Military program", path: '/' },
+  { label: "We're hiring!", path: '/' }
+];
+
+const HELP_LINKS = [
+  { label: 'Shipping & Returns', path: '/' },
+  { label: 'Contact Us', path: '/' },
+  { label: 'FAQs', path: '/' },
+  { label: 'Protection plan', path: '/' },
+];
+
+const POLICY_LINKS = [
+  { label: 'Privacy Policy', path: '/' },
+  { label: 'Terms of Use', path: '/' },
+  { label: 'Sales and Refunds', path: '/' },
 ];
 
 const Footer = () => {
@@ -25,35 +41,41 @@ const Footer = () => {
     <Box
       sx={{
         width: '100%',
-        minHeight: 120,
+        minHeight: 240,
         backgroundColor: (theme) => theme.palette.background.default,
         position: 'absolute',
-        top: `calc(100% - 120px)`
+        top: `calc(100% - 240px)`
       }}
     >
       <Container maxWidth='lg'>
         <Stack spacing={8} direction='row'>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
+          <Box sx={{ pt: 2 }}>
             <Box
-              component='img'
-              src={hciLogo}
-              alt='logo'
-              sx={{ mr: 0.5 }}
-            />
-            <Stack spacing={-1.5}>
-              <StyledTextLogo variant='h6' component='h1'>EStore</StyledTextLogo>
-              <Typography variant='h6' component='h1'>2024</Typography>
-            </Stack>
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <Box
+                component='img'
+                src={hciLogo}
+                alt='logo'
+                sx={{ mr: 0.5, width: 28, height: 28 }}
+              />
+              <Stack spacing={-1.5}>
+                <StyledTextLogo variant='h6' component='h1'>EStore</StyledTextLogo>
+                <Typography variant='h6' component='h1'>2024</Typography>
+              </Stack>
+            </Box>
           </Box>
           <Grid container spacing={2}>
-            <Grid item xs={2}>
+            <Grid item xs={3}>
+              <Typography variant='h6' color='text.primary' sx={{ mb: 1 }}>
+                About
+              </Typography>
               <Stack spacing={0.5}>
-                {LINKS.map((link) => (
+                {ABOUT_LINKS.map((link) => (
                   <Link key={link.label} underline='none' component={RouterLink} to={link.path}>
                     <Typography variant='subtitle2' color='text.secondary'>
                       {link.label}
@@ -62,10 +84,34 @@ const Footer = () => {
                 ))}
               </Stack>
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={3}>
+              <Typography variant='h6' color='text.primary' sx={{ mb: 1 }}>
+                Help
+              </Typography>
+              <Stack spacing={0.5}>
+                {HELP_LINKS.map((link) => (
+                  <Link key={link.label} underline='none' component={RouterLink} to={link.path}>
+                    <Typography variant='subtitle2' color='text.secondary'>
+                      {link.label}
+                    </Typography>
+                  </Link>
+                ))}
+              </Stack>
+            </Grid>
+            <Grid item xs={3}>
+              <Typography variant='h6' color='text.primary' sx={{ mb: 1 }}>
+                Policy
+              </Typography>
+              {POLICY_LINKS.map((link) => (
+                <Link key={link.label} underline='none' component={RouterLink} to={link.path}>
+                  <Typography variant='subtitle2' color='text.secondary'>
+                    {link.label}
+                  </Typography>
+                </Link>
+              ))}
               <Stack spacing={0.5}>
                 <Typography variant='subtitle2' color='text.secondary'>
-                  Support Payments
+                  Payments 100% secure
                 </Typography>
                 <Stack spacing={1} direction='row'>
                   <Box
@@ -73,8 +119,8 @@ const Footer = () => {
                     src={vnpay}
                     alt='vnpay'
                     sx={{
-                      width: 32,
-                      height: 32
+                      width: 28,
+                      height: 28
                     }}
                   />
                   <Box
@@ -82,8 +128,8 @@ const Footer = () => {
                     src={mastercard}
                     alt='mastercard'
                     sx={{
-                      width: 32,
-                      height: 32
+                      width: 28,
+                      height: 28
                     }}
                   />
                   <Box
@@ -91,11 +137,30 @@ const Footer = () => {
                     src={visa}
                     alt='visa'
                     sx={{
-                      width: 32,
-                      height: 32
+                      width: 28,
+                      height: 28
                     }}
                   />
                 </Stack>
+              </Stack>
+            </Grid>
+            <Grid item xs={3}>
+              <Typography variant='h6' color='text.primary' sx={{ mb: 1 }}>
+                Contact
+              </Typography>
+              <Stack spacing={1} direction='row'>
+                <Box sx={{ cursor: 'pointer' }}>
+                  <Iconify icon='logos:facebook' color='#1877f2' width={28} height={28} />
+                </Box>
+                <Box sx={{ cursor: 'pointer' }}>
+                  <Iconify icon='devicon:twitter' color='#1da1f2' width={28} height={28} />
+                </Box>
+                <Box sx={{ cursor: 'pointer' }}>
+                  <Iconify icon='mdi:instagram' color='#c13584' width={28} height={28} />
+                </Box>
+                <Box sx={{ cursor: 'pointer' }}>
+                  <Iconify icon='mdi:youtube' color='#ff0000' width={28} height={28} />
+                </Box>
               </Stack>
             </Grid>
           </Grid>
