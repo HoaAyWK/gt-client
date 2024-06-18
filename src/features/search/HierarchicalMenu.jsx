@@ -7,10 +7,19 @@ import { HierarchicalList } from './components';
 const HierarchicalMenu = (props) => {
   const { label } = props;
   const [filter, setFilter] = useState('');
-  const { items, refine, canToggleShowMore, isShowingMore, toggleShowMore, searchForItems } = useHierarchicalMenu(props);
+  const {
+    items,
+    refine,
+    canToggleShowMore,
+    toggleShowMore,
+    isShowingMore,
+    createURL,
+  } = useHierarchicalMenu(props);
   const handleToggle = (value) => {
     refine(value);
   };
+
+  console.log('items', items);
 
   const handleFilter = (e) => {
     setFilter(e.target.value);
@@ -23,7 +32,11 @@ const HierarchicalMenu = (props) => {
         {label}
       </Typography>
       <Stack spacing={1}>
-        <HierarchicalList items={items} />
+        <HierarchicalList
+          items={items}
+          onNavigate={refine}
+          createURL={createURL}
+        />
       </Stack>
     </Stack>
   );

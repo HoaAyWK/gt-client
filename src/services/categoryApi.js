@@ -12,6 +12,12 @@ class CategoryApi {
 
     return axiosClient.get(url);
   };
+
+  getCategoryBySlug = (slug) => {
+    const url = `/api/categories/slugs/${slug}`;
+
+    return axiosClient.get(url);
+  }
 };
 
 export default new CategoryApi();

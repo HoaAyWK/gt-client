@@ -19,6 +19,7 @@ import {
   LaptopsPage,
   SmartphonesPage,
   CheckoutSuccessPage,
+  CategoryPage
 } from "./pages";
 
 const AddressSettingsPage = lazy(() => import("./pages/AddressSettingsPage"));
@@ -114,6 +115,10 @@ const Router = () => {
         { path: "checkout", element: <CheckoutPage /> },
         { path: "laptops", element: <LaptopsPage /> },
         { path: "smartphones", element: <SmartphonesPage /> },
+        {
+          path: "category/:category",
+          element: <CategoryPage />
+        },
         {
           path: "",
           element: <ProtectedRoute />,

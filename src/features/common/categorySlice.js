@@ -6,12 +6,21 @@ const categoryAdapter = createEntityAdapter();
 
 const initialState = categoryAdapter.getInitialState({
   getCategoryTreeStatus: ACTION_STATUS.IDLE,
+  getCategoryBySlugStatus: ACTION_STATUS.IDLE,
+  category: null
 });
 
 export const getCategoryTree = createAsyncThunk(
   'category/getTree',
   async () => {
     return await categoryApi.getCategoryTree();
+  }
+);
+
+export const getCategoryBySlug = createAsyncThunk(
+  'category/getBySlug',
+  async (slug) => {
+    return await categoryApi.getCategoryBySlug(slug);
   }
 );
 
@@ -34,6 +43,21 @@ const categorySlice = createSlice({
       })
       .addCase(getCategoryTree.rejected, (state) => {
         state.getCategoryTreeStatus = ACTION_STATUS.FAILED;
+      })
+
+
+      .addCase(getCategoryBySlug.pending, (state) => {
+        state.getCategoryBySlugStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(getCategoryBySlug.fulfilled, (state, action) => {
+        state.getCategoryBySlugStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          state.category = action.payload.data;
+        }
+      })
+      .addCase(getCategoryBySlug.rejected, (state) => {
+        state.getCategoryBySlugStatus = ACTION_STATUS.FAILED;
       })
   },
 });

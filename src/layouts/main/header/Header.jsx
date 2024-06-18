@@ -67,6 +67,12 @@ const StyledBox = styled(Box)(({ theme }) => ({
   },
 }));
 
+const StyledStack = styled(Stack)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.background.content, 0.1),
+  WebkitBackdropFilter: "blur(6px)",
+  backdropFilter: "blur(6px)",
+}));
+
 // ----------------------------------------------------------------------
 
 Header.propTypes = {
@@ -259,15 +265,14 @@ export default function Header({ user, onOpenNav }) {
             </Stack>
           </StyledToolbar>
           {categories.length > 0 && (
-            <Stack
+            <StyledStack
               direction="row"
               spacing={3}
-              backgroundColor={(theme) => theme.palette.background.content}
             >
               {categories.map((category) => (
                 <CategoryPopover key={category.id} category={category} />
               ))}
-            </Stack>
+            </StyledStack>
           )}
         </Box>
       </Container>

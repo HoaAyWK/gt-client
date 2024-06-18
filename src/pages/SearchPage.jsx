@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
-import { Box, Divider, Grid } from '@mui/material';
+import { Box, Divider, Grid, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { SearchRefinement, SearchResult, RangeSlider, HierarchicalMenu } from '../features/search';
@@ -11,8 +11,9 @@ import { getAlgoliaIndexSettings } from '../features/search/searchSlice';
 const SEARCH_INDEX = import.meta.env.VITE_ALGOLIA_INDEX;
 const sortByItems = [
   { label: 'Price', value: SEARCH_INDEX },
-  { label: 'Price (asc)', value: `${SEARCH_INDEX}_price_asc` },
-  { label: 'Price (desc)', value: `${SEARCH_INDEX}_price_desc` },
+  { label: 'Price ascending', value: `${SEARCH_INDEX}_price_asc` },
+  { label: 'Price descending', value: `${SEARCH_INDEX}_price_desc` },
+  { label: 'Latest products', value: `${SEARCH_INDEX}_latest_products` },
 ];
 
 const SearchPage = () => {
@@ -38,7 +39,11 @@ const SearchPage = () => {
 
   const attributesForFaceting = useMemo(() => {
     if (indexSettings && indexSettings.attributesForFaceting) {
-      return indexSettings.attributesForFaceting.filter((facet) => !facet.includes('categories') && !facet.includes('price'))
+      return indexSettings.attributesForFaceting.filter((facet) =>
+        !facet.includes('categories') &&
+        !facet.includes('price') &&
+        !facet.includes('finalPrice') &&
+        !facet.includes('categorySlug'))
         .map((facet) => {
           if (facet.includes('.')) {
             return { label: facet.split('.')[1], facet: facet } ;
@@ -82,7 +87,7 @@ const SearchPage = () => {
                 <Divider sx={{ mb: 1 }} />
               </>
             )}
-            <RangeSlider label='Price' attribute='price' />
+            <RangeSlider label='Price' attribute='finalPrice' />
             {attributesForFaceting.map(attribute => (
               <Fragment key={attribute.facet}>
                 <Divider sx={{ my: 1 }} />
@@ -105,10 +110,12 @@ const SearchPage = () => {
               display: 'flex',
               mb: 2,
               backgroundColor: (theme) => theme.palette.background.neutral,
+              alignItems: 'center',
               p: 1,
               borderRadius: 1
             }}
           >
+            <Typography variant='body1' color='text.primary' sx={{ mr: 2 }}>Sort by</Typography>
             <SortByPriceButtons items={sortByItems} />
           </Box>
           <SearchResult />

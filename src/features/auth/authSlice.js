@@ -185,6 +185,7 @@ const authSlice = createSlice({
             return;
           }
 
+          state.user.addresses = state.user.addresses.map(address => ({ ...address, isDefault: false }));
           const index = state.user.addresses.findIndex(address => address.id === action.payload.data.id);
           state.user.addresses[index] = action.payload.data;
         }

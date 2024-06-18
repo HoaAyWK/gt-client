@@ -36,7 +36,7 @@ const HorizontalBannerSlide = ({ banner }) => {
             }}
           >
             <Stack spacing={1}>
-              <Typography variant='h4' component='h1' textAlign='center' color='text.secondary'>
+              <Typography variant='h4' component='h1' textAlign='end' color='text.secondary'>
                 {banner?.product?.name}
               </Typography>
               <Typography variant='body1' textAlign='end'>

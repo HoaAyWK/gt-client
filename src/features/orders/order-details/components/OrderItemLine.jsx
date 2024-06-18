@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, IconButton, Stack, Typography, Tooltip, Grid } from '@mui/material';
 
-import { Iconify } from '../../../../components';
+import { fCurrency } from '../../../../utils/formatNumber';
 
 const OrderItemLine = ({ item }) => {
   const { productName, productImage, quantity, unitPrice, productAttributes } = item;
@@ -57,7 +57,7 @@ const OrderItemLine = ({ item }) => {
           }}
         >
           <Typography variant='subtitle2'>
-            ${unitPrice * quantity}
+            {fCurrency(unitPrice * quantity)}
           </Typography>
         </Box>
       </Grid>

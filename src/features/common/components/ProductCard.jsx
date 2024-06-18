@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { alpha, styled } from "@mui/material/styles";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
@@ -11,6 +11,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useSnackbar } from "notistack";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +20,7 @@ import { Cover, Iconify, Label } from "../../../components";
 import { fCurrency } from "../../../utils/formatNumber";
 import { addToCart } from "../cartSlice";
 import { createFavorite, deleteFavorite } from "../productFavoriteSlice";
+import ACTION_STATUS from "../../../constants/actionStatus";
 
 const StyledDefaultIconButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.grey[900], 0.08),
@@ -50,8 +52,10 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
     attributes
   } = product;
 
+  const [isBuyNowClicked, setIsBuyNowClicked] = useState(false);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const { addToCartStatus } = useSelector((state) => state.cart);
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const hit = { ...product };
@@ -132,6 +136,7 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
   };
 
   const handleClickBuyNow = async () => {
+    setIsBuyNowClicked(true);
     sendEvent("conversion", hit, "Add to cart and view cart");
     const actionResult = await dispatch(addToCart({
       productId: productId,
@@ -140,7 +145,9 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
     const result = unwrapResult(actionResult);
 
     if (result.success) {
+      setIsBuyNowClicked(false);
       navigate("/checkout");
+      return;
     }
 
     if (result.errors) {
@@ -151,10 +158,12 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
         }
       )});
 
+      setIsBuyNowClicked(false);
       return;
     }
 
     enqueueSnackbar(result.error, { variant: "error" });
+    setIsBuyNowClicked(false);
   };
 
   const handleClickHeart = async () => {
@@ -351,26 +360,28 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
       >
         <Grid container spacing={1}>
           <Grid item xs={7}>
-            <Button
+            <LoadingButton
               variant="contained"
               color="primary"
               fullWidth
               onClick={handleClickAddToCart}
+              loading={!isBuyNowClicked && addToCartStatus === ACTION_STATUS.LOADING}
             >
               {/* <Iconify icon='mdi:add-shopping-cart' width={24} height={24} />
               &nbsp; */}
               Add To Cart
-            </Button>
+            </LoadingButton>
           </Grid>
           <Grid item xs={5}>
-            <Button
+            <LoadingButton
               variant="contained"
               color="warning"
               fullWidth
               onClick={handleClickBuyNow}
+              loading={isBuyNowClicked && addToCartStatus === ACTION_STATUS.LOADING}
             >
               Buy Now
-            </Button>
+            </LoadingButton>
           </Grid>
         </Grid>
       </Box>

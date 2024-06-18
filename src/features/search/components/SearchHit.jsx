@@ -5,6 +5,7 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import { alpha, styled } from '@mui/material/styles';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, IconButton, Link, Stack, Rating, Tooltip, Typography } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 import { Cover, Label, Iconify } from '../../../components';
 import { fCurrency } from '../../../utils/formatNumber';
@@ -12,6 +13,7 @@ import { Highlight } from 'react-instantsearch-hooks-web';
 import { createFavorite, deleteFavorite } from '../../common/productFavoriteSlice';
 import { addToCart } from '../../common/cartSlice';
 import { useLocalStorage } from '../../../hooks';
+import ACTION_STATUS from '../../../constants/actionStatus';
 
 const StyledDefaultIconButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.grey[900], 0.08),
@@ -31,22 +33,42 @@ const StyledRedIconButton = styled(IconButton)(({ theme }) => ({
 const SearchHit = ({ hit, sendEvent, favorites }) => {
   const {
     objectID,
+    productId,
     name,
-    price,
-    finalPrice,
-    discount,
     image,
+    price,
+    discount,
     averageRating,
     numRatings,
+    finalPrice,
+    hasVariant,
     attributes
   } = hit;
+
   const dispatch = useDispatch();
   const [localCart] = useLocalStorage('cart', null);
   const user = useSelector((state) => state.auth);
+  const { addToCartStatus } = useSelector((state) => state.cart);
   const { enqueueSnackbar } = useSnackbar();
   const hasDiscount = useMemo(() => {
     return finalPrice !== price;
   }, [finalPrice, price]);
+
+  const variantId = useMemo(() => {
+    if (objectID === productId) {
+      return null;
+    }
+
+    return objectID;
+  }, [objectID, productId]);
+
+  const pathToProductDetails = useMemo(() => {
+    const url = `/products/${productId}`;
+    if (hasVariant) {
+      return `${url}/variants/${objectID}`;
+    }
+    return url;
+  }, [objectID, productId, hasVariant]);
 
   const isFavorite = useMemo(() => {
     if (favorites) {
@@ -79,7 +101,10 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
   const handleClickAddToCart = async () => {
     sendEvent('conversion', hit, 'Add to cart');
     try {
-      const actionResult = await dispatch(addToCart({ productId: hit.objectID, quantity: 1, userId: localCart }));
+      const actionResult = await dispatch(addToCart({
+        productId: productId,
+        productVariantId: variantId,
+        quantity: 1 }));
       const result = unwrapResult(actionResult);
 
       if (result) {
@@ -191,7 +216,7 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
             <Iconify icon='mdi:cards-heart' width={24} height={24} />
           </StyledDefaultIconButton>
         )}
-        <Link component={RouterLink} to={`/products/${objectID}`}>
+        <Link component={RouterLink} to={pathToProductDetails}>
           <Cover
             src={image}
             alt={name}
@@ -273,16 +298,17 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
         className='card-action'
       >
         <Stack spacing={0.5}>
-          <Button
+          <LoadingButton
             variant='contained'
             color='primary'
             fullWidth
             onClick={handleClickAddToCart}
+            loading={addToCartStatus === ACTION_STATUS.LOADING}
           >
             {/* <Iconify icon='mdi:add-shopping-cart' width={24} height={24} />
             &nbsp; */}
             Add To Cart
-          </Button>
+          </LoadingButton>
         </Stack>
       </Box>
     </Box>

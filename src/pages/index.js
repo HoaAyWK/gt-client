@@ -8,3 +8,4 @@ export { default as OrderDetailsPage } from './OrderDetailsPage';
 export { default as CheckoutSuccessPage } from './CheckoutSuccessPage';
 export { default as LaptopsPage } from './LaptopsPage';
 export { default as SmartphonesPage } from './SmartphonesPage';
+export { default as CategoryPage } from './CategoryPage';
