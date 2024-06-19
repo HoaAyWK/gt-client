@@ -188,23 +188,23 @@ const OrderDetails = ({ id }) => {
               <DashedLine />
               <Box sx={{ p: 2 }}>
                 <Grid container spacing={1}>
-                  <Grid item xs={10}>
+                  <Grid item xs={9}>
                     <Typography variant='body2' color='text.secondary' textAlign='end'>SubTotal</Typography>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <Typography variant='body1' textAlign='end'>{fCurrency(order.totalAmount)}</Typography>
                   </Grid>
-                  <Grid item xs={10}>
+                  <Grid item xs={9}>
                     <Typography variant='body2' color='text.secondary' textAlign='end'>Discount</Typography>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={3}>
                     <Typography variant='body1' color='error' textAlign='end'>-{fCurrency(totalDiscount)}</Typography>
                   </Grid>
-                  <Grid item xs={10}>
+                  <Grid item xs={9}>
                     <Typography variant='subtitle1' textAlign='end'>Total</Typography>
                   </Grid>
-                  <Grid item xs={2}>
-                  <Typography variant='subtitle1' textAlign='end'>{fCurrency(order.totalAmount)}</Typography>
+                  <Grid item xs={3}>
+                  <Typography variant='subtitle1' textAlign='end'>{fCurrency(order.totalAmount - totalDiscount)}</Typography>
                   </Grid>
                 </Grid>
               </Box>

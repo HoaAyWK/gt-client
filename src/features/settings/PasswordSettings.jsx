@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { unwrapResult } from '@reduxjs/toolkit';
 
+import { useLocalStorage } from '../../hooks';
 import { FormProvider, RHFTextField } from '../../components/hook-form';
 import { changePassword } from './accountSlice';
 import { logout } from '../auth/authSlice';
@@ -19,6 +20,7 @@ const PasswordSettings = () => {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
+  const [accessToken, setAccessToken] = useLocalStorage("accessToken", null);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -46,18 +48,29 @@ const PasswordSettings = () => {
   const { handleSubmit } = methods;
 
   const onSubmit = async (data) => {
-    try {
-      const actionResult = await dispatch(changePassword(data));
-      const result = unwrapResult(actionResult);
+    const actionResult = await dispatch(changePassword(data));
+    const result = unwrapResult(actionResult);
 
-      if (result) {
-        enqueueSnackbar('Changed password successfully. Please, log in again!', { variant: 'success' });
-        dispatch(logout());
-        navigate('/login');
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+    if (result.success) {
+      enqueueSnackbar('Changed password successfully. Please, log in again!', { variant: 'success' });
+      setAccessToken(null);
+      dispatch(logout());
+      navigate('/login');
+      return;
     }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   return (

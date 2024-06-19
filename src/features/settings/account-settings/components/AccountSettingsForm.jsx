@@ -34,7 +34,7 @@ const AccountSettingsForm = ({ user }) => {
     firstName: Yup.string().required('First Name is required.'),
     lastName: Yup.string().required('Last Name is required.'),
     email: Yup.string().required('Email is required.'),
-    phone: Yup.string()
+    phoneNumber: Yup.string()
       .required('Phone is required.')
       .matches(/^\+(?:[0-9] ?){6,14}[0-9]$/, 'Phone number is not valid.'),
     image: Yup.mixed()
@@ -44,7 +44,7 @@ const AccountSettingsForm = ({ user }) => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    phone: user.phone,
+    phoneNumber: user.phoneNumber,
     avatar: user.avatarUrl,
   };
 
@@ -56,6 +56,7 @@ const AccountSettingsForm = ({ user }) => {
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (data) => {
+    data.id = user.id;
     const actionResult = await dispatch(updateAccount(data));
     const result = unwrapResult(actionResult);
 
@@ -97,7 +98,7 @@ const AccountSettingsForm = ({ user }) => {
             <RHFTextField name='firstName' label='First Name' />
             <RHFTextField name='lastName' label='Last Name' />
             <RHFTextField name='email' label='Email' disabled />
-            <RHFTextField name='phone' label='Phone' />
+            <RHFTextField name='phoneNumber' label='Phone' />
           </Stack>
           <Box sx={{ mt: 2 }}>
             <LoadingButton

@@ -8,7 +8,7 @@ class OrderApi {
   };
 
   getOrders = (page, pageSize, status) => {
-    const url = `/api/orders/my?page=${page}&pageSize=${pageSize}&status=${status}`;
+    const url = `/api/orders/my?page=${page}&pageSize=${pageSize}&status=${status}&order=desc&orderBy=createdDateTime`;
 
     return axiosClient.get(url);
   };
@@ -33,7 +33,13 @@ class OrderApi {
     }
 
     return axiosClient.get(url);
-  }
+  };
+
+  cancelOrder = (id) => {
+    const url = `/api/orders/${id}/cancel`;
+
+    return axiosClient.put(url, {});
+  };
 };
 
 export default new OrderApi();

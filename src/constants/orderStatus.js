@@ -24,7 +24,8 @@ export const ORDER_STATUS_HISTORY = Object.freeze({
   ORDER_SHIPPED_OUT: 'OrderShippedOut',
   IN_TRANSIT: 'InTransit',
   ORDER_RECEIVED: 'OrderReceived',
-  ORDER_COMPLETED: 'OrderCompleted'
+  ORDER_COMPLETED: 'OrderCompleted',
+  ORDER_CANCELLED: 'OrderCancelled',
 });
 
 export const ORDER_STATUS_LABEL = Object.freeze({
@@ -33,5 +34,6 @@ export const ORDER_STATUS_LABEL = Object.freeze({
   [ORDER_STATUS_HISTORY.ORDER_SHIPPED_OUT]: 'Order Shipped Out',
   [ORDER_STATUS_HISTORY.IN_TRANSIT]: 'In Transit',
   [ORDER_STATUS_HISTORY.ORDER_RECEIVED]: 'Order Received',
-  [ORDER_STATUS_HISTORY.ORDER_COMPLETED]: 'Order Completed'
+  [ORDER_STATUS_HISTORY.ORDER_COMPLETED]: 'Order Completed',
+  [ORDER_STATUS_HISTORY.ORDER_CANCELLED]: 'Order Cancelled',
 });

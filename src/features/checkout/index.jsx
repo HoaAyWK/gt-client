@@ -101,7 +101,6 @@ const Checkout = () => {
           enqueueSnackbar('Checkout successfully!', { variant: 'success' });
           setActiveStep(0);
           dispatch(setEmptyCart());
-
           try {
             if (hubConnection) {
               await hubConnection.invoke('NotifyAdminWhenOrderPlaced', result.data.id);

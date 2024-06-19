@@ -36,7 +36,15 @@ const orderAdapterInitialState = orderAdapter.getInitialState({
   getRefundedOrdersPages: [],
   getRefundedOrdersPageSize: 5,
   getRefundedOrdersTotalPage: 0,
+  cancelOrderStatus: ACTION_STATUS.IDLE,
 });
+
+export const cancelOrder = createAsyncThunk(
+  'orders/cancelOrder',
+  async (orderId) => {
+    return await orderApi.cancelOrder(orderId);
+  }
+);
 
 export const getOrder = createAsyncThunk(
   'orders/getOrder',
@@ -104,6 +112,17 @@ const orderSlice = createSlice({
   name: 'orders',
   initialState: orderAdapterInitialState,
   reducers: {
+    resetGetCancelledOrdersPages: (state) => {
+      state.getCancelledOrdersPages = [];
+    },
+    resetGetPendingOrders: (state) => {
+      state.getPendingOrdersPages = [];
+      state.pendingOrders = [];
+    },
+    resetGetOrders: (state) => {
+      state.getOrdersPages = [];
+      orderAdapter.removeAll(state);
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -343,10 +362,36 @@ const orderSlice = createSlice({
       .addCase(getOrdersByProductIdAndProductVariantId.rejected, (state) => {
         state.getOrdersByProductIdAndProductVariantIdStatus = ACTION_STATUS.FAILED;
       })
+
+
+
+      .addCase(cancelOrder.pending, (state) => {
+        state.cancelOrderStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(cancelOrder.fulfilled, (state, action) => {
+        state.cancelOrderStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          const order = state.pendingOrders.find(order => order.id === action.payload.data.id);
+          if (order) {
+            state.pendingOrders = state.pendingOrders.filter(order => order.id !== action.payload.data.id);
+            state.cancelledOrders.push({ ...order, orderStatus: STATUS.CANCELLED })
+          }
+        }
+      })
+      .addCase(cancelOrder.rejected, (state) => {
+        state.cancelOrderStatus = ACTION_STATUS.FAILED;
+      })
   }
 });
 
-const { reducer } = orderSlice;
+const { reducer, actions } = orderSlice;
+
+export const {
+  resetGetCancelledOrdersPages,
+  resetGetPendingOrders,
+  resetGetOrders
+} = actions;
 
 export const {
   selectAll: selectAllOrders,

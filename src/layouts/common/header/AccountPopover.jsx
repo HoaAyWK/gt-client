@@ -15,6 +15,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 
 import { logout } from "../../../features/auth/authSlice";
+import { clearNotifications } from "../../../features/common/notificationSlice";
 import { clearData } from '../../../features/common/productFavoriteSlice';
 import { clearData as clearCart } from '../../../features/common/cartSlice';
 import ROLES from "../../../constants/userRoles";
@@ -34,7 +35,7 @@ const AccountPopover = ({ user, menuOptions }) => {
 
   const handleLogout = () => {
     dispatch(logout());
-
+    dispatch(clearNotifications());
     dispatch(clearData());
     dispatch(clearCart());
     setOpen(null);

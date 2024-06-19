@@ -4,10 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
 import { Iconify, Label } from '../../../components';
-import { deleteShippingAddress } from '../shippingAddressSlice';
 import { unwrapResult } from '@reduxjs/toolkit';
 import BillingAddressForm from '../BillingAddressForm';
-import { updateAddress } from '../../auth/authSlice';
+import { updateAddress, deleteAddress } from '../../auth/authSlice';
 
 const BillingAddress = ({ item, showTitle, onSelectAddress, onClickEdit, countries, sx }) => {
   const {
@@ -44,7 +43,7 @@ const BillingAddress = ({ item, showTitle, onSelectAddress, onClickEdit, countri
 
   const handleClickDelete = async () => {
     try {
-      const actionResult = await dispatch(deleteShippingAddress(id));
+      const actionResult = await dispatch(deleteAddress({ customerId: user.id, id }));
       const result = unwrapResult(actionResult);
 
       if (result) {

@@ -42,6 +42,9 @@ const notificationSlice = createSlice({
     },
     addNewNotification: (state, action) => {
       notificationAdapter.addOne(state, action.payload);
+    },
+    clearNotifications: (state) => {
+      notificationAdapter.removeAll(state);
     }
   },
   extraReducers: (builder) => {
@@ -105,6 +108,6 @@ export const {
 
 const { reducer, actions } = notificationSlice;
 
-export const { setHubConnection, addNewNotification } = actions;
+export const { setHubConnection, addNewNotification, clearNotifications } = actions;
 
 export default reducer;

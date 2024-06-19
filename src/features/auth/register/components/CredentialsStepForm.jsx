@@ -14,12 +14,12 @@ const CredentialsStepForm = (props) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const CredentialSchema = Yup.object().shape({
-    email: Yup.string().required('Email is required')
-    .email('Email must be a valid email address'),
-    password: Yup.string().required('Password is required'),
+    email: Yup.string().required('Email is required.')
+    .email('Email must be a valid email address.'),
+    password: Yup.string().required('Password is required.'),
     confirmPassword: Yup.string()
-      .required('Confirm Password is required')
-      .oneOf([Yup.ref('password'), null], 'Confirm Password must match Password'),
+      .required('Confirm Password is required.')
+      .oneOf([Yup.ref('password'), null], 'Confirm Password must match Password.'),
   });
 
   const defaultValues = {

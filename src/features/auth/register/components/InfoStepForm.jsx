@@ -13,15 +13,16 @@ const InfoStepForm = (props) => {
   const { storedData, visible, handleBack, status, submit } = props;
 
   const InfoSchema = Yup.object().shape({
-    firstName: Yup.string().required('First Name is required'),
-    lastName: Yup.string().required('LastName is required'),
-    phone: Yup.string().required('Phone is required')
+    firstName: Yup.string().required('First Name is required.'),
+    lastName: Yup.string().required('LastName is required.'),
+    phoneNumber: Yup.string().required('Phone is required.')
+      .matches(/^\+(?:[0-9] ?){6,14}[0-9]$/, 'Phone number is not valid.')
   });
 
   const defaultValues = {
     firstName: '',
     lastName: '',
-    phone: '',
+    phoneNumber: '',
   };
 
   const methods = useForm({
@@ -54,7 +55,7 @@ const InfoStepForm = (props) => {
               <RHFTextField name='lastName' label='Last Name' />
             </Grid>
           </Grid>
-          <RHFTextField name='phone' label='Phone' />
+          <RHFTextField name='phoneNumber' label='Phone' />
         </Stack>
         <Box
           sx={{

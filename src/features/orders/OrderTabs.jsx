@@ -16,9 +16,12 @@ import {
   selectProcessingOrdersByPage,
   selectCancelledOrdersByPage,
   selectRefundedOrdersByPage,
+  resetGetOrders,
+  resetGetPendingOrders,
 } from './orderSlice';
 import OrderTab from './OrderTab';
 import { STATUS } from '../../constants/orderStatus';
+import ACTION_STATUS from '../../constants/actionStatus';
 
 const PER_PAGE_OPTIONS = [5, 10, 25];
 
@@ -45,6 +48,7 @@ const OrderTabs = () => {
   const processingOrders = useSelector(state => selectProcessingOrdersByPage(state, processingOrdersPage));
   const cancelledOrders = useSelector(state => selectCancelledOrdersByPage(state, cancelledOrdersPage));
   const refundedOrders = useSelector(state => selectRefundedOrdersByPage(state, refundedOrdersPage));
+  const { checkoutStripeStatus, checkoutStatus } = useSelector(state => state.checkout);
   const {
     getOrdersTotalPage,
     getPendingOrdersTotalPage,
@@ -92,6 +96,23 @@ const OrderTabs = () => {
         console.log('None supported tab.');
     }
   }, [tab]);
+
+  useEffect(() => {
+    dispatch(resetGetOrders());
+    dispatch(resetGetPendingOrders());
+
+    dispatch(getOrders({
+      page: defaultPage,
+      pageSize: allOrdersPerPage,
+      status: defaultTab
+    }));
+
+    dispatch(getPendingOrders({
+      page: defaultPage,
+      pageSize: pendingOrdersPerPage,
+      status: STATUS.PENDING
+    }));
+  }, [checkoutStatus, checkoutStripeStatus]);
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Typography, Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -13,7 +13,9 @@ import { STATUS } from '../../../constants/orderStatus';
 import { PAYMENT_OPTIONS } from '../../../constants/payment';
 import OrderItem from './OrderItem';
 import PATHS from '../../../constants/paths';
-// import ConfirmDialogV2 from '../../common/ConfirmDialogV2';
+import ConfirmDialogV2 from '../../common/ConfirmDialogV2';
+import { cancelOrder } from '../orderSlice';
+import { unwrapResult } from '@reduxjs/toolkit';
 
 const Order = ({ order }) => {
   const {
@@ -59,6 +61,31 @@ const Order = ({ order }) => {
 
   const handleCloseConfirmOrderReceivedDialog = () => {
     setOpenConfirmOrderReceivedDialog(false);
+  };
+
+  const handleCancelOrder = async () => {
+    const actionResult = await dispatch(cancelOrder(id));
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+      enqueueSnackbar('Order cancelled successfully', { variant: 'success' });
+      setOpenConfirmCancelDialog(false);
+
+      return;
+    }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   return (
@@ -122,15 +149,14 @@ const Order = ({ order }) => {
               >
                 Cancel
               </LoadingButton>
-              {/* <ConfirmDialog
+              <ConfirmDialogV2
                 dialogTitle='Confirm cancel order'
                 dialogContent='Are you sure to cancel this order'
                 open={openConfirmCancelDialog}
                 handleClose={handleCloseConfirmCancelDialog}
-                itemId={id}
-                // action={cancelOrder}
+                onConfirm={handleCancelOrder}
                 status={cancelOrderStatus}
-              /> */}
+              />
             </>
           )}
         </Stack>

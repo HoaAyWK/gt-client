@@ -69,7 +69,7 @@ const BillingAddressForm = (props) => {
   const [countryName, setCountryName] = useState('');
 
   useEffect(() => {
-    if (getStatesStatus === ACTION_STATUS.SUCCEEDED && countries && countries.length > 0) {
+    if (getCountriesStatus === ACTION_STATUS.SUCCEEDED && countries && countries.length > 0) {
       const selectedCountry = countries.find((country) => country.id === countryId);
 
       if (selectedCountry) {
@@ -84,13 +84,6 @@ const BillingAddressForm = (props) => {
       dispatch(getStates(country));
     }
   }, [open, country]);
-
-  useEffect(() => {
-    if (open) {
-      dispatch(refreshStates());
-      dispatch(getStates(country));
-    }
-  }, [open]);
 
   useEffect(() => {
     if (getStatesStatus === ACTION_STATUS.SUCCEEDED && states.length > 0) {

@@ -10,7 +10,7 @@ class AccountApi {
   };
 
   changePassword = (data) => {
-    const url = '/account/api';
+    const url = '/api/account/change-password';
 
     return axiosClient.put(url, data);
   };
