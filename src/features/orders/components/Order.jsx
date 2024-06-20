@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Typography, Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -46,6 +46,14 @@ const Order = ({ order }) => {
         return 'error';
     }
   }, [orderStatus]);
+
+  const totalDiscount = useMemo(() => {
+    if (!order) {
+      return 0;
+    }
+
+    return order.orderItems.reduce((acc, item) => acc + item.totalDiscount, 0);
+  }, [order]);
 
   const handleOpenConfirmCancelDialog = () => {
     setOpenConfirmCancelDialog(true);
@@ -128,7 +136,7 @@ const Order = ({ order }) => {
           justifyContent: 'space-between'
         }}>
         <Typography variant='body1'>Total</Typography>
-        <Typography variant='h6' component='span' color='error'>{fCurrency(totalAmount)}</Typography>
+        <Typography variant='h6' component='span' color='error'>{fCurrency(totalAmount + totalDiscount)}</Typography>
       </Box>
       <Box
         sx={{

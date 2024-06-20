@@ -17,38 +17,70 @@ import { selectAllCategories, getCategoryTree } from "../common/categorySlice";
 import { getBanners, selectAllBanners } from "./banners/bannerSlice";
 import { Brands } from "./brands";
 
+const LAPTOP = 'Laptop';
+const SMARTPHONE = 'Smartphone';
+
 const Home = () => {
   const dispatch = useDispatch();
   const [laptopPage, setLaptopPage] = useState(1);
+  const [smartphonePage, setSmartphonePage] = useState(1);
   const [laptopPerPage, setLaptopPerPage] = useState(8);
+  const [smartphonePerPage, setSmartphonePerPage] = useState(8);
   const { getCategoryTreeStatus } = useSelector((state) => state.categories);
-  const categories = useSelector(selectAllCategories);
-  const { user } = useSelector((state) => state.auth);
   const favorites = useSelector(selectAllFavorites);
-  const { getFavoritesStatus } = useSelector((state) => state.favorites);
   const { getBannersStatus } = useSelector((state) => state.banners);
   const banners = useSelector(selectAllBanners);
   const { sendEvent, hits } = useHits();
 
-  const laptops = [];
-
-  const availableHits = useMemo(() => {
+  const laptops = useMemo(() => {
     if (hits) {
-      return hits.filter((hit) => hit.isActive === true);
+      return hits.filter((hit) => hit.isActive === true &&
+        hit.categories.lvl0 === LAPTOP);
     }
 
     return [];
   }, [hits]);
 
+  const smartphones = useMemo(() => {
+    if (hits) {
+      return hits.filter((hit) => hit.isActive === true &&
+        hit.categories.lvl0 === SMARTPHONE);
+    }
+
+    return [];
+  }, [hits]);
+
+  const laptopsToShow = useMemo(() => {
+    if (laptops) {
+      return laptops.slice(0, laptopPerPage * laptopPage);
+    }
+  }, [laptops, laptopPage, laptopPerPage]);
+
+  const smartphonesToShow = useMemo(() => {
+    if (smartphones) {
+      return smartphones.slice(0, smartphonePerPage * smartphonePage);
+    }
+  }, [smartphones, smartphonePage, smartphonePerPage]);
+
   const canShowMoreLaptop = useMemo(() => {
-    if (laptops?.products) {
-      if (laptopPage * laptopPerPage < laptops.products.length) {
+    if (laptops) {
+      if (laptopPage * laptopPerPage < laptops.length) {
         return true;
       }
     }
 
     return false;
   }, [laptopPage, laptopPerPage, laptops]);
+
+  const canShowMoreSmartphone = useMemo(() => {
+    if (smartphones) {
+      if (smartphonePage * smartphonePerPage < smartphones.length) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [smartphonePage, smartphonePerPage, smartphones]);
 
   useEffect(() => {
     if (getCategoryTreeStatus === ACTION_STATUS.IDLE) {
@@ -88,8 +120,7 @@ const Home = () => {
       <Banners banners={banners} />
       <ProductListSection
         title="Laptops"
-        // products={laptopsToShow}
-        products={availableHits}
+        products={laptopsToShow}
         favorites={favorites}
         value="Laptop"
         sendEvent={sendEvent}
@@ -110,7 +141,7 @@ const Home = () => {
         </Box>
       )}
 
-      {/* {smartphones?.products?.length > 0 && (
+      {smartphones?.length > 0 && (
         <>
           <ProductListSection
             title="Smartphones"
@@ -138,7 +169,7 @@ const Home = () => {
             </Box>
           )}
         </>
-      )} */}
+      )}
       <Brands />
     </Box>
   );

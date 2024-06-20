@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
-import { useRefinementList } from 'react-instantsearch-hooks-web';
-import { Box, Divider, Grid } from '@mui/material';
+import { useHierarchicalMenu } from 'react-instantsearch-hooks-web';
+import { Box, Divider, Grid, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { SearchRefinement, SearchResult, RangeSlider, HierarchicalMenu } from '../features/search';
@@ -12,12 +12,13 @@ import { getAlgoliaIndexSettings } from '../features/search/searchSlice';
 const SEARCH_INDEX = import.meta.env.VITE_ALGOLIA_INDEX;
 const sortByItems = [
   { label: 'Price', value: SEARCH_INDEX },
-  { label: 'Price (asc)', value: `${SEARCH_INDEX}_price_asc` },
-  { label: 'Price (desc)', value: `${SEARCH_INDEX}_price_desc` },
+  { label: 'Price ascending', value: `${SEARCH_INDEX}_price_asc` },
+  { label: 'Price descending', value: `${SEARCH_INDEX}_price_desc` },
+  { label: 'Latest products', value: `${SEARCH_INDEX}_latest_products` },
 ];
 
 const LaptopsPage = () => {
-  const { items, refine } = useRefinementList({ attribute: 'categories' });
+  const { items, refine } = useHierarchicalMenu({ attributes: ['categories.lvl0', 'categories.lvl1'] });
   const dispatch = useDispatch();
   const { indexSettings, getIndexSettingsStatus } = useSelector((state) => state.search);
 
@@ -37,7 +38,11 @@ const LaptopsPage = () => {
 
   const attributesForFaceting = useMemo(() => {
     if (indexSettings && indexSettings.attributesForFaceting) {
-      return indexSettings.attributesForFaceting.filter((facet) => !facet.includes('categories') && !facet.includes('price'))
+      return indexSettings.attributesForFaceting.filter((facet) =>
+        !facet.includes('categories') &&
+        !facet.includes('price') &&
+        !facet.includes('finalPrice') &&
+        !facet.includes('categorySlug'))
         .map((facet) => {
           if (facet.includes('.')) {
             return { label: facet.split('.')[1], facet: facet } ;
@@ -82,6 +87,7 @@ const LaptopsPage = () => {
                 <>
                   <HierarchicalMenu
                     label='Categories'
+                    exclude='Smartphone'
                     attributes={hierarchyAttributes}
                     limit={5}
                     showMore={true}
@@ -113,9 +119,11 @@ const LaptopsPage = () => {
                 mb: 2,
                 backgroundColor: (theme) => theme.palette.background.neutral,
                 p: 1,
-                borderRadius: 1
+                borderRadius: 1,
+                alignItems: 'center'
               }}
             >
+              <Typography variant='body1' color='text.primary' sx={{ mr: 2 }}>Sort by</Typography>
               <SortByPriceButtons items={sortByItems} />
             </Box>
             <SearchResult />

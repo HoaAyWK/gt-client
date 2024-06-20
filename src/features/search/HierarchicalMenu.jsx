@@ -1,23 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button, List, Stack, Typography } from '@mui/material';
 import { useHierarchicalMenu } from 'react-instantsearch-hooks-web';
 
 import { HierarchicalList } from './components';
 
 const HierarchicalMenu = (props) => {
-  const { label } = props;
+  const { label, exclude } = props;
   const [filter, setFilter] = useState('');
   const {
     items,
     refine,
-    canToggleShowMore,
-    toggleShowMore,
-    isShowingMore,
     createURL,
   } = useHierarchicalMenu(props);
+
   const handleToggle = (value) => {
     refine(value);
   };
+
+  const itemsToShow = useMemo(() => {
+    if (exclude) {
+      return items.filter((item) => item.value !== exclude);
+    }
+
+    return items;
+  }, [items, exclude]);
 
   console.log('items', items);
 
@@ -33,7 +39,7 @@ const HierarchicalMenu = (props) => {
       </Typography>
       <Stack spacing={1}>
         <HierarchicalList
-          items={items}
+          items={itemsToShow}
           onNavigate={refine}
           createURL={createURL}
         />
