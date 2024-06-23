@@ -17,6 +17,7 @@ const ProductPage = () => {
   const { getProductStatus, product } = useSelector(state => state.products);
   const { ordersByProductIdAndProductVariantId: orderedOrders } = useSelector(state => state.orders);
 
+
   useEffect(() => {
     if (!id) {
       navigate('/');

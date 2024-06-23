@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
-import { useRefinementList, useHierarchicalMenu } from 'react-instantsearch';
+import { useRefinementList } from 'react-instantsearch';
 import { Box, Breadcrumbs, Divider, Grid, Link, Stack, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link as RouterLink } from 'react-router-dom';
@@ -10,11 +10,10 @@ import {
   RangeSlider,
   HierarchicalMenu as CustomHierarchicalMenu
 } from '../features/search';
-import { LoadingPage, Page, Iconify } from '../components';
+import { LoadingPage, Page } from '../components';
 import SortByPriceButtons from '../features/search/SortByPriceButtons';
 import ACTION_STATUS from '../constants/actionStatus';
 import { getAlgoliaIndexSettings } from '../features/search/searchSlice';
-import { getCategoryBySlug } from '../features/common/categorySlice';
 
 const SEARCH_INDEX = import.meta.env.VITE_ALGOLIA_INDEX;
 const sortByItems = [
@@ -24,28 +23,13 @@ const sortByItems = [
   { label: 'Latest products', value: `${SEARCH_INDEX}_latest_products` },
 ];
 
-const CategoryPage = () => {
-  const { category } = useParams();
+const BrandPage = () => {
+  const { brand } = useParams();
   const dispatch = useDispatch();
-  const { category: categoryBySlug } = useSelector((state) => state.categories);
   const { indexSettings, getIndexSettingsStatus } = useSelector((state) => state.search);
-  const { items, refine } = useRefinementList({ attribute: 'categorySlug' });
-  const breadcrumbs = useMemo(() => {
-    const home = { label: 'Home', path: '/' };
-    if (categoryBySlug) {
-      const pathKeys = Object.keys(categoryBySlug.paths);
+  const { items, refine } = useRefinementList({ attribute: 'brand' });
 
-      return [home, ...pathKeys.map((key, index) => {
-        return {
-          label: key,
-          path: index !== (pathKeys.length - 1)
-            ? `/category/${categoryBySlug.paths[key]}`
-            : null };
-      })];
-    }
-
-    return [home];
-  }, [categoryBySlug]);
+  console.log('brand items', items);
 
   useEffect(() => {
     if (getIndexSettingsStatus === ACTION_STATUS.IDLE) {
@@ -53,13 +37,10 @@ const CategoryPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-      dispatch(getCategoryBySlug(category));
-  }, [category]);
 
   useEffect(() => {
     items.forEach((item) => {
-      if (item.value === category && !item.isRefined) {
+      if (item.value.toLocaleLowerCase() === brand.toLocaleLowerCase() && !item.isRefined) {
         refine(item.value);
       }
     })
@@ -102,21 +83,7 @@ const CategoryPage = () => {
   }
 
   return (
-    <Page title='Category' sx={{ mt: 12 }}>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ pt: 3 }}>
-        {breadcrumbs.map((bc) => (
-          bc?.path ? (
-            <Link underline='hover' key={bc.label} color='inherit' component={RouterLink} to={bc.path}>
-              <Stack spacing={0.5} direction='row'>
-              {bc.label === 'Home' && <Iconify icon='mdi:home' width={24} height={24} />}
-              <Typography variant='body1' color='text.secondary'>{bc.label}</Typography>
-              </Stack>
-            </Link>
-          ) : (
-            <Typography variant='body1' color='text.primary' key={bc.label}>{bc.label}</Typography>
-          )
-        ))}
-      </Breadcrumbs>
+    <Page title='Brand' sx={{ mt: 12 }}>
       <Grid container spacing={2} sx={{ pt: 2 }}>
           <Grid item xs={12} md={3}>
             <Box
@@ -174,4 +141,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage;
+export default BrandPage;

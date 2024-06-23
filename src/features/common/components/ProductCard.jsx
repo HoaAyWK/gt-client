@@ -37,6 +37,8 @@ const StyledRedIconButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
+const KEY_ATTRIBUTES = ["Color", "Colors", "RAM", "Ram", "Memory"];
+
 const ProductCard = ({ product, favorites, sendEvent }) => {
   const {
     objectID,
@@ -62,6 +64,19 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
   const hasDiscount = useMemo(() => {
     return finalPrice !== price;
   }, [finalPrice, price]);
+
+  const attributesToShow = useMemo(() => {
+    const result = {};
+    for (let key of KEY_ATTRIBUTES) {
+      if (attributes[key]) {
+        result[key] = attributes[key];
+      }
+    }
+
+    return result;
+  }, [attributes]);
+
+  console.log('attributesToShow', attributesToShow);
 
   const variantId = useMemo(() => {
     if (objectID === productId) {
@@ -282,7 +297,7 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
           </Typography>
         </Link>
         <Stack spacing={0} direction='row' sx={{ mb: 1, flexWrap: 'wrap' }}>
-          {Object.keys(attributes).slice(0, 3).map(key => (
+          {Object.keys(attributesToShow).map(key => (
             <Box sx={{ mr: 1, mb: 0.5 }}>
               <Box
                 key={key}

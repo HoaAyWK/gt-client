@@ -1,50 +1,42 @@
 import React, { useState, useMemo } from 'react';
-import { useRecommendations } from '@algolia/recommend-react';
-import recommend from '@algolia/recommend';
+import { useLookingSimilar } from 'react-instantsearch';
 import { Grid, Box, Button, Typography } from '@mui/material';
 import { useHits } from 'react-instantsearch';
 
 import { SearchHit } from '../../search/components';
 
-const APP_ID = import.meta.env.VITE_ALGOLIA_APP_ID;
-const API_KEY = import.meta.env.VITE_ALGOLIA_API_KEY;
-const INDEX_NAME = import.meta.env.VITE_ALGOLIA_INDEX;
-const recommendClient = recommend(APP_ID, API_KEY);
-
 const RelatedProducts = ({ currentObjectID }) => {
   const { sendEvent } = useHits();
   const [perPage, setPerPage] = useState(4);
   const [page, setPage] = useState(1);
-  const { recommendations } = useRecommendations({
-    model: 'related-products',
-    recommendClient,
-    indexName: INDEX_NAME,
-    objectIDs: [currentObjectID]
-  });
+  const { items } = useLookingSimilar({ objectIDs: [currentObjectID] });
+
+  console.log(currentObjectID)
+  console.log('looking similar products', items);
 
   const canShowMore = useMemo(() => {
-    if (recommendations?.length > 0 && recommendations.length > page * perPage) {
+    if (items?.length > 0 && items.length > page * perPage) {
       return true;
     }
 
     return false;
-  }, [recommendations, page]);
+  }, [items, page]);
 
   const productsToShow = useMemo(() => {
-    if (recommendations?.length > 0) {
-      return recommendations.slice(0, page * perPage);
+    if (items?.length > 0) {
+      return items.slice(0, page * perPage);
     }
 
     return [];
-  }, [recommendations, page]);
+  }, [items, page]);
 
   const productsLeft = useMemo(() => {
-    if (recommendations?.length > page * perPage) {
-      return recommendations.length - (page * perPage);
+    if (items?.length > page * perPage) {
+      return items.length - (page * perPage);
     }
 
     return 0;
-  }, [page, recommendations]);
+  }, [page, items]);
 
   const handleClickShowMore = () => {
     setPage(prev => prev + 1);
@@ -52,10 +44,10 @@ const RelatedProducts = ({ currentObjectID }) => {
 
   return (
     <>
-      {recommendations?.length > 0 && (
+      {items?.length > 0 && (
         <Box sx={{ mt: 4 }}>
           <Typography variant='h5' component='h1' color='text.primary'>
-            Related Products
+            Similar Products
           </Typography>
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={2} >

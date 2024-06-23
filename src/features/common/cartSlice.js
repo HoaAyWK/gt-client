@@ -10,8 +10,8 @@ const initialState = {
   addToCartStatus: ACTION_STATUS.IDLE,
   checkItemStatus: ACTION_STATUS.IDLE,
   checkAllStatus: ACTION_STATUS.IDLE,
-  removeItemStatus: ACTION_STATUS.IDLE,
   removeMultiItemsStatus: ACTION_STATUS.IDLE,
+  removeFromCartStatus: ACTION_STATUS.IDLE,
 };
 
 export const getCart = createAsyncThunk(
@@ -30,8 +30,10 @@ export const addToCart = createAsyncThunk(
 
 export const removeFromCart = createAsyncThunk(
   'cart/remove',
-  async (itemId) => {
-    return await cartApi.removeFromCart(itemId);
+  async (data) => {
+    console.log(data);
+    const { cartId, id: itemId } = data;
+    return await cartApi.removeFromCart(cartId, itemId);
   }
 );
 
@@ -46,13 +48,6 @@ export const checkAll = createAsyncThunk(
   'cart/checkAll',
   async (data) => {
     return await cartApi.checkAll(data);
-  }
-);
-
-export const removeItem = createAsyncThunk(
-  'cart/remove',
-  async (data) => {
-    return await cartApi.removeFromCart(data);
   }
 );
 
@@ -149,18 +144,6 @@ const cartSlice = createSlice({
       })
 
 
-      .addCase(removeItem.pending, (state) => {
-        state.removeItemStatus = ACTION_STATUS.LOADING;
-      })
-      .addCase(removeItem.fulfilled, (state, action) => {
-        state.removeItemStatus = ACTION_STATUS.SUCCEEDED;
-        state.cart = action.payload;
-      })
-      .addCase(removeItem.rejected, (state) => {
-        state.removeItemStatus = ACTION_STATUS.FAILED;
-      })
-
-
 
       .addCase(removeMultiItems.pending, (state) => {
         state.removeMultiItemsStatus = ACTION_STATUS.LOADING;
@@ -171,6 +154,22 @@ const cartSlice = createSlice({
       })
       .addCase(removeMultiItems.rejected, (state) => {
         state.removeMultiItemsStatus = ACTION_STATUS.FAILED;
+      })
+
+
+
+      .addCase(removeFromCart.pending, (state) => {
+        state.removeFromCartStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(removeFromCart.fulfilled, (state, action) => {
+        state.removeFromCartStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          state.cart = action.payload.data;
+        }
+      })
+      .addCase(removeFromCart.rejected, (state) => {
+        state.removeFromCartStatus = ACTION_STATUS.FAILED;
       })
   }
 });

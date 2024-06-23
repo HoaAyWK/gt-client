@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Button, List, Stack, Typography } from '@mui/material';
-import { useHierarchicalMenu } from 'react-instantsearch-hooks-web';
+import { useHierarchicalMenu } from 'react-instantsearch';
 
 import { HierarchicalList } from './components';
 

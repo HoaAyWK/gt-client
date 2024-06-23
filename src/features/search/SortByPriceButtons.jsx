@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Button, Stack, } from '@mui/material';
-import { useSortBy } from 'react-instantsearch-hooks-web';
+import { useSortBy } from 'react-instantsearch';
 
 const SortByPriceButtons = (props) => {
   const {

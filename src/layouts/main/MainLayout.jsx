@@ -1,9 +1,9 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { Container } from "@mui/material";
 import algoliaSearch from "algoliasearch/lite";
-import { InstantSearch, Configure } from "react-instantsearch-hooks-web";
+import { InstantSearch, Configure } from "react-instantsearch";
 
 import Header from "./header/Header";
 import Footer from "./footer";

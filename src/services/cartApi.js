@@ -25,10 +25,10 @@ class CartApi {
     return axiosClient.put(url, data);
   };
 
-  removeFromCart = (data) => {
-    const url = '/cart/remove-item';
+  removeFromCart = (cartId, itemId) => {
+    const url = `/api/carts/${cartId}/items/${itemId}`;
 
-    return axiosClient.put(url, data);
+    return axiosClient.delete(url);
   };
 
   removeMultiFromCart = (data) => {

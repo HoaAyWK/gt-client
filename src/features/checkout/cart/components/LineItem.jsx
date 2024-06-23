@@ -16,7 +16,6 @@ import { Iconify, QuantityControl } from '../../../../components';
 import { fCurrency } from '../../../../utils/formatNumber';
 import { useDispatch } from 'react-redux';
 import { addToCart, removeFromCart } from '../../../common/cartSlice';
-import { TYPES } from '../../../../constants/cart';
 import defaultProductImage from "../../../../assets/images/default_product_image.png";
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -28,17 +27,28 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const LineItem = ({ cartId, item }) => {
   const dispatch = useDispatch();
   const {
+    id,
     productId,
     productName,
     productVariantId,
     productAttributes,
     productImageUrl,
-    price,
+    basePrice,
+    finalPrice,
     subTotal,
     quantity,
-    discount } = item;
+    discount
+  } = item;
 
   const [itemQuantity, setItemQuantity] = useState(quantity);
+
+  const hasDiscount = useMemo(() => {
+    if (discount) {
+      return true;
+    }
+
+    return false;
+  }, [discount]);
 
   const productUrl = useMemo(() => {
     if (!productVariantId) {
@@ -59,7 +69,7 @@ const LineItem = ({ cartId, item }) => {
   };
 
   const handleClickDelete = () => {
-    dispatch(removeFromCart({ cartId, productId }));
+    dispatch(removeFromCart({ cartId, id }));
   };
 
   return (
@@ -82,7 +92,7 @@ const LineItem = ({ cartId, item }) => {
               <Typography variant='subtitle2' color='text.primary'>
                 {productName}
               </Typography>
-              <Typography variant='bocy2' color='text.secondary'>
+              <Typography variant='body2' color='text.secondary'>
                 {productAttributes}
               </Typography>
             </Stack>
@@ -90,7 +100,16 @@ const LineItem = ({ cartId, item }) => {
         </Link>
       </TableCell>
 
-      <TableCell align='right'>{fCurrency(price)}</TableCell>
+      <TableCell align='center'>
+          <Typography variant='body2'>
+            {hasDiscount && (
+              <>
+                <s>{fCurrency(basePrice)}</s>
+                &nbsp;
+              </>
+            )}
+            {fCurrency(finalPrice)}
+          </Typography></TableCell>
       <TableCell align='right'>
         <QuantityControl
           quantity={itemQuantity}
@@ -99,7 +118,7 @@ const LineItem = ({ cartId, item }) => {
           max={10}
         />
       </TableCell>
-      <TableCell align='right'>{fCurrency(subTotal)}</TableCell>
+      <TableCell align='center'>{fCurrency(subTotal)}</TableCell>
 
       <TableCell align='right'>
         <Tooltip title='Delete'>

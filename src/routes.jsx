@@ -21,6 +21,7 @@ import {
   CheckoutSuccessPage,
   CategoryPage
 } from "./pages";
+import BrandPage from "./pages/BrandPage";
 
 const AddressSettingsPage = lazy(() => import("./pages/AddressSettingsPage"));
 const AccountSettingsPage = lazy(() =>
@@ -118,6 +119,10 @@ const Router = () => {
         {
           path: "category/:category",
           element: <CategoryPage />
+        },
+        {
+          path: "brand/:brand",
+          element: <BrandPage />
         },
         {
           path: "",

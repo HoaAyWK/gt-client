@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Grid, Link, Typography } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { alpha } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { Brand } from './components';
 import { getBrands, selectAllBrands } from './brandSlice';
@@ -52,7 +53,9 @@ const Brands = () => {
       <Grid container spacing={2}>
         {brands.map(brand => (
           <Grid key={brand.id} item xs={6} sm={4} md={3}>
-            <Brand brand={brand} />
+            <Link component={RouterLink} to={`/brand/${brand.name}`} underline='none'>
+              <Brand brand={brand} />
+            </Link>
           </Grid>
         ))}
       </Grid>

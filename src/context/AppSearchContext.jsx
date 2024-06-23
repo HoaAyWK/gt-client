@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useSearchBox } from 'react-instantsearch-hooks-web';
+import { useSearchBox } from 'react-instantsearch';
 
 const AppSearchContext = React.createContext();
 export const useAppSearch = () => useContext(AppSearchContext);

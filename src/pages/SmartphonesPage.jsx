@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
-import { useHierarchicalMenu } from 'react-instantsearch-hooks-web';
+import { useHierarchicalMenu } from 'react-instantsearch';
 import { Box, Divider, Grid, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 

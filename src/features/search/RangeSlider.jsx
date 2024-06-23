@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Divider, Slider, Typography, Grid, TextField } from '@mui/material';
-import { useRange } from 'react-instantsearch-hooks-web';
+import { useRange } from 'react-instantsearch';
 import { Iconify } from '../../components';
 
 const StyledBox = styled(Box)(({ theme }) => ({

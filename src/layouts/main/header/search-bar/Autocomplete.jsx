@@ -2,7 +2,7 @@ import React, { createElement, Fragment, useEffect, useMemo, useRef, useState } 
 import { render } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
-import { useHierarchicalMenu, useSearchBox } from 'react-instantsearch-hooks';
+import { useHierarchicalMenu, useSearchBox } from 'react-instantsearch';
 import { autocomplete, getAlgoliaResults } from '@algolia/autocomplete-js';
 import { createLocalStorageRecentSearchesPlugin } from '@algolia/autocomplete-plugin-recent-searches';
 import { createQuerySuggestionsPlugin } from "@algolia/autocomplete-plugin-query-suggestions";

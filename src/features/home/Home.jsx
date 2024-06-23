@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Button } from "@mui/material";
-import { useHits } from "react-instantsearch-hooks-web";
+import { useHits } from "react-instantsearch";
 
 import Banners from "./banners";
 import ProductListSection from "./ProductListSection";

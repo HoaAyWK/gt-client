@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { Box, Grid, Pagination } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { usePagination, useHits } from "react-instantsearch-hooks-web";
+import { usePagination, useHits } from "react-instantsearch";
 
 import { SearchHit } from "./components";
 import ACTION_STATUS from "../../constants/actionStatus";

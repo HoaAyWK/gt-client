@@ -9,7 +9,7 @@ import { LoadingButton } from '@mui/lab';
 
 import { Cover, Label, Iconify } from '../../../components';
 import { fCurrency } from '../../../utils/formatNumber';
-import { Highlight } from 'react-instantsearch-hooks-web';
+import { Highlight } from 'react-instantsearch';
 import { createFavorite, deleteFavorite } from '../../common/productFavoriteSlice';
 import { addToCart } from '../../common/cartSlice';
 import { useLocalStorage } from '../../../hooks';
@@ -29,6 +29,8 @@ const StyledRedIconButton = styled(IconButton)(({ theme }) => ({
     backgroundColor: alpha(theme.palette.error.main, 0.32)
   },
 }));
+
+const KEY_ATTRIBUTES = ['Color', 'Colors', 'Ram', 'RAM', 'Memory'];
 
 const SearchHit = ({ hit, sendEvent, favorites }) => {
   const {
@@ -53,6 +55,17 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
   const hasDiscount = useMemo(() => {
     return finalPrice !== price;
   }, [finalPrice, price]);
+
+  const attributesToShow = useMemo(() => {
+    const result = {};
+    for (let key of KEY_ATTRIBUTES) {
+      if (attributes[key]) {
+        result[key] = attributes[key];
+      }
+    }
+
+    return result;
+  }, [attributes]);
 
   const variantId = useMemo(() => {
     if (objectID === productId) {
@@ -241,7 +254,7 @@ const SearchHit = ({ hit, sendEvent, favorites }) => {
           </Link>
         </Tooltip>
         <Stack spacing={0.5} direction='row' sx={{ mb: 1 }}>
-          {Object.keys(attributes).slice(0, 3).map(key => (
+          {Object.keys(attributesToShow).map(key => (
             <Box
               key={key}
               sx={{

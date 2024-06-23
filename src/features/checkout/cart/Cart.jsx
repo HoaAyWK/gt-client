@@ -22,9 +22,9 @@ import emptyCart from '../../../assets/images/empty_cart.png';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Product', align: 'left' },
-  { id: 'price', label: 'Price', align: 'right' },
+  { id: 'price', label: 'Unit Price', align: 'center' },
   { id: 'quantity', label: 'Quantity', align: 'center' },
-  { id: 'total', label: 'Total', align: 'right' },
+  { id: 'total', label: 'Total', align: 'center' },
   { id: 'action', label: '', align: 'left' },
 ];
 

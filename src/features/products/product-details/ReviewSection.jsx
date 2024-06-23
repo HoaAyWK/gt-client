@@ -62,7 +62,7 @@ const ReviewSection = ({ id, product, variant, canReview }) => {
       return variant.averageRating ? variant.averageRating.value : 0;
     }
 
-    return product.averageRating ? product.averageRating.value : 0;
+    return product?.averageRating ? product.averageRating.value : 0;
   }, [variant]);
 
   const numRatings = useMemo(() => {
@@ -70,7 +70,7 @@ const ReviewSection = ({ id, product, variant, canReview }) => {
       return variant.averageRating ? variant.averageRating.numRatings : 0;
     }
 
-    return product.averageRating ? product.averageRating.numRatings : 0;
+    return product?.averageRating ? product.averageRating.numRatings : 0;
   }, [variant]);
 
   const reviews = useMemo(() => {

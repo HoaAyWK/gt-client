@@ -1,9 +1,9 @@
-import React, { Fragment, useMemo, useState } from 'react';
-import { Box, Grid, Stack, Typography, Button, Rating } from '@mui/material';
+import React, { Fragment, useMemo, useEffect, useState } from 'react';
+import { Box, Breadcrumbs, Grid, Link, Stack, Typography, Button, Rating } from '@mui/material';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import { SyncSlider } from '../components';
 import { StyledPaper } from '../components/styles';
@@ -13,28 +13,39 @@ import { fCurrency } from '../../../utils/formatNumber';
 import { addToCart } from '../../common/cartSlice';
 import ReviewSection from './ReviewSection';
 import AttributeList from './AttributeList';
+import SimilarProducts from './SimilarProducts';
 import PATHS from '../../../constants/paths';
+import { getCategoryBySlug } from '../../common/categorySlice';
 
 const ProductDetails = (props) => {
   const { product, variant, combinableAttributes, canReview } = props;
   const navigate = useNavigate();
 
   const [selectedAttributeValue, setSelectedAttributeValue] = useState(() => {
-    if (!product.hasVariant ||
-      combinableAttributes.length === 0 ||
+    if (!product?.hasVariant ||
+      combinableAttributes?.length === 0 ||
       !variant) {
       return null;
     }
 
-    const value = combinableAttributes[0].attributeValues.find(value =>
+    const value = combinableAttributes[0]?.attributeValues.find(value =>
       value.id === variant.attributeSelection[combinableAttributes[0].id]);
 
-    return { ...value, attributeId: combinableAttributes[0].id };
+    return { ...value, attributeId: combinableAttributes[0]?.id };
   });
 
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
   const { enqueueSnackbar } = useSnackbar();
+  const { category } = useSelector(state => state.categories);
+
+  const objectID = useMemo(() => {
+    if (variant) {
+      return variant.id;
+    }
+
+    return product?.id;
+  }, [product, variant]);
 
   const selectedAttributes = useMemo(() => {
     if (variant) {
@@ -49,8 +60,24 @@ const ProductDetails = (props) => {
       return variant.price;
     }
 
-    return product.price;
+    return product?.price ?? 0;
   }, [variant]);
+
+  const finalPrice = useMemo(() => {
+    if (product && product.discount) {
+      if (product.discount.usePercentage) {
+        return price - (price * product.discount.percentage);
+      }
+
+      return price - product.discount.amount;
+    }
+
+    return price;
+  }, [product, variant]);
+
+  const hasDiscount = useMemo(() => {
+    return product?.discount !== null;
+  }, [product]);
 
   const images = useMemo(() => {
     if (variant) {
@@ -58,7 +85,7 @@ const ProductDetails = (props) => {
         variant.assignedProductImageIds.includes(image.id));
     }
 
-    return product.images;
+    return product?.images ?? [];
   }, [variant]);
 
   const stockQuantity = useMemo(() => {
@@ -66,11 +93,11 @@ const ProductDetails = (props) => {
       return variant.stockQuantity;
     }
 
-    return product.stockQuantity;
+    return product?.stockQuantity ?? 0;
   }, [variant]);
 
   const specifications = useMemo(() => {
-    return product.attributes.filter(attribute =>
+    return product?.attributes.filter(attribute =>
       !attribute.canCombine && attribute.attributeValues.length !== 0);
   }, [product]);
 
@@ -87,6 +114,30 @@ const ProductDetails = (props) => {
     }
     return product?.averageRating?.numRatings ?? 0;
   }, [variant]);
+
+  const breadcrumbs = useMemo(() => {
+    const home = { label: 'Home', path: '/' };
+    if (product && category) {
+      const pathKeys = Object.keys(category.paths);
+
+      const paths = pathKeys.map((key) => {
+        return {
+          label: key,
+          path: `/category/${category.paths[key]}`};
+      });
+
+      return [home, ...paths, { label: product.name, path: null }]
+    }
+    return [home];
+  }, [category, product]);
+
+  console.log('breadcrumbs', breadcrumbs);
+
+  useEffect(() => {
+    if (product?.category) {
+      dispatch(getCategoryBySlug(product.category.slug));
+    }
+  }, [product]);
 
   const handleIncreaseQuantity = () => {
     setQuantity(prev => prev + 1);
@@ -145,14 +196,30 @@ const ProductDetails = (props) => {
 
   return (
     <>
-      <Grid container spacing={4} sx={{ pt: 2, mt: 4 }}>
+      <Box sx={{ mt: 12 }}>
+        <Breadcrumbs aria-label="breadcrumb-product-details">
+          {breadcrumbs.map((bc) => (
+            bc?.path ? (
+              <Link underline='hover' key={bc.label} color='inherit' component={RouterLink} to={bc.path}>
+                <Stack spacing={0.5} direction='row'>
+                {bc.label === 'Home' && <Iconify icon='mdi:home' width={24} height={24} />}
+                <Typography variant='body1' color='text.secondary'>{bc.label}</Typography>
+                </Stack>
+              </Link>
+            ) : (
+              <Typography variant='body1' color='text.primary' key={bc.label}>{bc.label}</Typography>
+            )
+          ))}
+        </Breadcrumbs>
+      </Box>
+      <Grid container spacing={2} sx={{ mt: 1 }}>
         <Grid item xs={12} md={6}>
           <SyncSlider images={images} />
         </Grid>
         <Grid item xs={12} md={6}>
             <Stack spacing={1}>
               <Typography variant='h5' component='h1'>
-                {product.name}
+                {product?.name}
               </Typography>
 
                 <Stack spacing={1} direction='row'>
@@ -163,11 +230,12 @@ const ProductDetails = (props) => {
                 </Stack>
               <Stack spacing={1} direction='row' alignItems='center'>
                 <Typography variant='h3' component='span' color='error'>
-                  {fCurrency(price)}
+                  {fCurrency(finalPrice)}
                 </Typography>
-                <Typography variant='h4' component='span' color='text.secondary'>
-                  <s>{fCurrency(price)}</s>
-                </Typography>
+                {hasDiscount &&
+                  (<Typography variant='h4' component='span' color='text.secondary'>
+                    <s>{fCurrency(price)}</s>
+                  </Typography>)}
               </Stack>
             </Stack>
             <DashedDivider />
@@ -234,7 +302,7 @@ const ProductDetails = (props) => {
               Description
             </Typography>
             <ShowMoreParagraph
-              isDanger={true} content={product.description}
+              isDanger={true} content={product?.description}
               height={product?.description?.length > 200 ? '190px': 'auto'}
               canShowMore={product?.description?.length > 200 ? true: false}
             />
@@ -247,7 +315,7 @@ const ProductDetails = (props) => {
               Technical Specifications
             </Typography>
             <Stack spacing={2}>
-              {specifications.map((spec, index) => (
+              {specifications?.map((spec, index) => (
                 <Fragment key={spec.id}>
                   {index > 0 && <DashedDivider />}
                   <Box
@@ -256,7 +324,7 @@ const ProductDetails = (props) => {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <Typography variant='subtitle1' color='text.primary'>
+                    <Typography variant='subtitle1' color='text.primary' sx={{ mr: 2 }}>
                       {spec.name}
                     </Typography>
                     <Typography variant='body1' color='text.primary'>
@@ -275,6 +343,7 @@ const ProductDetails = (props) => {
         variant={variant}
         canReview={canReview}
       />
+      <SimilarProducts currentObjectID={objectID} />
       {/* <CommentSection productId={id} /> */}
     </>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, List, Stack, Typography } from '@mui/material';
-import { useRefinementList } from 'react-instantsearch-hooks-web';
+import { useRefinementList } from 'react-instantsearch';
 
 import { SearchBox } from './components';
 import RefinementItem from './RefinementItem';
