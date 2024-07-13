@@ -18,12 +18,9 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import { useSnackbar } from 'notistack';
 
 import { AvatarUploader } from '../../../../components';
-import { FormProvider, RHFDateTextField, RHFSelect, RHFTextField } from '../../../../components/hook-form';
+import { FormProvider, RHFTextField } from '../../../../components/hook-form';
 import { updateAccount } from '../../accountSlice';
 import ACTION_STATUS from '../../../../constants/actionStatus';
-import { getCountries, selectAllCountries } from '../../../common/countrySlice';
-import { getStates, selectAllStates } from '../../../common/stateSlice';
-import { get } from 'lodash';
 
 const AccountSettingsForm = ({ user }) => {
   const dispatch = useDispatch();

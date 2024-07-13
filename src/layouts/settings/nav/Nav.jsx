@@ -22,7 +22,7 @@ const Nav = () => {
       >
         <Link underline='none'>
           <StyledAccount>
-            <Avatar src={user?.avatar} />
+            <Avatar src={user?.avatarUrl} />
 
             <Box sx={{ ml: 2 }}>
               <Typography variant='subtitle2' sx={{ color: 'text.primary', mb: -0.5 }}>

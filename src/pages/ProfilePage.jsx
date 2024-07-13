@@ -10,17 +10,7 @@ const myAccount = {
   firstName: 'Sioay',
   lastName: 'Here',
   email: 'sioay@gmail.com',
-  phone: '012939218',
-  gender: 'male',
-  dateOfBirth: '01/04/2000',
-  address: '1 Vo Van Ngan, Thu Duc, Ho Chi Minh, Vietnam'
-};
-
-const ADDRESS = {
-  address: '1 Vo Van Ngan',
-  city: 'Thu Duc',
-  state: 'Ho Chi Minh',
-  country: 'Vietnam',
+  phone: '+8412939218',
 };
 
 
@@ -57,7 +47,7 @@ const ProfilePage = () => {
   return (
     <Grid container spacing={2} sx={{ mt: 12 }}>
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AccountCard account={myAccount} />
+        <AccountCard />
       </Grid>
       <Grid item xs={12} sm={6} md={8} lg={9}>
         <TabContext value={tab}>

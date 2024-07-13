@@ -45,6 +45,7 @@ const notificationSlice = createSlice({
     },
     clearNotifications: (state) => {
       notificationAdapter.removeAll(state);
+      state.getNotificationsStatus = ACTION_STATUS.IDLE;
     }
   },
   extraReducers: (builder) => {

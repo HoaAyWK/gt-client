@@ -37,10 +37,11 @@ const LineItem = ({ cartId, item }) => {
     finalPrice,
     subTotal,
     quantity,
-    discount
+    discount,
+    stockQuantity
   } = item;
 
-  const [itemQuantity, setItemQuantity] = useState(quantity);
+  // const [itemQuantity, setItemQuantity] = useState(quantity);
 
   const hasDiscount = useMemo(() => {
     if (discount) {
@@ -59,12 +60,12 @@ const LineItem = ({ cartId, item }) => {
   }, [productId, productVariantId]);
 
   const handleIncreaseQuantity = () => {
-    setItemQuantity(prev => prev + 1);
+    // setItemQuantity(prev => prev + 1);
     dispatch(addToCart({ productId, productVariantId, quantity: 1 }));
   };
 
   const handleDecreaseQuantity = () => {
-    setItemQuantity(prev => prev - 1);
+    // setItemQuantity(prev => prev - 1);
     dispatch(addToCart({ productId, productVariantId, quantity: -1 }));
   };
 
@@ -95,6 +96,9 @@ const LineItem = ({ cartId, item }) => {
               <Typography variant='body2' color='text.secondary'>
                 {productAttributes}
               </Typography>
+              <Typography variant='body2' sx={{ color: (theme) => theme.palette.warning.dark }}>
+                {`${stockQuantity} ${stockQuantity > 1 ? 'items' : 'item'} left`}
+              </Typography>
             </Stack>
           </Stack>
         </Link>
@@ -112,10 +116,10 @@ const LineItem = ({ cartId, item }) => {
           </Typography></TableCell>
       <TableCell align='right'>
         <QuantityControl
-          quantity={itemQuantity}
+          quantity={quantity}
           increaseQuantity={handleIncreaseQuantity}
           decreaseQuantity={handleDecreaseQuantity}
-          max={10}
+          max={stockQuantity}
         />
       </TableCell>
       <TableCell align='center'>{fCurrency(subTotal)}</TableCell>

@@ -20,7 +20,8 @@ export const addReview = createAsyncThunk(
 export const editProductReview = createAsyncThunk(
   'productReviews/edit',
   async (data) => {
-    return await productReviewApi.edit(data);
+    const { id, reviewId, ...rest } = data;
+    return await productApi.editReview(id, reviewId, rest);
   }
 );
 
@@ -36,9 +37,12 @@ const productReviewsSlice = createSlice({
       .addCase(addReview.pending, (state) => {
         state.addReviewStatus = ACTION_STATUS.LOADING;
       })
-      .addCase(addReview.fulfilled, (state) => {
+      .addCase(addReview.fulfilled, (state, action) => {
         state.addReviewStatus = ACTION_STATUS.SUCCEEDED;
-        // state.reviews.push(action.payload);
+
+        if (action.payload.success) {
+          state.product = action.payload.data;
+        }
       })
       .addCase(addReview.rejected, (state) => {
         state.addReviewStatus = ACTION_STATUS.FAILED;

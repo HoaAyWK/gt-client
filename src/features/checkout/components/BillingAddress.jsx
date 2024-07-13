@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
@@ -8,7 +8,7 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import BillingAddressForm from '../BillingAddressForm';
 import { updateAddress, deleteAddress } from '../../auth/authSlice';
 
-const BillingAddress = ({ item, showTitle, onSelectAddress, onClickEdit, countries, sx }) => {
+const BillingAddress = ({ item, showTitle, onSelectAddress, onClickEdit, onBackActiveStep, countries, sx }) => {
   const {
     id,
     receiverName,
@@ -24,6 +24,12 @@ const BillingAddress = ({ item, showTitle, onSelectAddress, onClickEdit, countri
   const { enqueueSnackbar } = useSnackbar();
   const [openEditAddress, setOpenEditAddress] = useState(false);
   const { updateAddressStatus, user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (!user) {
+      onBackActiveStep(0);
+    }
+  }, [user]);
 
   const handleOpenEditAddress = () => {
     setOpenEditAddress(true);
@@ -42,16 +48,25 @@ const BillingAddress = ({ item, showTitle, onSelectAddress, onClickEdit, countri
   };
 
   const handleClickDelete = async () => {
-    try {
-      const actionResult = await dispatch(deleteAddress({ customerId: user.id, id }));
-      const result = unwrapResult(actionResult);
+    const actionResult = await dispatch(deleteAddress({ customerId: user.id, id }));
+    const result = unwrapResult(actionResult);
 
-      if (result) {
-        enqueueSnackbar('Deleted successfully', { variant: 'success' });
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+    if (result.success) {
+      enqueueSnackbar('Deleted successfully', { variant: 'success' });
     }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   return (

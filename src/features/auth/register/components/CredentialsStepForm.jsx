@@ -15,7 +15,7 @@ const CredentialsStepForm = (props) => {
 
   const CredentialSchema = Yup.object().shape({
     email: Yup.string().required('Email is required.')
-    .email('Email must be a valid email address.'),
+      .email('Email must be a valid email address.'),
     password: Yup.string().required('Password is required.'),
     confirmPassword: Yup.string()
       .required('Confirm Password is required.')

@@ -9,7 +9,7 @@ import { getCurrentUserInfo } from "./features/auth/authSlice";
 
 import { MainLayout, SettingsLayout } from "./layouts";
 
-import { Login, Register } from "./features/auth";
+import { Login, Register, VerifyEmail, ForgetPassword, ResetPassword } from "./features/auth";
 
 import {
   HomePage,
@@ -159,6 +159,18 @@ const Router = () => {
           path: "sign-up",
           element: <Register />,
         },
+        {
+          path: "verify-email",
+          element: <VerifyEmail />,
+        },
+        {
+          path: "forget-password",
+          element: <ForgetPassword />,
+        },
+        {
+          path: "reset-password",
+          element: <ResetPassword />,
+        }
       ],
     },
   ]);

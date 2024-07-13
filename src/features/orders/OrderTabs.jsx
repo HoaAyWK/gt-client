@@ -15,13 +15,14 @@ import {
   selectPendingOrdersByPage,
   selectProcessingOrdersByPage,
   selectCancelledOrdersByPage,
+  selectCompletedOrdersByPage,
   selectRefundedOrdersByPage,
   resetGetOrders,
   resetGetPendingOrders,
+  getCompletedOrders,
 } from './orderSlice';
 import OrderTab from './OrderTab';
 import { STATUS } from '../../constants/orderStatus';
-import ACTION_STATUS from '../../constants/actionStatus';
 
 const PER_PAGE_OPTIONS = [5, 10, 25];
 
@@ -40,6 +41,8 @@ const OrderTabs = () => {
   const [processingOrdersPerPage, setProcessingOrdersPerPage] = useState(PER_PAGE_OPTIONS[0]);
   const [cancelledOrdersPage, setCancelledOrdersPage] = useState(defaultPage);
   const [cancelledOrdersPerPage, setCancelledOrdersPerPage] = useState(PER_PAGE_OPTIONS[0]);
+  const [completedOrdersPage, setCompletedOrdersPage] = useState(defaultPage);
+  const [completedOrdersPerPage, setCompletedOrdersPerPage] = useState(PER_PAGE_OPTIONS[0]);
   const [refundedOrdersPage, setRefundedOrdersPage] = useState(defaultPage);
   const [refundedOrdersPerPage, setRefundedOrdersPerPage] = useState(PER_PAGE_OPTIONS[0]);
   const dispatch = useDispatch();
@@ -47,6 +50,7 @@ const OrderTabs = () => {
   const pendingOrders = useSelector(state => selectPendingOrdersByPage(state, pendingOrdersPage));
   const processingOrders = useSelector(state => selectProcessingOrdersByPage(state, processingOrdersPage));
   const cancelledOrders = useSelector(state => selectCancelledOrdersByPage(state, cancelledOrdersPage));
+  const completedOrders = useSelector(state => selectCompletedOrdersByPage(state, completedOrdersPage));
   const refundedOrders = useSelector(state => selectRefundedOrdersByPage(state, refundedOrdersPage));
   const { checkoutStripeStatus, checkoutStatus } = useSelector(state => state.checkout);
   const {
@@ -54,11 +58,13 @@ const OrderTabs = () => {
     getPendingOrdersTotalPage,
     getProcessingOrdersTotalPage,
     getCancelledOrdersTotalPage,
+    getCompletedOrdersTotalPage,
     getRefundedOrdersTotalPage,
     getOrdersPages,
     getPendingOrdersPages,
     getProcessingOrdersPages,
     getCancelledOrdersPages,
+    getCompletedOrdersPages,
     getRefundedOrdersPages,
   } = useSelector(state => state.orders);
 
@@ -87,6 +93,13 @@ const OrderTabs = () => {
 
       case STATUS.CANCELLED:
         dispatch(getCancelledOrders({
+          page: defaultPage,
+          pageSize: PER_PAGE_OPTIONS[0]
+        }));
+        break;
+
+      case STATUS.COMPLETED:
+        dispatch(getCompletedOrders({
           page: defaultPage,
           pageSize: PER_PAGE_OPTIONS[0]
         }));
@@ -214,6 +227,28 @@ const OrderTabs = () => {
     }
   };
 
+  const handleCompletedOrdersPerPageChange = (event) => {
+    setCompletedOrdersPerPage(event.target.value);
+    setCompletedOrdersPage(defaultPage);
+    dispatch(getCompletedOrders({
+      page: defaultPage,
+      pageSize: event.target.value
+    }));
+  };
+
+  const handleCompletedOrdersPageChange = (event, value) => {
+    setCompletedOrdersPage(value);
+
+    const isPreviousSelectedPage = getCompletedOrdersPages.indexOf(value) > -1;
+
+    if (!isPreviousSelectedPage) {
+      dispatch(getCompletedOrders({
+        page: value,
+        pageSize: completedOrdersPerPage
+      }));
+    }
+  };
+
   const handleRefundedOrdersPerPageChange = (event) => {
     setRefundedOrdersPerPage(event.target.value);
     setRefundedOrdersPage(defaultPage);
@@ -276,6 +311,17 @@ const OrderTabs = () => {
           onPerPageChange={handleProcessingOrdersPerPageChange}
           perPageOptions={PER_PAGE_OPTIONS}
           totalPage={getProcessingOrdersTotalPage}
+        />
+      </TabPanel>
+      <TabPanel sx={{ px: 0 }} value={STATUS.COMPLETED}>
+        <OrderTab
+          orders={completedOrders}
+          page={completedOrdersPage}
+          onPageChange={handleCompletedOrdersPageChange}
+          perPage={completedOrdersPerPage}
+          onPerPageChange={handleCompletedOrdersPerPageChange}
+          perPageOptions={PER_PAGE_OPTIONS}
+          totalPage={getCompletedOrdersTotalPage}
         />
       </TabPanel>
       <TabPanel sx={{ px: 0 }} value={STATUS.CANCELLED}>

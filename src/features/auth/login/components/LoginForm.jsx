@@ -61,7 +61,7 @@ const LoginForm = ({ submit, status }) => {
           />
         </Stack>
         <Box sx={{ mt: 1 }}>
-          <Link component={RouterLink} to='/forgot-password' color='text.primary' sx={{ textAlign: 'center' }}>
+          <Link component={RouterLink} to='/forget-password' color='text.primary' sx={{ textAlign: 'center' }}>
             <Typography variant='body2'>
               Forgot your password?
             </Typography>

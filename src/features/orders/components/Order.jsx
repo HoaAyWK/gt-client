@@ -9,12 +9,11 @@ import { Label } from '../../../components';
 import { fCurrency } from '../../../utils/formatNumber';
 import { fDateTime } from '../../../utils/formatTime';
 import ACTION_STATUS from '../../../constants/actionStatus';
-import { STATUS } from '../../../constants/orderStatus';
-import { PAYMENT_OPTIONS } from '../../../constants/payment';
+import { STATUS, ORDER_STATUS_HISTORY } from '../../../constants/orderStatus';
 import OrderItem from './OrderItem';
 import PATHS from '../../../constants/paths';
 import ConfirmDialogV2 from '../../common/ConfirmDialogV2';
-import { cancelOrder } from '../orderSlice';
+import { cancelOrder, confirmOrderReceived } from '../orderSlice';
 import { unwrapResult } from '@reduxjs/toolkit';
 
 const Order = ({ order }) => {
@@ -32,7 +31,8 @@ const Order = ({ order }) => {
   const [openConfirmCancelDialog, setOpenConfirmCancelDialog] = useState(false);
   const [openConfirmOrderReceivedDialog, setOpenConfirmOrderReceivedDialog] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { cancelOrderStatus } = useSelector((state) => state.orders);
+  const { hubConnection } = useSelector((state) => state.notifications);
+  const { cancelOrderStatus, confirmOrderReceivedStatus } = useSelector((state) => state.orders);
 
   const statusColor = useMemo(() => {
     switch (orderStatus) {
@@ -53,6 +53,27 @@ const Order = ({ order }) => {
     }
 
     return order.orderItems.reduce((acc, item) => acc + item.totalDiscount, 0);
+  }, [order]);
+
+  const canCompleteOrder = useMemo(() => {
+    if (!order) {
+      return false;
+    }
+
+    let containedOrderReceived = false;
+    let containedOrderCompleted = false;
+
+    order.orderStatusHistoryTrackings.forEach((tracking) => {
+      if (tracking.status === ORDER_STATUS_HISTORY.ORDER_RECEIVED) {
+        containedOrderReceived = true;
+      }
+
+      if (tracking.status === ORDER_STATUS_HISTORY.ORDER_COMPLETED) {
+        containedOrderCompleted = true;
+      }
+    });
+
+    return containedOrderReceived && !containedOrderCompleted;
   }, [order]);
 
   const handleOpenConfirmCancelDialog = () => {
@@ -77,8 +98,49 @@ const Order = ({ order }) => {
 
     if (result.success) {
       enqueueSnackbar('Order cancelled successfully', { variant: 'success' });
-      setOpenConfirmCancelDialog(false);
 
+      if (hubConnection) {
+        try {
+          await hubConnection.invoke('NotifyAdminWhenOrderCancelled', order.id);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      handleCloseConfirmCancelDialog();
+      return;
+    }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
+  };
+
+  const handleConfirmReceived = async () => {
+    const actionResult = await dispatch(confirmOrderReceived(order.id));
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+      enqueueSnackbar('Confirmed successfully', { variant: 'success' });
+
+      if (hubConnection) {
+        try {
+          await hubConnection.invoke('NotifyAdminWhenOrderCompletedByCustomer', order.id);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      handleCloseConfirmOrderReceivedDialog();
       return;
     }
 
@@ -146,14 +208,33 @@ const Order = ({ order }) => {
         }}
       >
         <Stack spacing={2} direction='row'>
-          <Button LinkComponent={RouterLink} to={`${PATHS.USER_ORDERS}/${id}`} color='inherit' variant='outlined'>Details</Button>
-          {orderStatus === STATUS.PENDING && paymentMethod === PAYMENT_OPTIONS.CASH && (
+          {canCompleteOrder && (
+            <>
+              <LoadingButton
+                color='primary'
+                variant='outlined'
+                onClick={handleOpenConfirmOrderReceivedDialog}
+                loading={cancelOrderStatus === ACTION_STATUS.LOADING}
+              >
+                Confirm Received
+              </LoadingButton>
+              <ConfirmDialogV2
+                dialogTitle='Confirm order received'
+                dialogContent='Are you sure to confirm this order received?'
+                open={openConfirmOrderReceivedDialog}
+                handleClose={handleCloseConfirmOrderReceivedDialog}
+                onConfirm={handleConfirmReceived}
+                status={confirmOrderReceivedStatus}
+              />
+            </>
+          )}
+          {orderStatus === STATUS.PENDING && (
             <>
               <LoadingButton
                 color='error'
                 variant='outlined'
                 onClick={handleOpenConfirmCancelDialog}
-                loading={cancelOrderStatus === ACTION_STATUS.LOADING ? true : false}
+                loading={cancelOrderStatus === ACTION_STATUS.LOADING}
               >
                 Cancel
               </LoadingButton>
@@ -167,6 +248,14 @@ const Order = ({ order }) => {
               />
             </>
           )}
+          <Button
+            LinkComponent={RouterLink}
+            to={`${PATHS.USER_ORDERS}/${id}`}
+            color='inherit'
+            variant='outlined'
+          >
+            Details
+          </Button>
         </Stack>
       </Box>
     </Box>

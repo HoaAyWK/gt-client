@@ -1,14 +1,12 @@
 import React, { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Link, Stack, Typography } from '@mui/material';
-import { useDispatch } from 'react-redux';
 
 import checkout from '../../assets/images/checkout.png';
 import { runFireworks } from '../../utils/runFireworks';
+import PATHS from '../../constants/paths';
 
 const CheckoutSuccess = () => {
-  const dispatch = useDispatch();
-
   useEffect(() => {
     runFireworks();
   }, []);
@@ -39,10 +37,10 @@ const CheckoutSuccess = () => {
           <Typography variant='h6'>
             Thank you for your order!
           </Typography>
-          <Link component={RouterLink} to='/' underline='hover' textAlign='center' fontWeight='bold'>
-            View order details
+          <Link component={RouterLink} to={PATHS.USER_ORDERS} underline='hover' textAlign='center' fontWeight='bold'>
+            View orders
           </Link>
-          <Button variant='contained' LinkComponent={RouterLink} to='/' >
+          <Button variant='contained' LinkComponent={RouterLink} to={PATHS.HOME} >
             Continue shopping
           </Button>
         </Stack>

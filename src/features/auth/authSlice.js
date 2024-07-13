@@ -11,6 +11,10 @@ const initialState = {
   logoutStatus: ACTION_STATUS.IDLE,
   getCurrentUserStatus: ACTION_STATUS.IDLE,
   registerStatus: ACTION_STATUS.IDLE,
+  verifyEmailStatus: ACTION_STATUS.IDLE,
+  sendConfirmationEmailStatus: ACTION_STATUS.IDLE,
+  forgetPasswordStatus: ACTION_STATUS.IDLE,
+  resetPasswordStatus: ACTION_STATUS.IDLE,
   addAddressStatus: ACTION_STATUS.IDLE,
   updateAddressStatus: ACTION_STATUS.IDLE,
   deleteAddressStatus: ACTION_STATUS.IDLE,
@@ -48,6 +52,34 @@ export const logout = createAsyncThunk(
   'logout',
   async () => {
     return await authApi.logout();
+  }
+);
+
+export const sendConfirmationEmail = createAsyncThunk(
+  'sendConfirmationEmail',
+  async (data) => {
+    return await authApi.sendConfirmationEmail(data);
+  }
+);
+
+export const verifyEmail = createAsyncThunk(
+  'verifyEmail',
+  async (data) => {
+    return await authApi.verifyEmail(data);
+  }
+);
+
+export const forgetPassword = createAsyncThunk(
+  'forgetPassword',
+  async (data) => {
+    return await authApi.forgetPassword(data);
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  'resetPassword',
+  async (data) => {
+    return await authApi.resetPassword(data);
   }
 );
 
@@ -154,6 +186,52 @@ const authSlice = createSlice({
         state.registerStatus = ACTION_STATUS.IDLE;
         state.statusCode = null;
       })
+
+
+      .addCase(sendConfirmationEmail.pending, (state) => {
+        state.sendConfirmationEmailStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(sendConfirmationEmail.fulfilled, (state) => {
+        state.sendConfirmationEmailStatus = ACTION_STATUS.SUCCEEDED;
+      })
+      .addCase(sendConfirmationEmail.rejected, (state) => {
+        state.sendConfirmationEmailStatus = ACTION_STATUS.FAILED;
+      })
+
+
+
+      .addCase(verifyEmail.pending, (state) => {
+        state.verifyEmailStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(verifyEmail.fulfilled, (state) => {
+        state.verifyEmailStatus = ACTION_STATUS.SUCCEEDED;
+      })
+      .addCase(verifyEmail.rejected, (state) => {
+        state.verifyEmailStatus = ACTION_STATUS.FAILED;
+      })
+
+
+      .addCase(forgetPassword.pending, (state) => {
+        state.forgetPasswordStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(forgetPassword.fulfilled, (state) => {
+        state.forgetPasswordStatus = ACTION_STATUS.SUCCEEDED;
+      })
+      .addCase(forgetPassword.rejected, (state) => {
+        state.forgetPasswordStatus = ACTION_STATUS.FAILED;
+      })
+
+
+      .addCase(resetPassword.pending, (state) => {
+        state.resetPasswordStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.resetPasswordStatus = ACTION_STATUS.SUCCEEDED;
+      })
+      .addCase(resetPassword.rejected, (state) => {
+        state.resetPasswordStatus = ACTION_STATUS.FAILED;
+      })
+
 
 
       .addCase(addAddress.pending, (state) => {

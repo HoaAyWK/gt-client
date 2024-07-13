@@ -9,28 +9,28 @@ import { LoadingButton } from '@mui/lab';
 import { unwrapResult } from '@reduxjs/toolkit';
 
 import { FormProvider, RHFRating, RHFEditor, RHFTextField } from '../../../components/hook-form';
-// import { editProductReview } from './productReviewSlice';
 import ACTION_STATUS from '../../../constants/actionStatus';
+import { editReview } from '../../products/productSlice';
 
 const EditProductReviewDialog = (props) => {
-  const { dialogTitle, dialogContent, open, handleClose, review } = props;
+  const { dialogTitle, dialogContent, open, handleClose, review, variant } = props;
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const { editReviewStatus } = useSelector((state) => state.productReviews);
   const [initialContent, setInitialContent] = useState(review.content);
+  const { product, editReviewStatus } = useSelector(state => state.products);
 
   const ReviewSchema = Yup.object().shape({
-    id: Yup.string(),
-    stars: Yup.number()
-      .required('Rating is required')
-      .min(1, "Rating is required"),
+    reviewId: Yup.string(),
+    rating: Yup.number()
+      .required('Rating is required.')
+      .min(1, "Rating is required."),
     content: Yup.string()
-      .required('Content is required')
+      .required('Content is required.')
   });
 
   const defaultValues = {
-    id: review.id,
-    stars: review.stars,
+    reviewId: review.id,
+    rating: review.rating,
     content: review.content,
   };
 
@@ -42,19 +42,30 @@ const EditProductReviewDialog = (props) => {
   const { handleSubmit, reset } = methods;
 
   const onSubmit = async (data) => {
-    try {
-      const actionResult = await dispatch(editProductReview(data));
+      data.productId = product.id;
+      data.productVariantId = variant?.id;
+
+      const actionResult = await dispatch(editReview(data));
       const result = unwrapResult(actionResult);
 
-      if (result) {
-        enqueueSnackbar('Created successfully', { variant: 'success' });
+      if (result.success) {
+        enqueueSnackbar('Updated successfully', { variant: 'success' });
         // dispatch(getProductReviewsByProductId(review.productId));
         handleClose();
-        reset();
       }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
-    }
+
+      if (result.errors) {
+        const errorKeys = Object.keys(result.errors);
+        errorKeys.forEach((key) => {
+          result.errors[key].forEach(error => {
+            enqueueSnackbar(error, { variant: "error" });
+          }
+        )});
+
+        return;
+      }
+
+      enqueueSnackbar(result.error, { variant: "error" });
   };
 
   const onCancel = () => {
@@ -69,10 +80,10 @@ const EditProductReviewDialog = (props) => {
         {dialogContent && (<DialogContent>{dialogContent}</DialogContent>)}
         <Box sx={{ p: 2 }}>
           <Stack spacing={2}>
-            <RHFTextField name='id' type='hidden' sx={{ display: 'none' }} />
+            <RHFTextField name='reviewId' type='hidden' sx={{ display: 'none' }} />
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography variant='body1'>Your review about this product: &nbsp;</Typography>
-              <RHFRating name='stars' />
+              <RHFRating name='rating' />
             </Box>
             <RHFEditor name='content' label='Content' initialContent={initialContent} />
           </Stack>

@@ -96,6 +96,10 @@ const Home = () => {
     setLaptopPage((prev) => prev + 1);
   };
 
+  const handleClickShowMoreSmartphone = () => {
+    setSmartphonePage((prev) => prev + 1);
+  };
+
   if (
     getCategoryTreeStatus === ACTION_STATUS.IDLE ||
     getCategoryTreeStatus === ACTION_STATUS.LOADING ||

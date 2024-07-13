@@ -52,9 +52,9 @@ const ProductPage = () => {
       return false;
 
     return orderedOrders.some(order =>
-        order.orderStatus !== STATUS.PENDING &&
-        order.orderStatus !== STATUS.CANCELED);
-  }, [orderedOrders]);
+        order.orderStatus === STATUS.COMPLETED ||
+        order.orderStatus === STATUS.REFUNDED);
+  }, [orderedOrders, variant]);
 
   const combinableAttributes = useMemo(() => {
     if (product) {

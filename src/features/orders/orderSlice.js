@@ -31,6 +31,11 @@ const orderAdapterInitialState = orderAdapter.getInitialState({
   getCancelledOrdersPages: [],
   getCancelledOrdersPageSize: 5,
   getCancelledOrdersTotalPage: 0,
+  completedOrders: [],
+  getCompletedOrdersStatus: ACTION_STATUS.IDLE,
+  getCompletedOrdersPages: [],
+  getCompletedOrdersPageSize: 5,
+  getCompletedOrdersTotalPage: 0,
   refundedOrders: [],
   getRefundedOrdersStatus: ACTION_STATUS.IDLE,
   getRefundedOrdersPages: [],
@@ -90,6 +95,14 @@ export const getCancelledOrders = createAsyncThunk(
   async (data) => {
     const { page, pageSize } = data;
     return await orderApi.getOrders(page, pageSize, STATUS.CANCELLED);
+  }
+);
+
+export const getCompletedOrders = createAsyncThunk(
+  'orders/getCompletedOrders',
+  async (data) => {
+    const { page, pageSize } = data;
+    return await orderApi.getOrders(page, pageSize, STATUS.COMPLETED);
   }
 );
 
@@ -296,6 +309,44 @@ const orderSlice = createSlice({
       })
 
 
+      .addCase(getCompletedOrders.pending, (state) => {
+        state.getCompletedOrdersStatus = ACTION_STATUS.LOADING;
+      })
+      .addCase(getCompletedOrders.fulfilled, (state, action) => {
+        state.getCompletedOrdersStatus = ACTION_STATUS.SUCCEEDED;
+
+        if (action.payload.success) {
+          const { page, pageSize, items, totalPages } = action.payload.data;
+
+          const orders = items.map(order => ({ page, ...order }));
+
+          if (pageSize != state.getCompletedOrdersPageSize) {
+
+            state.completedOrders = orders;
+            state.getCompletedOrdersPages = [];
+            state.getCompletedOrdersPages.push(page);
+            state.getCompletedOrdersPageSize = pageSize;
+            state.getCompletedOrdersTotalPage = totalPages;
+
+            return;
+          }
+
+          const isPreviousSelectedPage = state.getCompletedOrdersPages.indexOf(page) > -1;
+
+          if (!isPreviousSelectedPage) {
+            state.getCompletedOrdersPages.push(page);
+            state.completedOrders = state.completedOrders.concat(orders);
+          }
+
+          state.getCompletedOrdersPageSize = pageSize;
+          state.getCompletedOrdersTotalPage = totalPages;
+        }
+      })
+      .addCase(getCompletedOrders.rejected, (state) => {
+        state.getCompletedOrdersStatus = ACTION_STATUS.FAILED;
+      })
+
+
       .addCase(getRefundedOrders.pending, (state) => {
         state.getRefundedOrdersStatus = ACTION_STATUS.LOADING;
       })
@@ -341,7 +392,28 @@ const orderSlice = createSlice({
         state.confirmOrderReceivedStatus = ACTION_STATUS.SUCCEEDED;
 
         if (action.payload.success) {
-          state.order = action.payload.data;
+          const order = state.processingOrders.find(order => order.id === action.payload.data.id);
+          const orderInAdapter = orderAdapter.getSelectors().selectById(state, action.payload.data.id);
+
+          if (order) {
+            state.processingOrders = state.processingOrders.filter(order => order.id !== action.payload.data.id);
+            state.completedOrders.push({
+              ...order,
+              orderStatus: STATUS.COMPLETED,
+              orderStatusHistoryTrackings: action.payload.data.orderStatusHistoryTrackings
+            });
+          }
+
+          if (orderInAdapter) {
+            orderAdapter.updateOne(state, { id: orderInAdapter.id, changes: {
+              orderStatus: STATUS.COMPLETED,
+              orderStatusHistoryTrackings: action.payload.data.orderStatusHistoryTrackings
+            }});
+          }
+
+          if (state.order?.id === action.payload.data.id) {
+            state.order = action.payload.data;
+          }
         }
       })
       .addCase(confirmOrderReceived.rejected, (state) => {
@@ -373,9 +445,19 @@ const orderSlice = createSlice({
 
         if (action.payload.success) {
           const order = state.pendingOrders.find(order => order.id === action.payload.data.id);
+          const orderInAdapter = orderAdapter.getSelectors().selectById(state, action.payload.data.id);
+
           if (order) {
             state.pendingOrders = state.pendingOrders.filter(order => order.id !== action.payload.data.id);
             state.cancelledOrders.push({ ...order, orderStatus: STATUS.CANCELLED })
+          }
+
+          if (orderInAdapter) {
+            orderAdapter.updateOne(state, { id: orderInAdapter.id, changes: { orderStatus: STATUS.CANCELLED } });
+          }
+
+          if (state.order?.id === action.payload.data.id) {
+            state.order = action.payload.data;
           }
         }
       })
@@ -418,6 +500,12 @@ export const selectProcessingOrdersByPage = createSelector(
 
 export const selectCancelledOrdersByPage = createSelector(
   state => state.orders.cancelledOrders,
+  (_, page) => page,
+  (orders, page) => orders.filter((order) => order.page === page)
+);
+
+export const selectCompletedOrdersByPage = createSelector(
+  state => state.orders.completedOrders,
   (_, page) => page,
   (orders, page) => orders.filter((order) => order.page === page)
 );

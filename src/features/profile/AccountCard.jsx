@@ -59,16 +59,11 @@ const AccountCard = () => {
             justifyContent: 'center'
           }}
         >
-          <StyledAvatar src={user?.avatar} />
+          <StyledAvatar src={user?.avatarUrl} />
         </Box>
         <StyledBoxName>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant='h6' color='text.primary' sx={{ mr: 1 }}>{`${user?.firstName} ${user?.lastName}`}</Typography>
-            {user?.gender === 'Male' ? (
-              <Iconify icon='mdi:gender-male' width={24} height={24} />
-            ) : (
-              <Iconify icon='mdi:gender-female' width={24} height={24} />
-            )}
           </Box>
           <Typography vairant='subittle2' color='text.secondary'>{user?.email}</Typography>
         </StyledBoxName>

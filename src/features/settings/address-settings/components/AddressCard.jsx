@@ -5,12 +5,15 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useSnackbar } from 'notistack';
+import { unwrapResult } from '@reduxjs/toolkit';
 
 import { Iconify, Label } from '../../../../components';
 import { updateAddress, deleteAddress } from '../../../auth/authSlice';
 import BillingAddressForm from '../../../checkout/BillingAddressForm';
 import ConfirmDialog from '../../../common/ConfirmDialog';
+import ConfirmDialogV2 from '../../../common/ConfirmDialogV2';
 
 const AddressCard = ({ address, countries }) => {
   const {
@@ -23,9 +26,11 @@ const AddressCard = ({ address, countries }) => {
     country,
   } = address;
 
+  const dispatch = useDispatch();
   const [openEditAddress, setOpenEditAddress] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const { updateAddressStatus, deleteAddressStatus } = useSelector((state) => state.auth);
+  const { updateAddressStatus, deleteAddressStatus, user } = useSelector((state) => state.auth);
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleOpenEditAddress = () => {
     setOpenEditAddress(true);
@@ -41,6 +46,32 @@ const AddressCard = ({ address, countries }) => {
 
   const handleCloseConfirmDialog = () => {
     setOpenConfirmDialog(false);
+  };
+
+  const handleClickSetAsDefault = () => {
+    dispatch(updateAddress({ ...address, isDefault: true, customerId: user.id }));
+  };
+
+  const handleClickDelete = async () => {
+    const actionResult = await dispatch(deleteAddress({ customerId: user.id, id: address.id }));
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+      enqueueSnackbar('Deleted successfully', { variant: 'success' });
+    }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   return (
@@ -79,7 +110,12 @@ const AddressCard = ({ address, countries }) => {
           </Typography>
             <Stack spacing={1} direction='row'>
               {!isDefault && (
-                <Button size='small' color='inherit' variant='outlined' >
+                <Button
+                  size='small'
+                  color='inherit'
+                  variant='outlined'
+                  onClick={handleClickSetAsDefault}
+                >
                   Set as default
                 </Button>
               )}
@@ -97,14 +133,13 @@ const AddressCard = ({ address, countries }) => {
         status={updateAddressStatus}
         countries={countries}
       />
-      <ConfirmDialog
+      <ConfirmDialogV2
         dialogTitle='Confirm delete address'
         dialogContent='Are you sure to delete this address'
         open={openConfirmDialog}
         handleClose={handleCloseConfirmDialog}
-        itemId={address.id}
-        action={deleteAddress}
         status={deleteAddressStatus}
+        onConfirm={handleClickDelete}
       />
     </>
   );

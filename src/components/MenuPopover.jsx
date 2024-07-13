@@ -36,8 +36,8 @@ const MenuPopover = ({ children, sx, ...other }) => {
         }}
         {...other}
       >
-      <ArrowStyle className="arrow" />
-          {children}
+        <ArrowStyle className="arrow" />
+        {children}
       </Popover>
     );
 };

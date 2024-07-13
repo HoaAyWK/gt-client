@@ -3,14 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Typography } from '@mui/material';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useSnackbar } from 'notistack';
+import { useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../layouts';
 import { AuthFooter } from '../components';
-import { register } from '../authSlice';
+import { register, sendConfirmationEmail } from '../authSlice';
 import MultiStepsRegisterForm from './components/MultiStepsRegisterForm';
 import { Page } from '../../../components';
-import { useNavigate } from 'react-router-dom';
-
+import PATHS from '../../../constants/paths';
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -24,7 +24,8 @@ const Register = () => {
 
     if (result.success) {
       enqueueSnackbar('Register successfully', { variant: 'success' });
-      navigate('/login');
+      dispatch(sendConfirmationEmail({ email: data.email }));
+      navigate(`${PATHS.VERIFY_EMAIL}`, { state: { email: data.email } });
       return;
     }
 

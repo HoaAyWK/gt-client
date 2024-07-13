@@ -3,11 +3,11 @@ import { Box, CircularProgress, Stack } from '@mui/material';
 
 import { ProductReview } from '../../components';
 
-const ProductReviews = ({ reviews }) => {
+const ProductReviews = ({ reviews, variant }) => {
   return (
     <Stack spacing={0}>
       {reviews.map((review) => (
-        <ProductReview key={review.id} review={review} />
+        <ProductReview key={review.id} review={review} variant={variant} />
       ))}
     </Stack>
   );

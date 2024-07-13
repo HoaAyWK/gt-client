@@ -3,7 +3,6 @@ export const STATUS = Object.freeze({
   PENDING: 'Pending',
   PROCESSING: 'Processing',
   COMPLETED: 'Completed',
-  PAID: 'Paid',
   CANCELLED: 'Cancelled',
   REFUNDED: 'Refunded',
 });

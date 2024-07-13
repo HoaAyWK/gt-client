@@ -67,7 +67,11 @@ const Checkout = () => {
     if (cart && cart.items.length === 0) {
       setActiveStep(0);
     }
-  }, [cart]);
+
+    if (addresses.length === 0 && activeStep > 0) {
+      setActiveStep(0);
+    }
+  }, [cart, addresses]);
 
   const handleNext = () => {
     setActiveStep(prevStep => prevStep + 1);
@@ -222,6 +226,7 @@ const Checkout = () => {
                 showTitle={true}
                 item={address}
                 onClickEdit={handleBack}
+                onBackActiveStep={onBackActiveStep}
               />
             )}
             {cart.items.length > 0 && (

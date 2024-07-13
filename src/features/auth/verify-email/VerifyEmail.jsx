@@ -1,29 +1,34 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { unwrapResult } from '@reduxjs/toolkit';
 
-import { LoginForm } from './components';
 import { AuthFooter } from '../components';
 import { AuthLayout } from '../layouts';
-import { login } from '../authSlice';
+import { verifyEmail } from '../authSlice';
 import { Page } from '../../../components';
+import { VerifyEmailForm } from './components';
 import PATHS from '../../../constants/paths';
 
-const Login = () => {
+const VerifyEmail = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { state } = location;
   const { enqueueSnackbar } = useSnackbar();
-  const { loginStatus, isAuthenticated } = useSelector(state => state.auth);
+  const { verifyEmailStatus } = useSelector(state => state.auth);
 
   const submit = async (data) => {
-    const actionResult = await dispatch(login(data));
+    data.email = state?.email;
+
+    const actionResult = await dispatch(verifyEmail(data));
     const result = unwrapResult(actionResult);
 
     if (result.success) {
-      enqueueSnackbar('Login successfully', { variant: 'success' });
+      enqueueSnackbar('Verify email successfully!', { variant: 'success' });
+      navigate(PATHS.LOGIN);
       return;
     }
 
@@ -32,11 +37,8 @@ const Login = () => {
       errorKeys.forEach((key) => {
         result.errors[key].forEach(error => {
           enqueueSnackbar(error, { variant: "error" });
-        })});
-
-      if (result.errors['Auth.NotConfirmedEmail']) {
-        navigate('/verify-email', { state: { email: data.email } });
-      }
+        }
+      )});
 
       return;
     }
@@ -44,23 +46,20 @@ const Login = () => {
     enqueueSnackbar(result.error, { variant: "error" });
   }
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
-    }
-  }, [isAuthenticated]);
-
   return (
     <AuthLayout>
-      <Page title='Login'>
+      <Page title='Verify email'>
         <Typography variant='h3' component='h1' align='center'>
-          Log in to EStore
+          Verify your email
         </Typography>
-        <LoginForm submit={submit} status={loginStatus} />
-        <AuthFooter action='sign in to' />
+        <VerifyEmailForm
+          submit={submit}
+          status={verifyEmailStatus}
+          email={state?.email} />
+        <AuthFooter action='using' />
       </Page>
     </AuthLayout>
   );
 };
 
-export default Login;
+export default VerifyEmail;

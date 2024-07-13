@@ -76,8 +76,6 @@ const ProductCard = ({ product, favorites, sendEvent }) => {
     return result;
   }, [attributes]);
 
-  console.log('attributesToShow', attributesToShow);
-
   const variantId = useMemo(() => {
     if (objectID === productId) {
       return null;

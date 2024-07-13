@@ -14,7 +14,7 @@ const QuantityControl = ({ quantity, increaseQuantity, decreaseQuantity, max }) 
         <Box sx={{ mx: 1, minWidth: 20, display: 'flex', justifyContent: 'center' }}>
           {quantity}
         </Box>
-        <IconButton size='small' onClick={increaseQuantity} disabled={quantity === max}>
+        <IconButton size='small' onClick={increaseQuantity} disabled={quantity >= max}>
           <Iconify icon='eva:plus-fill' width={20} height={20} />
         </IconButton>
       </StyledBox>

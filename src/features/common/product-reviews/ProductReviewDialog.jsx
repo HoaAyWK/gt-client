@@ -10,13 +10,13 @@ import { useSnackbar } from 'notistack';
 
 import ACTION_STATUS from '../../../constants/actionStatus';
 import { FormProvider, RHFEditor, RHFRating } from '../../../components/hook-form';
-import { addReview } from './productReviewSlice';
+import { addReview } from '../../products/productSlice';
 
 const ProductReviewDialog = (props) => {
   const { dialogTitle, dialogContent, open, handleClose, orderId, productId, variant } = props;
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const { addReviewStatus } = useSelector((state) => state.productReviews);
+  const { addReviewStatus } = useSelector((state) => state.products);
 
   const ReviewSchema = Yup.object().shape({
     rating: Yup.number()
@@ -97,7 +97,7 @@ const ProductReviewDialog = (props) => {
               variant='contained'
               color='primary'
               type='submit'
-              loading={addReviewStatus === ACTION_STATUS.LOADING ? true : false}
+              loading={addReviewStatus === ACTION_STATUS.LOADING}
             >
               Post Review
             </LoadingButton>

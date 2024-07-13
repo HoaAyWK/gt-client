@@ -20,6 +20,7 @@ import { getCategoryBySlug } from '../../common/categorySlice';
 const ProductDetails = (props) => {
   const { product, variant, combinableAttributes, canReview } = props;
   const navigate = useNavigate();
+  const { cart } = useSelector(state => state.cart);
 
   const [selectedAttributeValue, setSelectedAttributeValue] = useState(() => {
     if (!product?.hasVariant ||
@@ -90,11 +91,27 @@ const ProductDetails = (props) => {
 
   const stockQuantity = useMemo(() => {
     if (variant) {
-      return variant.stockQuantity;
+      const item = cart.items.find(item => item.productVariantId === variant.id);
+
+      if (item) {
+        return variant.stockQuantity - item.quantity;
+      }
+
+      return variant.stockQuantity ?? 0;
     }
 
-    return product?.stockQuantity ?? 0;
-  }, [variant]);
+    if (product) {
+      const cartItem = cart.items.find(item => item.productId === product.id);
+
+      if (cartItem) {
+        return product.stockQuantity - cartItem.quantity;
+      }
+
+      return product.stockQuantity;
+    }
+
+    return 0;
+  }, [variant, cart]);
 
   const specifications = useMemo(() => {
     return product?.attributes.filter(attribute =>
@@ -131,7 +148,6 @@ const ProductDetails = (props) => {
     return [home];
   }, [category, product]);
 
-  console.log('breadcrumbs', breadcrumbs);
 
   useEffect(() => {
     if (product?.category) {
@@ -159,39 +175,57 @@ const ProductDetails = (props) => {
   };
 
   const handleClickAddToCart = async () => {
-    try {
-      const actionResult = await dispatch(addToCart({
-        productId: product.id,
-        productVariantId: variant?.id,
-        quantity: quantity }));
-      const result = unwrapResult(actionResult);
+    const actionResult = await dispatch(addToCart({
+      productId: product?.id,
+      productVariantId: variant?.id,
+      quantity }));
 
-      if (result) {
-        enqueueSnackbar(`Added ${quantity} item to your cart`, { variant: 'success' });
-        setQuantity(1);
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+      enqueueSnackbar(`Added ${quantity} to cart successfully`, { variant: "success" });
+      return;
     }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   const handleClickBuyNow = async () => {
-    try {
-      const actionResult = await dispatch(addToCart({
-        productId: product?.id,
-        productVariantId: variant?.id,
-        quantity: quantity }));
+    const actionResult = await dispatch(addToCart({
+      productId: product?.id,
+      productVariantId: variant?.id,
+      quantity }));
+    const result = unwrapResult(actionResult);
 
-      const result = unwrapResult(actionResult);
-
-      if (result) {
-        enqueueSnackbar(`Added ${quantity} item to your cart`, { variant: 'success' });
-        setQuantity(1);
-        navigate('/checkout');
-      }
-    } catch (error) {
-      enqueueSnackbar(error.message, { variant: 'error' });
+    if (result.success) {
+      enqueueSnackbar(`Added ${quantity} to cart successfully`, { variant: "success" });
+      navigate("/checkout");
+      return;
     }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
   };
 
   return (
@@ -221,13 +255,17 @@ const ProductDetails = (props) => {
               <Typography variant='h5' component='h1'>
                 {product?.name}
               </Typography>
-
-                <Stack spacing={1} direction='row'>
-                  <Rating readOnly value={averageRating} precision={0.5} />
-                  <Typography variant='body1' color='text.secondary'>
-                    {`(${numRatings} ${numRatings > 1 ? 'reviews' : 'review'})`}
-                  </Typography>
-                </Stack>
+              {product?.shortDescription && (
+                <Typography variant='body2' color='text.secondary'>
+                  {product.shortDescription}
+                </Typography>
+              )}
+              <Stack spacing={1} direction='row'>
+                <Rating readOnly value={averageRating} precision={0.5} />
+                <Typography variant='body1' color='text.secondary'>
+                  {`(${numRatings} ${numRatings > 1 ? 'reviews' : 'review'})`}
+                </Typography>
+              </Stack>
               <Stack spacing={1} direction='row' alignItems='center'>
                 <Typography variant='h3' component='span' color='error'>
                   {fCurrency(finalPrice)}
@@ -268,6 +306,9 @@ const ProductDetails = (props) => {
                 />
               </Box>
             </Stack>
+            <Typography variant='body2' color='text.secondary'>
+              {`${stockQuantity} ${stockQuantity > 1 ? 'items' : 'item'} left`}
+            </Typography>
             <Grid container spacing={2} sx={{ mt: 4 }}>
               <Grid item xs={6}>
                 <Button
@@ -275,6 +316,7 @@ const ProductDetails = (props) => {
                   color='primary'
                   fullWidth
                   size='large'
+                  disabled={stockQuantity === 0}
                   onClick={handleClickAddToCart}
                 >
                   <Iconify icon='material-symbols:add-shopping-cart-outline-rounded' width={24} height={24} />
@@ -287,6 +329,7 @@ const ProductDetails = (props) => {
                   color='warning'
                   fullWidth
                   size='large'
+                  disabled={stockQuantity === 0}
                   onClick={handleClickBuyNow}
                 >
                   Buy Now

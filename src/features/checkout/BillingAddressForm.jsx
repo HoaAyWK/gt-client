@@ -148,7 +148,11 @@ const BillingAddressForm = (props) => {
 
     if (result.success) {
       enqueueSnackbar(`${isEdit ? 'Edited' : 'Added' } successfully!`, { variant: 'success' });
-      onClose();
+      if (!isEdit) {
+        onClose();
+      } else {
+        handleClose();
+      }
       return;
     }
 

@@ -21,6 +21,30 @@ class AuthApi {
     return axiosClient.get(url);
   };
 
+  sendConfirmationEmail = (data) => {
+    const url = `/api/auth/send-confirmation-email`;
+
+    return axiosClient.post(url, data);
+  };
+
+  verifyEmail = (data) => {
+    const url = `/api/auth/verify-email`;
+
+    return axiosClient.post(url, data);
+  };
+
+  forgetPassword = (data) => {
+    const url = '/api/auth/forget-password';
+
+    return axiosClient.post(url, data);
+  };
+
+  resetPassword = (data) => {
+    const url = '/api/auth/reset-password';
+
+    return axiosClient.post(url, data);
+  };
+
   addAddress = (id, data) => {
     const url = `/api/customers/${id}/addresses`;
 

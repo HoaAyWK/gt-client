@@ -8,7 +8,7 @@ import { fToNow } from '../../../utils/formatTime';
 import { createMarkup } from '../../../utils/sanitizeHtml';
 import { EditProductReviewDialog } from '../../common/product-reviews';
 
-const ProductReview = ({ review }) => {
+const ProductReview = ({ review, variant }) => {
   const { user } = useSelector((state) => state.auth);
   const [openReviewDialog, setOpenReviewDialog] = useState(false);
 
@@ -58,6 +58,11 @@ const ProductReview = ({ review }) => {
               <Typography variant='subtitle2' color='success.main' sx={{ ml: 0.5 }}>
                 Verified purchase
               </Typography>
+              {review.createdDateTime !== review.updatedDateTime && (
+                <Typography variant='body1' color='text.secondary' sx={{ ml: 1 }}>
+                  (edited)
+                </Typography>
+              )}
             </Box>
           </Stack>
           <Typography
@@ -85,6 +90,7 @@ const ProductReview = ({ review }) => {
           open={openReviewDialog}
           handleClose={handleCloseReviewDialog}
           review={review}
+          variant={variant}
         />
       </Grid>
     </Grid>

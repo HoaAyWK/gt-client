@@ -18,7 +18,7 @@ import { OrderItemLine, OrderTimelines } from './components';
 import { fDateTime } from '../../../utils/formatTime';
 import { fCurrency } from '../../../utils/formatNumber';
 import creditCard from '../../../assets/icons/payments/ic_visa.svg';
-import { confirmOrderReceived, getOrder } from '../orderSlice';
+import { confirmOrderReceived, getOrder, cancelOrder } from '../orderSlice';
 import ACTION_STATUS from '../../../constants/actionStatus';
 import { STATUS, ORDER_STATUS_HISTORY } from '../../../constants/orderStatus';
 import ConfirmDialogV2 from '../../common/ConfirmDialogV2';
@@ -33,11 +33,13 @@ const OrderDetails = ({ id }) => {
   const {
     order,
     getOrderStatus,
+    cancelOrderStatus,
     confirmOrderReceivedStatus
   } = useSelector(state => state.orders);
 
   const { hubConnection } = useSelector((state) => state.notifications);
   const [openConfirmReceivedDialog, setOpenConfirmReceivedDialog] = useState(false);
+  const [openConfirmCancelDialog, setOpenConfirmCancelDialog] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const totalDiscount = useMemo(() => {
@@ -75,6 +77,18 @@ const OrderDetails = ({ id }) => {
     return latestStatusTracking.status === ORDER_STATUS_HISTORY.ORDER_RECEIVED;
   }, [order]);
 
+  const canCancelOrder = useMemo(() => {
+    if (!order) {
+      return false;
+    }
+
+    if (order.orderStatus === 'Pending') {
+      return true;
+    }
+
+    return false;
+  }, [order]);
+
   useEffect(() => {
     dispatch(getOrder(id));
   }, [id]);
@@ -89,6 +103,14 @@ const OrderDetails = ({ id }) => {
 
   const handleCloseConfirmReceivedDialog = () => {
     setOpenConfirmReceivedDialog(false);
+  };
+
+  const handleOpenConfirmCancelDialog = () => {
+    setOpenConfirmCancelDialog(true);
+  };
+
+  const handleCloseConfirmCancelDialog = () => {
+    setOpenConfirmCancelDialog(false);
   };
 
   const handleConfirmReceived = async () => {
@@ -107,6 +129,39 @@ const OrderDetails = ({ id }) => {
       };
 
       handleCloseConfirmReceivedDialog();
+      return;
+    }
+
+    if (result.errors) {
+      const errorKeys = Object.keys(result.errors);
+      errorKeys.forEach((key) => {
+        result.errors[key].forEach(error => {
+          enqueueSnackbar(error, { variant: "error" });
+        }
+      )});
+
+      return;
+    }
+
+    enqueueSnackbar(result.error, { variant: "error" });
+  };
+
+  const handleCancelOrder = async () => {
+    const actionResult = await dispatch(cancelOrder(order.id));
+    const result = unwrapResult(actionResult);
+
+    if (result.success) {
+      enqueueSnackbar('Canceled successfully!', { variant: 'success' });
+
+      if (hubConnection) {
+        try {
+          await hubConnection.invoke('NotifyAdminWhenOrderCancelled', order.id);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      handleCloseConfirmCancelDialog();
       return;
     }
 
@@ -171,6 +226,16 @@ const OrderDetails = ({ id }) => {
               onClick={handleOpenConfirmReceivedDialog}
             >
               Confirm Received
+            </Button>
+          )}
+          {canCancelOrder && (
+            <Button
+              variant='outlined'
+              color='error'
+              size='small'
+              onClick={handleOpenConfirmCancelDialog}
+            >
+              Cancel Order
             </Button>
           )}
         </Stack>
@@ -311,6 +376,14 @@ const OrderDetails = ({ id }) => {
         handleClose={handleCloseConfirmReceivedDialog}
         status={confirmOrderReceivedStatus}
         onConfirm={handleConfirmReceived}
+      />
+      <ConfirmDialogV2
+        dialogTitle='Cancel Order'
+        dialogContent='Are you sure you want to cancel this order?'
+        open={openConfirmCancelDialog}
+        handleClose={handleCloseConfirmCancelDialog}
+        status={cancelOrderStatus}
+        onConfirm={handleCancelOrder}
       />
     </Box>
   );

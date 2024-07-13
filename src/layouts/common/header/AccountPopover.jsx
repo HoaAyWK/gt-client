@@ -61,7 +61,7 @@ const AccountPopover = ({ user, menuOptions }) => {
           }),
         }}
       >
-        <Avatar src={user?.avatar} />
+        <Avatar src={user?.avatarUrl} />
       </IconButton>
 
       <Popover

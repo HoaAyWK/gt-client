@@ -19,6 +19,12 @@ class ProductApi {
     return axiosClient.post(url, data);
   };
 
+  editReview = (id, reviewId, data) => {
+    const url = `api/products/${id}/reviews/${reviewId}`;
+
+    return axiosClient.put(url, data);
+  };
+
   create = (data) => {
     const url = '/products';
 

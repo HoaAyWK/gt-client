@@ -54,15 +54,15 @@ import discuss from '../../../assets/images/discuss.png';
 // ];
 
 const ReviewSection = ({ id, product, variant, canReview }) => {
-  const dispatch = useDispatch();
   const [openReview, setOpenReview] = useState(false);
 
   const averageRating = useMemo(() => {
     if (variant) {
-      return variant.averageRating ? variant.averageRating.value : 0;
+      const number = variant.averageRating ? variant.averageRating.value : 0;
+      return Number.isInteger(number) ? number : number.toFixed(1);
     }
-
-    return product?.averageRating ? product.averageRating.value : 0;
+    const number = product?.averageRating ? product.averageRating.value : 0;
+    return Number.isInteger(number) ? number : (number).toFixed(1);
   }, [variant]);
 
   const numRatings = useMemo(() => {
@@ -126,7 +126,7 @@ const ReviewSection = ({ id, product, variant, canReview }) => {
       sx={{ width: '100%', mt: 4, mb: 8 }}
     >
       <StyledPaper>
-        {averageRating > 0 && (
+        {averageRating >= 0 && (
           <Grid container spacing={2}
             sx={{
               borderBottom: (theme) => `1px dashed ${theme.palette.divider}`,
@@ -239,7 +239,7 @@ const ReviewSection = ({ id, product, variant, canReview }) => {
               )
             ) : (
               <>
-                <ProductReviews reviews={reviews} />
+                <ProductReviews reviews={reviews} variant={variant} />
               </>
             )}
         </Box>
